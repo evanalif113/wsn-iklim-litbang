@@ -6,13 +6,14 @@
 #include "rahasia.h"
 
 // Wi-Fi credentials
-const char* ssid = RAHASIA_SSID;   // your network SSID (name)
-const char* password = RAHASIA_PASS;   // your network password
+const char* ssid = RAHASIA_SSID;   
+const char* password = RAHASIA_PASS;   
 
 WiFiClient client;
 
-unsigned long myChannelNumber = RAHASIA_CH_ID;  // your ThingSpeak channel number
-const char * myWriteAPIKey = RAHASIA_WRITE_APIKEY;  // your ThingSpeak Write API Key
+
+unsigned long myChannelNumber = RAHASIA_CH_ID;  
+const char * myWriteAPIKey = RAHASIA_WRITE_APIKEY;  
 
 // Timer variables
 unsigned long lastTime = 0;
