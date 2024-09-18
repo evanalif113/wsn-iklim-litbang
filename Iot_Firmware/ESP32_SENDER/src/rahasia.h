@@ -1,8 +1,7 @@
-// Use this file to store all of the private credentials 
-// and connection details
+//Gunakan untuk menyimpan informasi rahasia seperti SSID dan Password
 
-#define SECRET_SSID "MySSID"		// replace MySSID with your WiFi network name
-#define SECRET_PASS "MyPassword"	// replace MyPassword with your WiFi password
+#define RAHASIA_SSID "MySSID"		//Isikan dengan SSID
+#define RAHASIA_PASS "MyPassword"	//Isikan dengan Password
 
-#define SECRET_CH_ID 000000			// replace 0000000 with your channel number
-#define SECRET_WRITE_APIKEY "XYZ"   // replace XYZ with your channel write API Key
+#define RAHASIA_CH_ID 000000		//ISikan dengan Channel ID	
+#define RAHASIA_WRITE_APIKEY "XYZ"  //Isikan dengan Write API Key

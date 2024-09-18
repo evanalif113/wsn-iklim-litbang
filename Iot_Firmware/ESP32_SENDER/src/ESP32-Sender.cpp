@@ -3,15 +3,16 @@
 #include <Adafruit_SHT4x.h>
 #include <Adafruit_BMP280.h>
 #include <math.h>
+#include "rahasia.h"
 
 // Wi-Fi credentials
-const char* ssid = "REPLACE_WITH_YOUR_SSID";   // your network SSID (name)
-const char* password = "REPLACE_WITH_YOUR_PASSWORD";   // your network password
+const char* ssid = RAHASIA_SSID;   // your network SSID (name)
+const char* password = RAHASIA_PASS;   // your network password
 
 WiFiClient client;
 
-unsigned long myChannelNumber = 1;  // your ThingSpeak channel number
-const char * myWriteAPIKey = "XXXXXXXXXXXXXXXX";  // your ThingSpeak Write API Key
+unsigned long myChannelNumber = RAHASIA_CH_ID;  // your ThingSpeak channel number
+const char * myWriteAPIKey = RAHASIA_WRITE_APIKEY;  // your ThingSpeak Write API Key
 
 // Timer variables
 unsigned long lastTime = 0;
