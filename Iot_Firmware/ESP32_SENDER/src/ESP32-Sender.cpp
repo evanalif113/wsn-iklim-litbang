@@ -18,6 +18,9 @@ const char * myWriteAPIKey = RAHASIA_WRITE_APIKEY;
 unsigned long lastTime = 0;
 unsigned long timerDelay = 30000;  // 30 seconds interval
 
+//LED indicator
+int ledPin = 2; // GPIO 2
+
 // Create sensor objects
 Adafruit_SHT4x sht4 = Adafruit_SHT4x();
 Adafruit_BMP280 bmp; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
@@ -58,12 +61,13 @@ void setup() {
   // Initialize Wi-Fi and ThingSpeak
   WiFi.mode(WIFI_STA);
   ThingSpeak.begin(client);
+  pinMode(ledPin, OUTPUT);
 }
 
 void loop() {
   // Only run once every 30 seconds
   if ((millis() - lastTime) > timerDelay) {
-
+    digitalWrite(ledPin, HIGH);
     // Connect or reconnect to WiFi
     if(WiFi.status() != WL_CONNECTED){
       Serial.print("Attempting to connect");
@@ -113,5 +117,6 @@ void loop() {
 
     // Update the last time the data was sent
     lastTime = millis();
+    digitalWrite(ledPin, LOW);
   }
 }
