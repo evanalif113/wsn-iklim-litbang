@@ -64,3 +64,4 @@ node_modules/
 
 # dotenv environment variables file
 .env
+Iot_Firmware/ESP32_SENDER/src/rahasia.h
