@@ -11,7 +11,6 @@ const char* password = RAHASIA_PASS;
 
 WiFiClient client;
 
-
 unsigned long myChannelNumber = RAHASIA_CH_ID;  
 const char * myWriteAPIKey = RAHASIA_WRITE_APIKEY;  
 
