@@ -29,8 +29,8 @@ int ledPin = 2; // GPIO 2
 Adafruit_SHT4x sht4 = Adafruit_SHT4x();
 Adafruit_BMP280 bmp; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
 
-// Initialize the LCD
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+// Initialize the LCD with 20 columns and 4 rows
+LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // Function to calculate dew point
 float calculateDewPoint(float temperature, float humidity) {
@@ -72,8 +72,6 @@ void setup() {
   // Initialize LCD
   lcd.init();
   lcd.backlight();
-  lcd.setCursor(0, 0);
-  lcd.print("Initializing...");
 }
 
 void loop() {
@@ -84,18 +82,12 @@ void loop() {
     // Connect or reconnect to WiFi
     if(WiFi.status() != WL_CONNECTED){
       Serial.print("Attempting to connect");
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Connecting WiFi...");
       while(WiFi.status() != WL_CONNECTED){
         WiFi.begin(ssid, password);
         delay(5000);
         Serial.print(".");
       } 
       Serial.println("\nConnected.");
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("WiFi Connected!");
     }
 
     // Get data from SHT40 sensor (temperature and humidity)
@@ -120,20 +112,16 @@ void loop() {
     Serial.print("Pressure (BMP280, hPa): ");
     Serial.println(pressureBMP280);
 
-    // Print data to LCD
+    // Display sensor data on 20x4 LCD
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("T: " + String(temperatureSHT40) + (char)223 + "C");
+    lcd.print("Temp: " + String(temperatureSHT40, 1) + (char)223 + "C");
     lcd.setCursor(0, 1);
-    lcd.print("H: " + String(humiditySHT40) + "%");
-    delay(2000);  // Display for 2 seconds
-
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("P: " + String(pressureBMP280) + "hPa");
-    lcd.setCursor(0, 1);
-    lcd.print("DP: " + String(dewPoint) + (char)223 + "C");
-    delay(2000);  // Display for 2 seconds
+    lcd.print("Humi: " + String(humiditySHT40, 1) + "%");
+    lcd.setCursor(0, 2);
+    lcd.print("Pres: " + String(pressureBMP280, 1) + "hPa");
+    lcd.setCursor(0, 3);
+    lcd.print("DewP: " + String(dewPoint, 1) + (char)223 + "C");
 
     // Send data to ThingSpeak using HTTP
     if (WiFi.status() == WL_CONNECTED) {
@@ -149,14 +137,8 @@ void loop() {
       
       if (httpResponseCode > 0) {
         Serial.println("Data sent to ThingSpeak successfully.");
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("Update success!");
       } else {
         Serial.println("Error sending data to ThingSpeak.");
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("Update failed!");
       }
       
       http.end();
