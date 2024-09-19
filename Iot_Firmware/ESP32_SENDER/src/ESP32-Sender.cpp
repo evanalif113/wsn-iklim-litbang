@@ -1,5 +1,5 @@
 #include <WiFi.h>
-#include "ThingSpeak.h"
+#include <HTTPClient.h>
 #include <Adafruit_SHT4x.h>
 #include <Adafruit_BMP280.h>
 #include <math.h>
@@ -9,8 +9,6 @@
 const char* ssid = RAHASIA_SSID;   
 const char* password = RAHASIA_PASS;   
 
-WiFiClient client;
-
 unsigned long myChannelNumber = RAHASIA_CH_ID;  
 const char * myWriteAPIKey = RAHASIA_WRITE_APIKEY;  
 
@@ -18,7 +16,7 @@ const char * myWriteAPIKey = RAHASIA_WRITE_APIKEY;
 unsigned long lastTime = 0;
 unsigned long timerDelay = 30000;  // 30 seconds interval
 
-//LED indicator
+// LED indicator
 int ledPin = 2; // GPIO 2
 
 // Create sensor objects
@@ -58,9 +56,18 @@ void setup() {
                   Adafruit_BMP280::FILTER_X16,
                   Adafruit_BMP280::STANDBY_MS_500);
   
-  // Initialize Wi-Fi and ThingSpeak
+  // Initialize Wi-Fi
   WiFi.mode(WIFI_STA);
-  ThingSpeak.begin(client);
+  WiFi.begin(ssid, password);
+
+  // Wait for Wi-Fi to connect
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi");
+
+  // Initialize the LED pin
   pinMode(ledPin, OUTPUT);
 }
 
@@ -68,15 +75,15 @@ void loop() {
   // Only run once every 30 seconds
   if ((millis() - lastTime) > timerDelay) {
     digitalWrite(ledPin, HIGH);
-    // Connect or reconnect to WiFi
-    if(WiFi.status() != WL_CONNECTED){
-      Serial.print("Attempting to connect");
-      while(WiFi.status() != WL_CONNECTED){
+
+    // Check Wi-Fi connection
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("WiFi not connected. Reconnecting...");
+      while (WiFi.status() != WL_CONNECTED) {
         WiFi.begin(ssid, password);
-        delay(5000);
-        Serial.print(".");
-      } 
-      Serial.println("\nConnected.");
+        delay(1000);
+      }
+      Serial.println("WiFi reconnected.");
     }
 
     // Get data from SHT40 sensor (temperature and humidity)
@@ -103,16 +110,32 @@ void loop() {
     Serial.print("Pressure (BMP280, hPa): ");
     Serial.println(pressureBMP280);
 
-    // Send data to ThingSpeak
-    int x = ThingSpeak.writeField(myChannelNumber, 1, temperatureSHT40, myWriteAPIKey);  // Field 1: Temperature from SHT40
-    int y = ThingSpeak.writeField(myChannelNumber, 2, humiditySHT40, myWriteAPIKey);     // Field 2: Humidity from SHT40
-    int z = ThingSpeak.writeField(myChannelNumber, 3, pressureBMP280, myWriteAPIKey);    // Field 3: Air Pressure from BMP280
-    int w = ThingSpeak.writeField(myChannelNumber, 4, dewPoint, myWriteAPIKey);          // Field 4: Dew Point
+    // Send data to ThingSpeak using HTTPClient
+    if (WiFi.status() == WL_CONNECTED) {
+      HTTPClient http;
 
-    if (x == 200 && y == 200 && z == 200 && w == 200) {
-      Serial.println("Channel update successful.");
+      String url = "http://api.thingspeak.com/update?api_key=" + String(myWriteAPIKey) +
+                   "&field1=" + String(temperatureSHT40) +
+                   "&field2=" + String(humiditySHT40) +
+                   "&field3=" + String(pressureBMP280) +
+                   "&field4=" + String(dewPoint);
+
+      http.begin(url); // Specify the URL
+      int httpResponseCode = http.GET(); // Make the request
+
+      // Check the returning code
+      if (httpResponseCode > 0) {
+        String response = http.getString();  // Get the response to the request
+        Serial.println("HTTP Response code: " + String(httpResponseCode));
+        Serial.println("ThingSpeak Response: " + response);
+      } else {
+        Serial.println("Error on HTTP request: " + String(httpResponseCode));
+      }
+
+      // Free resources
+      http.end();
     } else {
-      Serial.println("Problem updating channel. HTTP error code: " + String(x) + " " + String(y) + " " + String(z) + " " + String(w));
+      Serial.println("WiFi Disconnected");
     }
 
     // Update the last time the data was sent
