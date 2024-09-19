@@ -2,6 +2,7 @@
 #include <HTTPClient.h>
 #include <Adafruit_SHT4x.h>
 #include <Adafruit_BMP280.h>
+#include <Adafruit_MAX1704X.h>
 #include <LiquidCrystal_I2C.h>
 #include <math.h>
 #include "rahasia.h"
@@ -28,6 +29,7 @@ int ledPin = 2; // GPIO 2
 // Create sensor objects
 Adafruit_SHT4x sht4 = Adafruit_SHT4x();
 Adafruit_BMP280 bmp; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
+Adafruit_MAX17048 max; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
 
 // Initialize the LCD with 20 columns and 4 rows
 LiquidCrystal_I2C lcd(0x27, 20, 4);
@@ -65,6 +67,12 @@ void setup() {
                   Adafruit_BMP280::FILTER_X16,
                   Adafruit_BMP280::STANDBY_MS_500);
   
+  if (!max.begin()) {
+    Serial.println("Couldn't find MAX17048 sensor! Check wiring.");
+    while(1)
+  }
+  Serial.println("Found MAX17048 sensor!");
+
   // Initialize Wi-Fi
   WiFi.mode(WIFI_STA);
   pinMode(ledPin, OUTPUT);
@@ -93,33 +101,34 @@ void loop() {
     // Get data from SHT40 sensor (temperature and humidity)
     sensors_event_t humidity, temp;
     sht4.getEvent(&humidity, &temp);
-    float temperatureSHT40 = temp.temperature;  // Temperature in ºC
-    float humiditySHT40 = humidity.relative_humidity;  // Humidity in %
+    float tempe = temp.temperature;  // Temperature in ºC
+    float humid = humidity.relative_humidity;  // Humidity in %
 
     // Calculate dew point
-    float dewPoint = calculateDewPoint(temperatureSHT40, humiditySHT40);
+    float dewPoint = calculateDewPoint(tempe, humid);
 
     // Get data from BMP280 sensor (air pressure)
-    float pressureBMP280 = bmp.readPressure() / 100.0F;  // Pressure in hPa
+    float pressure = bmp.readPressure() / 100.0F;  // Pressure in hPa
+    float volt = max.readVoltage();
 
     // Print the data to Serial monitor
     Serial.print("Temperature (SHT40, ºC): ");
-    Serial.println(temperatureSHT40);
+    Serial.println(tempe);
     Serial.print("Humidity (SHT40, %): ");
-    Serial.println(humiditySHT40);
+    Serial.println(humid);
     Serial.print("Dew Point (ºC): ");
     Serial.println(dewPoint);
     Serial.print("Pressure (BMP280, hPa): ");
-    Serial.println(pressureBMP280);
+    Serial.println(pressure);
 
     // Display sensor data on 20x4 LCD
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.print("Temp: " + String(temperatureSHT40, 1) + (char)223 + "C");
+    lcd.print("Temp: " + String(tempe, 1) + (char)223 + "C");
     lcd.setCursor(0, 1);
-    lcd.print("Humi: " + String(humiditySHT40, 1) + "%");
+    lcd.print("Humi: " + String(humid, 1) + "%");
     lcd.setCursor(0, 2);
-    lcd.print("Pres: " + String(pressureBMP280, 1) + "hPa");
+    lcd.print("Pres: " + String(pressure, 1) + "hPa");
     lcd.setCursor(0, 3);
     lcd.print("DewP: " + String(dewPoint, 1) + (char)223 + "C");
 
@@ -127,10 +136,11 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) {
       String serverPath = server;
       serverPath += "?api_key=" + String(myWriteAPIKey);
-      serverPath += "&field1=" + String(temperatureSHT40);
-      serverPath += "&field2=" + String(humiditySHT40);
-      serverPath += "&field3=" + String(pressureBMP280);
+      serverPath += "&field1=" + String(temp);
+      serverPath += "&field2=" + String(humid);
+      serverPath += "&field3=" + String(pressure);
       serverPath += "&field4=" + String(dewPoint);
+      serverPath += "&field8=" + String(volt);
 
       http.begin(client, serverPath.c_str());
       int httpResponseCode = http.GET();
