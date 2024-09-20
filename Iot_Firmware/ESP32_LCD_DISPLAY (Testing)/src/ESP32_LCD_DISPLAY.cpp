@@ -29,7 +29,8 @@ int ledPin = 2; // GPIO 2
 // Create sensor objects
 Adafruit_SHT4x sht4 = Adafruit_SHT4x();
 Adafruit_BMP280 bmp; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
-Adafruit_MAX17048 max; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
+
+Adafruit_MAX17048 maxWin; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
 
 // Initialize the LCD with 20 columns and 4 rows
 LiquidCrystal_I2C lcd(0x27, 20, 4);
@@ -67,9 +68,9 @@ void setup() {
                   Adafruit_BMP280::FILTER_X16,
                   Adafruit_BMP280::STANDBY_MS_500);
   
-  if (!max.begin()) {
+  if (!maxWin.begin()) {
     Serial.println("Couldn't find MAX17048 sensor! Check wiring.");
-    while(1)
+    while(1);
   }
   Serial.println("Found MAX17048 sensor!");
 
@@ -109,7 +110,7 @@ void loop() {
 
     // Get data from BMP280 sensor (air pressure)
     float pressure = bmp.readPressure() / 100.0F;  // Pressure in hPa
-    float volt = max.readVoltage();
+    float volt = maxWin.cellVoltage();
 
     // Print the data to Serial monitor
     Serial.print("Temperature (SHT40, ºC): ");
@@ -136,7 +137,7 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) {
       String serverPath = server;
       serverPath += "?api_key=" + String(myWriteAPIKey);
-      serverPath += "&field1=" + String(temp);
+      serverPath += "&field1=" + String(tempe);
       serverPath += "&field2=" + String(humid);
       serverPath += "&field3=" + String(pressure);
       serverPath += "&field4=" + String(dewPoint);
