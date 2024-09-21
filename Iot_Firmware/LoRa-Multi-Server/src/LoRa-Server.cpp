@@ -204,8 +204,8 @@ const char* windy_ca= \
       serverPath += "&mbar=" + String(pres); //tekanan (hPa)
       serverPath += "&dewpoint=" + String(dew); //titik embun (Celcius)
       serverPath += "&wind=" + String(5); //kecepatan angin (m/s)
-      //serverPath += "&winddir=" + String(0); //arah angin (derajat)
-      //serverPath += "&rain=" + String(0); //curah hujan (mm) tiap jam
+      serverPath += "&winddir=" + String(0); //arah angin (derajat)
+      serverPath += "&rain=" + String(0); //curah hujan (mm) tiap jam
       serverPath += "&station=0";
       serverPath += "&name=Jerukagung_Meteorologi";
       https.addHeader("Content-Type", "text/plain");
