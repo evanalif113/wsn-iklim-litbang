@@ -1,6 +1,7 @@
 # Dashboard Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan
-
+![Alt text](/Front_End/public/img/icon.png "LOGO")
 Selamat datang di **Dashboard Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan**! Proyek ini berfokus pada pengamatan iklim secara real-time melalui jaringan sensor yang terhubung, bertujuan untuk mendukung penelitian dan pengembangan terkait iklim dan lingkungan.
+
 
 ## Domain
 Akses dashboard di: [https://database-sensor-iklim-litbang.web.app/](https://database-sensor-iklim-litbang.web.app/)
@@ -15,7 +16,7 @@ Akses dashboard di: [https://database-sensor-iklim-litbang.web.app/](https://dat
 - **Firebase**: Digunakan sebagai backend untuk autentikasi, basis data real-time, dan hosting.
 - **ThingSpeak**: Platform IoT untuk penyimpanan dan analisis data sensor.
 - **HTML/CSS/JavaScript**: Frontend untuk antarmuka pengguna dan visualisasi data.
-- **Chart.js**: Untuk menampilkan grafik dinamis dari data iklim.
+- **Highchart.js**: Untuk menampilkan grafik dinamis dari data iklim.
 - **API REST**: Mengambil data dari sensor yang terhubung melalui ThingSpeak.
 
 ## Cara Menggunakan
