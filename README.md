@@ -1,4 +1,4 @@
-# Pnelitian Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan
+# Penelitian Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan
 [![License: MIT LICENSE](https://img.shields.io/badge/License-MIT%20License-orange.svg)](https://opensource.org/license/mit) 
 
 Proyek ini berfokus pada pengamatan iklim secara real-time melalui jaringan sensor yang terhubung, bertujuan untuk mendukung penelitian dan pengembangan terkait iklim dan lingkungan.
