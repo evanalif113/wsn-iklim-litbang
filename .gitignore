@@ -66,3 +66,9 @@ node_modules/
 .env
 Iot_Firmware/ESP32_SENDER/src/rahasia.h
 Iot_Firmware/LoRa-Gateway/src/rahasia.h
+
+# platform IO dependensi
+.pio
+
+#vscode dependensi
+.vscode
