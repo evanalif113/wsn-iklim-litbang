@@ -16,6 +16,7 @@
 //#include <TinyGPS++.h>
 #include <SPI.h>
 #include <LoRa.h>
+#include <NTPClient.h>
 #include "time.h"
 //#include <BlynkSimpleEsp32.h>
 
