@@ -1,7 +1,6 @@
-# Dashboard Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan
+# PEnelitian Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan
 
-Selamat datang di **Dashboard Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan**! Proyek ini berfokus pada pengamatan iklim secara real-time melalui jaringan sensor yang terhubung, bertujuan untuk mendukung penelitian dan pengembangan terkait iklim dan lingkungan.
-
+Proyek ini berfokus pada pengamatan iklim secara real-time melalui jaringan sensor yang terhubung, bertujuan untuk mendukung penelitian dan pengembangan terkait iklim dan lingkungan.
 
 ## Domain
 Akses dashboard di: [https://database-sensor-iklim-litbang.web.app/](https://database-sensor-iklim-litbang.web.app/)
@@ -35,3 +34,11 @@ Proyek ini dikembangkan oleh **UKM Penelitian dan Pengembangan** dalam rangka me
 
 ## Lisensi
 Proyek ini dilisensikan di bawah lisensi MIT. Silakan lihat file `LICENSE` untuk informasi lebih lanjut.
+
+## Kontak
+# Connect with Us
+
+[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/ppkormawa.ukmlitbang.upb)
+[![Facebook](https://img.shields.io/badge/Facebook-1877F2?style=for-the-badge&logo=facebook&logoColor=white)](https://www.facebook.com/yourusername)
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ppkormawalitbang01@gmail.com)
+
