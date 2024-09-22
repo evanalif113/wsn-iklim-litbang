@@ -3,7 +3,7 @@
 Proyek ini berfokus pada pengamatan iklim secara real-time melalui jaringan sensor yang terhubung, bertujuan untuk mendukung penelitian dan pengembangan terkait iklim dan lingkungan.
 
 ## Domain
-Akses dashboard di: [https://database-sensor-iklim-litbang.web.app/](https://database-sensor-iklim-litbang.web.app/)
+Akses dashboard di: [![Website](https://img.shields.io/badge/Website-Dashboard%20Stasiun%20Iklim-blue?style=flat-square&logo=google-chrome)](https://database-sensor-iklim-litbang.web.app/)
 
 ## Fitur Utama
 - **Pengamatan Real-Time**: Menampilkan data iklim (suhu, kelembapan, tekanan udara, embun, dll.) dari jaringan sensor yang tersebar.
