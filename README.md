@@ -1,4 +1,4 @@
-# PEnelitian Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan
+# Pnelitian Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan
 
 Proyek ini berfokus pada pengamatan iklim secara real-time melalui jaringan sensor yang terhubung, bertujuan untuk mendukung penelitian dan pengembangan terkait iklim dan lingkungan.
 
