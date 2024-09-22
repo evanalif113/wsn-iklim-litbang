@@ -14,6 +14,8 @@ Akses dashboard di: [![Website](https://img.shields.io/badge/Website-Dashboard%2
 ## Teknologi yang Digunakan
 - **Firebase**: Digunakan sebagai backend untuk autentikasi, basis data real-time, dan hosting.
 - **ThingSpeak**: Platform IoT untuk penyimpanan dan analisis data sensor.
+- **Weathercloud**: Platform berbagi data cuaca.
+- **Windy**: Platform berbagi data cuaca berbasis komunitas.
 - **HTML/CSS/JavaScript**: Frontend untuk antarmuka pengguna dan visualisasi data.
 - **Highchart.js**: Untuk menampilkan grafik dinamis dari data iklim.
 - **API REST**: Mengambil data dari sensor yang terhubung melalui ThingSpeak.
