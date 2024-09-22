@@ -2,7 +2,7 @@
 [![License: MIT LICENSE](https://img.shields.io/badge/License-MIT%20License-orange.svg)](https://opensource.org/license/mit) 
 
 Proyek ini berfokus pada pengamatan iklim secara real-time melalui jaringan sensor yang terhubung, bertujuan untuk mendukung penelitian dan pengembangan terkait iklim dan lingkungan.
-
+![](Doc/IMG20231014184921.jpg)
 ## Domain
 Akses dashboard di: [![Website](https://img.shields.io/badge/Website-Dashboard%20Stasiun%20Iklim-blue?style=flat-square&logo=google-chrome)](https://database-sensor-iklim-litbang.web.app/)
 
