@@ -16,8 +16,9 @@
 //#include <TinyGPS++.h>
 #include <SPI.h>
 #include <LoRa.h>
-#include <NTPClient.h>
+#include <ArduinoJson.h>
 #include "time.h"
+
 //#include <BlynkSimpleEsp32.h>
 
 #define RXD2 25
@@ -51,9 +52,7 @@ String deviceApi;
 #define USER_PASSWORD "seisca"
 #define DATABASE_URL  "https://staklimjerukagung-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
-const char* ssid      = "Server";
-const char* pass      = "risetiklim";
-const char* ntpServer = "time.google.com";
+const char* ntpServer = "time.google.com";  //NTP server
 
 
 // Define Firebase objects
@@ -96,7 +95,7 @@ float windir;
 float windspeed;
 float rain;
 
-#include <ArduinoJson.h>
+
 String buf_message;
 String message;
 
@@ -199,7 +198,8 @@ const char* windy_ca= \
       client.setCACert(windy_ca);
       HTTPClient https;
 
-      String serverPath = "https://stations.windy.com/pws/update/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaSI6MTM2NjMyNiwiaWF0IjoxNjY4OTYxMTYwfQ._axcUYfBSkHB_L1_NB5Vrru2aDUfFwj-ua7ewqXrPpA?";
+      String serverPath = "https://stations.windy.com/pws/update/";
+      serverPath += "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaSI6MTM2NjMyNiwiaWF0IjoxNjY4OTYxMTYwfQ._axcUYfBSkHB_L1_NB5Vrru2aDUfFwj-ua7ewqXrPpA?";
       serverPath += "temp=" + String(temp); //suhu (Celcius)
       serverPath += "&humidity=" + String(humi); //kelembapan (Persen)
       serverPath += "&mbar=" + String(pres); //tekanan (hPa)
@@ -379,7 +379,7 @@ boolean runEvery(unsigned long interval) {
 }*/
 
 // Initialize WiFi
-void initWiFi() {
+/*void initWiFi() {
   WiFi.begin(ssid, pass);
   Serial.print("Connecting to WiFi....");
   while (WiFi.status() != WL_CONNECTED) {
@@ -407,7 +407,7 @@ void connectionstatus() {
   } else {
     Serial.println("WiFi OK!");
   }
-}
+}*/
 
 WiFiMulti wifiMulti;
 
