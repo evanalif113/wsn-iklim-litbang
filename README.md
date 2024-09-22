@@ -1,5 +1,10 @@
 # Dashboard Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan
-![Alt text](/Front_End/public/img/icon.png "LOGO")
+<img
+  src="/Front_End/public/img/icon.png"
+  alt="Alt text"
+  title="Optional title"
+  style="display: inline-block; margin: 0 auto; max-width: 300px"
+>
 Selamat datang di **Dashboard Jaringan Sensor Pengamatan Iklim UKM Penelitian dan Pengembangan**! Proyek ini berfokus pada pengamatan iklim secara real-time melalui jaringan sensor yang terhubung, bertujuan untuk mendukung penelitian dan pengembangan terkait iklim dan lingkungan.
 
 
