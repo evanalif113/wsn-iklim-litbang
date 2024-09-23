@@ -89,19 +89,6 @@ unsigned long getTime() {
 }
 
 void Weathercloud() {
-      if (id==1) {
-        deviceID = wid1;
-        deviceApi = apicloud1;
-      }
-      if (id==2) {
-        deviceID = wid2;
-        deviceApi = apicloud2;
-      }
-      if (id==3) {
-        deviceID = wid3;
-        deviceApi = apicloud3;
-      }
-
       WiFiClient client;
       HTTPClient http;
 
@@ -175,6 +162,7 @@ const char* windy_ca= \
       client.setCACert(windy_ca);
       HTTPClient https;
 
+      http.setTimeout(2000);
       String serverPath = "https://stations.windy.com/pws/update/";
       serverPath += "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaSI6MTM2NjMyNiwiaWF0IjoxNjY4OTYxMTYwfQ._axcUYfBSkHB_L1_NB5Vrru2aDUfFwj-ua7ewqXrPpA?";
       serverPath += "temp=" + String(temp); //suhu (Celcius)
@@ -208,16 +196,6 @@ const char* windy_ca= \
 }
 
 void Thingspeak() {
-      if (id==1) {
-        ThingspeaKey=ThingsKey1;
-      }
-      if (id==2) {
-        ThingspeaKey=ThingsKey2;
-      }
-      if (id==3) {
-        ThingspeaKey=ThingsKey3;
-      }
-
       WiFiClient client;
       HTTPClient http;
 
