@@ -18,42 +18,19 @@
 #include <LoRa.h>
 #include <ArduinoJson.h>
 #include "time.h"
+#include "rahasia.h"
 
 //#include <BlynkSimpleEsp32.h>
 
-#define RXD2 25
-#define TXD2 26
+//#define RXD2 25
+//#define TXD2 26
 //HardwareSerial neogps(1);
 //TinyGPSPlus gps;
 
-//Thingspeak API Key List
-String ThingsKey1 = "E4LDA72WDCG5T7QF";  //A
-String ThingsKey2 = "FCFMA0BDB3NACBXE";  //B
-String ThingsKey3 = "QEOPEK1R1WIPET9W";  //C
-
-String ThingspeaKey;
-
-//Weathercloud API Key List
-String wid1 = "e2013519a7853ac0";
-String apicloud1 = "eff661ec5f6725c5d95fec8fcf9d92f8";
-
-String wid2 = "d1f1e8f5be529287";
-String apicloud2 = "d0ea8f15693f706f3f46ddb294e39b87";
-
-String wid3 = "dfc8a593e3ffd9c8";
-String apicloud3 = "bae962d498cf73467dea73289f0415d7";
-
-String deviceID;
-String deviceApi;
-
-//Firebase Var
-#define API_KEY       "AIzaSyDalcCwwOthPMjC3umkpQECqlQQj699FTY"
-#define USER_EMAIL    "seis@gmail.com"
-#define USER_PASSWORD "seisca"
-#define DATABASE_URL  "https://staklimjerukagung-default-rtdb.asia-southeast1.firebasedatabase.app/";
-
+//ConfigTime Constanta
+const char* gmtOffset_sec = "25200"; //GMT +7
+const char* daylightOffset_sec = "0";
 const char* ntpServer = "time.google.com";  //NTP server
-
 
 // Define Firebase objects
 FirebaseData fbdo;
@@ -267,14 +244,14 @@ void Thingspeak() {
       http.end();
 }
 void FirebaseSetup() {
-  configTime(0, 0, ntpServer); //NTP Server
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer); //NTP Server
   // Assign the api key (required)
-  config.api_key = API_KEY;
+  config.api_key = FIREBASE_AUTH;
   // Assign the user sign in credentials
-  auth.user.email = USER_EMAIL;
-  auth.user.password = USER_PASSWORD;
+  auth.user.email = FIREBASE_USER;
+  auth.user.password = FIREBASE_PASS;
   // Assign the RTDB URL (required)
-  config.database_url = DATABASE_URL;
+  config.database_url = FIREBASE_HOST;
   Firebase.reconnectWiFi(true);
   fbdo.setResponseSize(4096);
   // Assign the callback function for the long running token generation task */
