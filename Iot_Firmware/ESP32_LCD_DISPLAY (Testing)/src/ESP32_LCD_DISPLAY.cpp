@@ -21,6 +21,7 @@ float tempe;
 float humid;
 float press;
 float dewPoint;
+float volt;
 
 
 // Create sensor objects
@@ -105,6 +106,34 @@ float calculateDewPoint(float temperature, float humidity) {
   return dewPoint;
 }
 
+//CLIENT
+void Thingspeak() {
+  WiFiClient client;
+  HTTPClient http;
+
+  http.setTimeout(2000);
+  String url1 = "http://api.thingspeak.com/update?api_key=" + WRITE_APIKEY;
+  url1 += "&field1=" + String(tempe);
+  url1 += "&field2=" + String(humid);
+  url1 += "&field3=" + String(press);
+  url1 += "&field4=" + String(dewPoint);
+  url1 += "&field8=" + String(volt);
+  // Send HTTP POST request
+  http.begin(client, url1);
+  int httpResponseCode1 = http.GET();
+  if (httpResponseCode1 > 0) {
+    Serial.print(F("Thingspeak Response code: "));
+    Serial.println(httpResponseCode1);
+    String payload = http.getString();
+    Serial.println(payload);
+  } 
+  else {
+    Serial.print(F("Error code Thingspeak: "));
+    Serial.println(httpResponseCode1);
+  }
+  http.end();
+}
+
 void setup() {
   Serial.begin(115200);
   InitSHT40(); // Initialize the SHT40 sensor
@@ -135,7 +164,7 @@ void loop() {
     SHT40getData(); // Get data from SHT40 sensor
     BMP280getData(); // Get data from BMP280 sensor
     MAX17048getData(); // Get data from MAX17048 sensor
-    DisplayData(); // Display data on LCD
+    displayData(); // Display data on LCD
     // Calculate dew point
     float dewPoint = calculateDewPoint(tempe, humid);
 
