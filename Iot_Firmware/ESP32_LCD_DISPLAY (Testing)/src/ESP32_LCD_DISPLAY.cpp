@@ -5,8 +5,12 @@
 #include <Adafruit_BMP280.h>
 #include <Adafruit_MAX1704X.h>
 #include <LiquidCrystal_I2C.h>
-#include <math.h>
 #include <ArduinoJson.h>
+#include <Firebase_ESP_Client.h>
+// Provide the token generation process info.
+#include "addons/TokenHelper.h"
+// Provide the RTDB payload printing info and other helper functions.
+#include "addons/RTDBHelper.h"
 #include "time.h"
 #include "rahasia.h"
 
@@ -79,6 +83,19 @@ void InitLCD() {
   lcd.init();
   lcd.backlight();
 }
+
+void DisplayData() {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Temp: " + String(tempe, 1) + (char)223 + "C");
+  lcd.setCursor(0, 1);
+  lcd.print("Humi: " + String(humid, 1) + "%");
+  lcd.setCursor(0, 2);
+  lcd.print("Pres: " + String(press, 1) + "hPa");
+  lcd.setCursor(0, 3);
+  lcd.print("DewP: " + String(dewPoint, 1) + (char)223 + "C");
+}
+
 // Function to calculate dew point
 float calculateDewPoint(float temperature, float humidity) {
   const float a = 17.27;
@@ -97,6 +114,9 @@ void setup() {
   pinMode(ledPin, OUTPUT);
 }
 
+unsigned long lastTime = 0;
+unsigned long timerDelay = 30000; // 30 seconds
+
 void loop() {
   // Only run once every 30 seconds
   if ((millis() - lastTime) > timerDelay) {
@@ -112,13 +132,13 @@ void loop() {
       } 
       Serial.println("\nConnected.");
     }
-
+    SHT40getData(); // Get data from SHT40 sensor
+    BMP280getData(); // Get data from BMP280 sensor
+    MAX17048getData(); // Get data from MAX17048 sensor
+    DisplayData(); // Display data on LCD
     // Calculate dew point
     float dewPoint = calculateDewPoint(tempe, humid);
 
-    // Get data from BMP280 sensor (air pressure)
-    float pressure = bmp.readPressure() / 100.0F;  // Pressure in hPa
-    float volt = maxWin.cellVoltage();
 
     // Print the data to Serial monitor
     Serial.print("Temperature (SHT40, ºC): ");
@@ -128,40 +148,7 @@ void loop() {
     Serial.print("Dew Point (ºC): ");
     Serial.println(dewPoint);
     Serial.print("Pressure (BMP280, hPa): ");
-    Serial.println(pressure);
-
-    // Display sensor data on 20x4 LCD
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Temp: " + String(tempe, 1) + (char)223 + "C");
-    lcd.setCursor(0, 1);
-    lcd.print("Humi: " + String(humid, 1) + "%");
-    lcd.setCursor(0, 2);
-    lcd.print("Pres: " + String(pressure, 1) + "hPa");
-    lcd.setCursor(0, 3);
-    lcd.print("DewP: " + String(dewPoint, 1) + (char)223 + "C");
-
-    // Send data to ThingSpeak using HTTP
-    if (WiFi.status() == WL_CONNECTED) {
-      String serverPath = server;
-      serverPath += "?api_key=" + String(myWriteAPIKey);
-      serverPath += "&field1=" + String(tempe);
-      serverPath += "&field2=" + String(humid);
-      serverPath += "&field3=" + String(pressure);
-      serverPath += "&field4=" + String(dewPoint);
-      serverPath += "&field8=" + String(volt);
-
-      http.begin(client, serverPath.c_str());
-      int httpResponseCode = http.GET();
-      
-      if (httpResponseCode > 0) {
-        Serial.println("Data sent to ThingSpeak successfully.");
-      } else {
-        Serial.println("Error sending data to ThingSpeak.");
-      }
-      
-      http.end();
-    }
+    Serial.println(press);
 
     // Update the last time the data was sent
     lastTime = millis();
