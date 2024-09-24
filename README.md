@@ -4,7 +4,7 @@
 Proyek ini berfokus pada pengamatan iklim secara real-time melalui jaringan sensor yang terhubung, bertujuan untuk mendukung penelitian dan pengembangan terkait iklim dan lingkungan.
 ![](Doc/IMG20231014184921.jpg)
 ## Domain
-Akses dashboard di: [![Website](https://img.shields.io/badge/Website-Dashboard%20Stasiun%20Iklim-blue?style=flat-square&logo=google-chrome)](https://database-sensor-iklim-litbang.web.app/)
+Akses dashboard di: [![Website](https://img.shields.io/badge/Website-Dashboard%20Stasiun%20Iklim-blue?style=flat-square&logo=google-chrome)](https://iklimlitbangupb.web.app/)
 
 ## Fitur Utama
 - **Pengamatan Real-Time**: Menampilkan data iklim (suhu, kelembapan, tekanan udara, embun, dll.) dari jaringan sensor yang tersebar.
@@ -22,7 +22,7 @@ Akses dashboard di: [![Website](https://img.shields.io/badge/Website-Dashboard%2
 - **API REST**: Mengambil data dari sensor yang terhubung melalui ThingSpeak.
 
 ## Cara Menggunakan
-1. **Akses Dashboard**: Buka [https://database-sensor-iklim-litbang.web.app/](https://iklimlitbangupb.web.app/).
+1. **Akses Dashboard**: Buka [https://iklimlitbangupb.web.app/](https://iklimlitbangupb.web.app/).
 2. **Lihat Data Sensor**: Anda akan dapat melihat data real-time dari berbagai sensor iklim yang telah dikonfigurasi.
 3. **Visualisasi Data**: Data akan ditampilkan dalam bentuk grafik untuk memudahkan pemahaman dan analisis.
 
