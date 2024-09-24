@@ -30,7 +30,8 @@ class SensorData {
     float temperature, humidity, pressure, dewPoint, voltage;
 
   public:
-    SensorData() : sht4(), bmp(), maxWin(), temperature(0), humidity(0), pressure(0), dewPoint(0), voltage(0) {}
+    SensorData() :  sht4(), bmp(), maxWin(), 
+                    temperature(0), humidity(0), pressure(0), dewPoint(0), voltage(0) {}
 
     void init() {
       // Initialize SHT40
