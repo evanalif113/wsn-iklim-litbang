@@ -13,6 +13,12 @@
 // LED indicator
 int ledPin = 2; // GPIO 2
 
+float tempe;
+float humid;
+float press;
+float dewPoint;
+
+
 // Create sensor objects
 Adafruit_SHT4x sht4 = Adafruit_SHT4x(); // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
 Adafruit_BMP280 bmp; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
@@ -30,6 +36,13 @@ void InitSHT40() {
   Serial.println("Found SHT40 sensor!");
 }
 
+void SHT40getData() {
+  sensors_event_t humidity, temp;
+  sht4.getEvent(&humidity, &temp);
+  float tempe = temp.temperature;  // Temperature in ºC
+  float humid = humidity.relative_humidity;  // Humidity in %
+}
+
 // BMP280 Setup
 void InitBMP280() {
   if (!bmp.begin(0x76)) {
@@ -44,6 +57,10 @@ void InitBMP280() {
                   Adafruit_BMP280::STANDBY_MS_500);
 }
 
+void BMP280getData() {
+  float press = bmp.readPressure()/100.0F;  // Pressure in hPa
+}
+
 // MAX17048 Setup
 void InitMAX17048() {
   if (!maxWin.begin()) {
@@ -52,6 +69,11 @@ void InitMAX17048() {
   }
   Serial.println("Found MAX17048 sensor!");
 }
+
+void MAX17048getData() {
+  float volt = maxWin.cellVoltage();
+}
+
 // LCD Setup
 void InitLCD() {
   lcd.init();
@@ -84,18 +106,12 @@ void loop() {
     if(WiFi.status() != WL_CONNECTED){
       Serial.print("Attempting to connect");
       while(WiFi.status() != WL_CONNECTED){
-        WiFi.begin(ssid, password);
+        WiFi.begin(RAHASIA_SSID1, RAHASIA_PASS1);
         delay(5000);
         Serial.print(".");
       } 
       Serial.println("\nConnected.");
     }
-
-    // Get data from SHT40 sensor (temperature and humidity)
-    sensors_event_t humidity, temp;
-    sht4.getEvent(&humidity, &temp);
-    float tempe = temp.temperature;  // Temperature in ºC
-    float humid = humidity.relative_humidity;  // Humidity in %
 
     // Calculate dew point
     float dewPoint = calculateDewPoint(tempe, humid);
