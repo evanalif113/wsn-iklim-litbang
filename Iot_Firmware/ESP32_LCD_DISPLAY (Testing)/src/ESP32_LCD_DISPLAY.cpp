@@ -124,7 +124,7 @@ class ThingspeakClient {
       url += "&field8=" + String(data.getVoltage());
 
       http.begin(client, url);
-      int httpResponseCode = http.GET();
+      uint16_t httpResponseCode = http.GET();
       if (httpResponseCode > 0) {
         Serial.print(F("Thingspeak Response code: "));
         Serial.println(httpResponseCode);
@@ -197,6 +197,8 @@ void loop() {
     Serial.println(sensorData.getDewPoint());
     Serial.print("Pressure: ");
     Serial.println(sensorData.getPressure());
+    Serial.print("Voltage: ");
+    Serial.println(sensorData.getVoltage());
 
     lastTime = millis();
     digitalWrite(ledPin, LOW);
