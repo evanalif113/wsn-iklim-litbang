@@ -22,7 +22,7 @@ Akses dashboard di: [![Website](https://img.shields.io/badge/Website-Dashboard%2
 - **API REST**: Mengambil data dari sensor yang terhubung melalui ThingSpeak.
 
 ## Cara Menggunakan
-1. **Akses Dashboard**: Buka [https://database-sensor-iklim-litbang.web.app/](https://database-sensor-iklim-litbang.web.app/).
+1. **Akses Dashboard**: Buka [https://database-sensor-iklim-litbang.web.app/](https://iklimlitbangupb.web.app/).
 2. **Lihat Data Sensor**: Anda akan dapat melihat data real-time dari berbagai sensor iklim yang telah dikonfigurasi.
 3. **Visualisasi Data**: Data akan ditampilkan dalam bentuk grafik untuk memudahkan pemahaman dan analisis.
 
