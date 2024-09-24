@@ -1,27 +1,18 @@
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <Adafruit_SHT4x.h>
 #include <Adafruit_BMP280.h>
 #include <Adafruit_MAX1704X.h>
 #include <LiquidCrystal_I2C.h>
 #include <math.h>
+#include <ArduinoJson.h>
+#include "time.h"
 #include "rahasia.h"
-
-// Wi-Fi credentials
-const char* ssid = RAHASIA_SSID;   
-const char* password = RAHASIA_PASS;   
 
 WiFiClient client;
 HTTPClient http;
 
-// ThingSpeak details
-const char* server = "http://api.thingspeak.com/update";
-unsigned long myChannelNumber = RAHASIA_CH_ID;  
-const char* myWriteAPIKey = RAHASIA_WRITE_APIKEY;  
-
-// Timer variables
-unsigned long lastTime = 0;
-unsigned long timerDelay = 30000;  // 30 seconds interval
 
 // LED indicator
 int ledPin = 2; // GPIO 2
