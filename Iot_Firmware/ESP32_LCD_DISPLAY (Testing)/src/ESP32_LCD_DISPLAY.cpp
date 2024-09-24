@@ -10,22 +10,53 @@
 #include "time.h"
 #include "rahasia.h"
 
-WiFiClient client;
-HTTPClient http;
-
-
 // LED indicator
 int ledPin = 2; // GPIO 2
 
 // Create sensor objects
-Adafruit_SHT4x sht4 = Adafruit_SHT4x();
+Adafruit_SHT4x sht4 = Adafruit_SHT4x(); // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
 Adafruit_BMP280 bmp; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
-
 Adafruit_MAX17048 maxWin; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
-
 // Initialize the LCD with 20 columns and 4 rows
-LiquidCrystal_I2C lcd(0x27, 20, 4);
+LiquidCrystal_I2C lcd(0x27, 20, 4); // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
 
+
+//SHT40 Setup
+void InitSHT40() {
+  if (!sht4.begin()) {
+    Serial.println("Couldn't find SHT40 sensor! Check wiring.");
+    while (1);
+  }
+  Serial.println("Found SHT40 sensor!");
+}
+
+// BMP280 Setup
+void InitBMP280() {
+  if (!bmp.begin(0x76)) {
+    Serial.println("Couldn't find BMP280 sensor! Check wiring.");
+    while (1);
+  }
+  Serial.println("Found BMP280 sensor!");
+  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,
+                  Adafruit_BMP280::SAMPLING_X2,   // temperature
+                  Adafruit_BMP280::SAMPLING_X16,  // pressure
+                  Adafruit_BMP280::FILTER_X16,
+                  Adafruit_BMP280::STANDBY_MS_500);
+}
+
+// MAX17048 Setup
+void InitMAX17048() {
+  if (!maxWin.begin()) {
+    Serial.println("Couldn't find MAX17048 sensor! Check wiring.");
+    while (1);
+  }
+  Serial.println("Found MAX17048 sensor!");
+}
+// LCD Setup
+void InitLCD() {
+  lcd.init();
+  lcd.backlight();
+}
 // Function to calculate dew point
 float calculateDewPoint(float temperature, float humidity) {
   const float a = 17.27;
@@ -37,41 +68,11 @@ float calculateDewPoint(float temperature, float humidity) {
 
 void setup() {
   Serial.begin(115200);
-
-  // Initialize the SHT40 sensor
-  if (!sht4.begin()) {
-    Serial.println("Couldn't find SHT40 sensor! Check wiring.");
-    while (1);
-  }
-  Serial.println("Found SHT40 sensor!");
-
-  // Initialize the BMP280 sensor
-  if (!bmp.begin(0x76)) {
-    Serial.println("Couldn't find BMP280 sensor! Check wiring.");
-    while (1);
-  }
-  Serial.println("Found BMP280 sensor!");
-
-  // Set BMP280 parameters
-  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,
-                  Adafruit_BMP280::SAMPLING_X2,   // temperature
-                  Adafruit_BMP280::SAMPLING_X16,  // pressure
-                  Adafruit_BMP280::FILTER_X16,
-                  Adafruit_BMP280::STANDBY_MS_500);
-  
-  if (!maxWin.begin()) {
-    Serial.println("Couldn't find MAX17048 sensor! Check wiring.");
-    while(1);
-  }
-  Serial.println("Found MAX17048 sensor!");
-
-  // Initialize Wi-Fi
-  WiFi.mode(WIFI_STA);
+  InitSHT40(); // Initialize the SHT40 sensor
+  InitBMP280(); // Initialize the BMP280 sensor
+  InitMAX17048(); // Initialize the MAX17048 sensor
+  InitLCD(); // Initialize the LCD
   pinMode(ledPin, OUTPUT);
-
-  // Initialize LCD
-  lcd.init();
-  lcd.backlight();
 }
 
 void loop() {
