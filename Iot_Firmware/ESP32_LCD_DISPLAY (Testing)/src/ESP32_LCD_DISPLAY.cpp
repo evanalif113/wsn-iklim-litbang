@@ -138,6 +138,12 @@ class ThingspeakClient {
     }
 };
 
+//Windy.comClient class: handles data sending to Windy.com
+
+//WeathercloudClient class: handles data sending to Weathercloud
+
+
+
 // WiFiManager class: handles WiFi connection
 class WiFiManager {
   public:
