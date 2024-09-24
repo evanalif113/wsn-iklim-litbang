@@ -7,178 +7,192 @@
 #include <LiquidCrystal_I2C.h>
 #include <ArduinoJson.h>
 #include <Firebase_ESP_Client.h>
-// Provide the token generation process info.
 #include "addons/TokenHelper.h"
-// Provide the RTDB payload printing info and other helper functions.
 #include "addons/RTDBHelper.h"
 #include "time.h"
 #include "rahasia.h"
 
 // LED indicator
 int ledPin = 2; // GPIO 2
-
-float tempe;
-float humid;
-float press;
-float dewPoint;
-float volt;
-
-// Create sensor objects
-Adafruit_SHT4x sht4 = Adafruit_SHT4x(); // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
-Adafruit_BMP280 bmp; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
-Adafruit_MAX17048 maxWin; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
-// Initialize the LCD with 20 columns and 4 rows
-LiquidCrystal_I2C lcd(0x27, 20, 4); // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
-
-
-//SHT40 Setup
-void InitSHT40() {
-  if (!sht4.begin()) {
-    Serial.println("Couldn't find SHT40 sensor! Check wiring.");
-    while (1);
-  }
-  Serial.println("Found SHT40 sensor!");
-}
-
-void SHT40getData() {
-  sensors_event_t humidity, temp;
-  sht4.getEvent(&humidity, &temp);
-  float tempe = temp.temperature;  // Temperature in ºC
-  float humid = humidity.relative_humidity;  // Humidity in %
-}
-
-// BMP280 Setup
-void InitBMP280() {
-  if (!bmp.begin(0x76)) {
-    Serial.println("Couldn't find BMP280 sensor! Check wiring.");
-    while (1);
-  }
-  Serial.println("Found BMP280 sensor!");
-  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,
-                  Adafruit_BMP280::SAMPLING_X2,   // temperature
-                  Adafruit_BMP280::SAMPLING_X16,  // pressure
-                  Adafruit_BMP280::FILTER_X16,
-                  Adafruit_BMP280::STANDBY_MS_500);
-}
-
-void BMP280getData() {
-  float press = bmp.readPressure()/100.0F;  // Pressure in hPa
-}
-
-// MAX17048 Setup
-void InitMAX17048() {
-  if (!maxWin.begin()) {
-    Serial.println("Couldn't find MAX17048 sensor! Check wiring.");
-    while (1);
-  }
-  Serial.println("Found MAX17048 sensor!");
-}
-
-void MAX17048getData() {
-  float volt = maxWin.cellVoltage();
-}
-
-// LCD Setup
-void InitLCD() {
-  lcd.init();
-  lcd.backlight();
-}
-
-void displayData() {
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Temp: " + String(tempe, 1) + (char)223 + "C");
-  lcd.setCursor(0, 1);
-  lcd.print("Humi: " + String(humid, 1) + "%");
-  lcd.setCursor(0, 2);
-  lcd.print("Pres: " + String(press, 1) + "hPa");
-  lcd.setCursor(0, 3);
-  lcd.print("DewP: " + String(dewPoint, 1) + (char)223 + "C");
-}
-
-// Function to calculate dew point
-float calculateDewPoint(float temperature, float humidity) {
-  const float a = 17.27;
-  const float b = 237.7;
-  float alpha = ((a * temperature) / (b + temperature)) + log(humidity / 100.0);
-  float dewPoint = (b * alpha) / (a - alpha);
-  return dewPoint;
-}
-
-//CLIENT
-void Thingspeak() {
-  WiFiClient client;
-  HTTPClient http;
-
-  http.setTimeout(2000);
-  String url1 = "http://api.thingspeak.com/update?api_key=" + WRITE_APIKEY;
-  url1 += "&field1=" + String(tempe);
-  url1 += "&field2=" + String(humid);
-  url1 += "&field3=" + String(press);
-  url1 += "&field4=" + String(dewPoint);
-  url1 += "&field8=" + String(volt);
-  // Send HTTP POST request
-  http.begin(client, url1);
-  int httpResponseCode1 = http.GET();
-  if (httpResponseCode1 > 0) {
-    Serial.print(F("Thingspeak Response code: "));
-    Serial.println(httpResponseCode1);
-    String payload = http.getString();
-    Serial.println(payload);
-  } 
-  else {
-    Serial.print(F("Error code Thingspeak: "));
-    Serial.println(httpResponseCode1);
-  }
-  http.end();
-}
-
-void setup() {
-  Serial.begin(115200);
-  InitSHT40(); // Initialize the SHT40 sensor
-  InitBMP280(); // Initialize the BMP280 sensor
-  InitMAX17048(); // Initialize the MAX17048 sensor
-  InitLCD(); // Initialize the LCD
-  pinMode(ledPin, OUTPUT);
-}
-
 unsigned long lastTime = 0;
 unsigned long timerDelay = 30000; // 30 seconds
 
+// WiFi credentials
+const char* ssid = RAHASIA_SSID1;
+const char* password = RAHASIA_PASS1;
+
+// SensorData class: handles temperature, humidity, pressure, dew point, and voltage
+class SensorData {
+  private:
+    Adafruit_SHT4x sht4;
+    Adafruit_BMP280 bmp;
+    Adafruit_MAX17048 maxWin;
+    float temperature, humidity, pressure, dewPoint, voltage;
+
+  public:
+    SensorData() : sht4(), bmp(), maxWin(), temperature(0), humidity(0), pressure(0), dewPoint(0), voltage(0) {}
+
+    void init() {
+      // Initialize SHT40
+      if (!sht4.begin()) {
+        Serial.println("Couldn't find SHT40 sensor! Check wiring.");
+        while (1);
+      }
+      Serial.println("Found SHT40 sensor!");
+
+      // Initialize BMP280
+      if (!bmp.begin(0x76)) {
+        Serial.println("Couldn't find BMP280 sensor! Check wiring.");
+        while (1);
+      }
+      Serial.println("Found BMP280 sensor!");
+      bmp.setSampling(Adafruit_BMP280::MODE_NORMAL, Adafruit_BMP280::SAMPLING_X2, Adafruit_BMP280::SAMPLING_X16, Adafruit_BMP280::FILTER_X16, Adafruit_BMP280::STANDBY_MS_500);
+
+      // Initialize MAX17048
+      if (!maxWin.begin()) {
+        Serial.println("Couldn't find MAX17048 sensor! Check wiring.");
+        while (1);
+      }
+      Serial.println("Found MAX17048 sensor!");
+    }
+
+    void updateData() {
+      sensors_event_t humidityEvent, tempEvent;
+      sht4.getEvent(&humidityEvent, &tempEvent);
+      temperature = tempEvent.temperature;
+      humidity = humidityEvent.relative_humidity;
+      pressure = bmp.readPressure() / 100.0F;
+      voltage = maxWin.cellVoltage();
+      dewPoint = calculateDewPoint(temperature, humidity);
+    }
+
+    float getTemperature() { return temperature; }
+    float getHumidity() { return humidity; }
+    float getPressure() { return pressure; }
+    float getDewPoint() { return dewPoint; }
+    float getVoltage() { return voltage; }
+
+  private:
+    float calculateDewPoint(float temperature, float humidity) {
+      const float a = 17.27;
+      const float b = 237.7;
+      float alpha = ((a * temperature) / (b + temperature)) + log(humidity / 100.0);
+      return (b * alpha) / (a - alpha);
+    }
+};
+
+// LCDDisplay class: handles LCD initialization and data display
+class LCDDisplay {
+  private:
+    LiquidCrystal_I2C lcd;
+
+  public:
+    LCDDisplay() : lcd(0x27, 20, 4) {}
+
+    void init() {
+      lcd.init();
+      lcd.backlight();
+    }
+
+    void displayData(SensorData& data) {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Temp: " + String(data.getTemperature(), 1) + (char)223 + "C");
+      lcd.setCursor(0, 1);
+      lcd.print("Humi: " + String(data.getHumidity(), 1) + "%");
+      lcd.setCursor(0, 2);
+      lcd.print("Pres: " + String(data.getPressure(), 1) + "hPa");
+      lcd.setCursor(0, 3);
+      lcd.print("DewP: " + String(data.getDewPoint(), 1) + (char)223 + "C");
+    }
+};
+
+// ThingspeakClient class: handles data sending to Thingspeak
+class ThingspeakClient {
+  public:
+    void sendData(SensorData& data) {
+      WiFiClient client;
+      HTTPClient http;
+      http.setTimeout(2000);
+
+      String url = "http://api.thingspeak.com/update?api_key=" + String(WRITE_APIKEY);
+      url += "&field1=" + String(data.getTemperature());
+      url += "&field2=" + String(data.getHumidity());
+      url += "&field3=" + String(data.getPressure());
+      url += "&field4=" + String(data.getDewPoint());
+      url += "&field8=" + String(data.getVoltage());
+
+      http.begin(client, url);
+      int httpResponseCode = http.GET();
+      if (httpResponseCode > 0) {
+        Serial.print(F("Thingspeak Response code: "));
+        Serial.println(httpResponseCode);
+        String payload = http.getString();
+        Serial.println(payload);
+      } else {
+        Serial.print(F("Error code Thingspeak: "));
+        Serial.println(httpResponseCode);
+      }
+      http.end();
+    }
+};
+
+// WiFiManager class: handles WiFi connection
+class WiFiManager {
+  public:
+    void connectWiFi() {
+      if (WiFi.status() != WL_CONNECTED) {
+        Serial.print("Attempting to connect");
+        while (WiFi.status() != WL_CONNECTED) {
+          WiFi.begin(ssid, password);
+          delay(5000);
+          Serial.print(".");
+        }
+        Serial.println("\nConnected.");
+      }
+    }
+};
+
+// Instantiate objects
+SensorData sensorData;
+LCDDisplay lcdDisplay;
+ThingspeakClient thingspeakClient;
+WiFiManager wifiManager;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(ledPin, OUTPUT);
+
+  sensorData.init();
+  lcdDisplay.init();
+}
+
 void loop() {
-  // Only run once every 30 seconds
   if ((millis() - lastTime) > timerDelay) {
     digitalWrite(ledPin, HIGH);
-    
-    // Connect or reconnect to WiFi
-    if(WiFi.status() != WL_CONNECTED){
-      Serial.print("Attempting to connect");
-      while(WiFi.status() != WL_CONNECTED){
-        WiFi.begin(RAHASIA_SSID1, RAHASIA_PASS1);
-        delay(5000);
-        Serial.print(".");
-      } 
-      Serial.println("\nConnected.");
-    }
-    SHT40getData(); // Get data from SHT40 sensor
-    BMP280getData(); // Get data from BMP280 sensor
-    MAX17048getData(); // Get data from MAX17048 sensor
-    displayData(); // Display data on LCD
-    // Calculate dew point
-    float dewPoint = calculateDewPoint(tempe, humid);
 
+    // Connect to WiFi
+    wifiManager.connectWiFi();
 
-    // Print the data to Serial monitor
-    Serial.print("Temperature (SHT40, ºC): ");
-    Serial.println(tempe);
-    Serial.print("Humidity (SHT40, %): ");
-    Serial.println(humid);
-    Serial.print("Dew Point (ºC): ");
-    Serial.println(dewPoint);
-    Serial.print("Pressure (BMP280, hPa): ");
-    Serial.println(press);
+    // Update sensor data
+    sensorData.updateData();
 
-    // Update the last time the data was sent
+    // Display data on LCD
+    lcdDisplay.displayData(sensorData);
+
+    // Send data to Thingspeak
+    thingspeakClient.sendData(sensorData);
+
+    // Print data to serial
+    Serial.print("Temperature: ");
+    Serial.println(sensorData.getTemperature());
+    Serial.print("Humidity: ");
+    Serial.println(sensorData.getHumidity());
+    Serial.print("Dew Point: ");
+    Serial.println(sensorData.getDewPoint());
+    Serial.print("Pressure: ");
+    Serial.println(sensorData.getPressure());
+
     lastTime = millis();
     digitalWrite(ledPin, LOW);
   }
