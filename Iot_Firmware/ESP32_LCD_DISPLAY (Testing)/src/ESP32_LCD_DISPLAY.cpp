@@ -23,7 +23,6 @@ float press;
 float dewPoint;
 float volt;
 
-
 // Create sensor objects
 Adafruit_SHT4x sht4 = Adafruit_SHT4x(); // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
 Adafruit_BMP280 bmp; // I2C (GPIO 21 = SDA, GPIO 22 = SCL)
