@@ -169,7 +169,8 @@ WiFiManager wifiManager;
 void setup() {
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
-
+  // Connect to WiFi
+  wifiManager.connectWiFi();
   sensorData.init();
   lcdDisplay.init();
 }
@@ -177,9 +178,6 @@ void setup() {
 void loop() {
   if ((millis() - lastTime) > timerDelay) {
     digitalWrite(ledPin, HIGH);
-
-    // Connect to WiFi
-    wifiManager.connectWiFi();
 
     // Update sensor data
     sensorData.updateData();
