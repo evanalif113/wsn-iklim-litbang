@@ -84,7 +84,7 @@ void InitLCD() {
   lcd.backlight();
 }
 
-void DisplayData() {
+void displayData() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Temp: " + String(tempe, 1) + (char)223 + "C");
