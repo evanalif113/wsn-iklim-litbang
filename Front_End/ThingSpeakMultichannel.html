@@ -3,7 +3,6 @@
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-     type="text/javascript"></script>
     <script src="http://code.highcharts.com/stock/highstock.js"></script>
     <script src="http://code.highcharts.com/stock/modules/exporting.js"></script>
     <script type="text/javascript">
@@ -37,7 +36,7 @@ function getChartDate(d) {
     return Date.UTC(d.substring(0,4), d.substring(5,7)-1, d.substring(8,10), d.substring(11,13), d.substring(14,16), d.substring(17,19)) - (myOffset * 60000);
 }
 
-// Hide all series, via 'Hide All' button.  Then user can click on serries name in legent to show series of interest.      
+      // Hide all series, via 'Hide All' button.  Then user can click on serries name in legent to show series of interest.      
 function HideAll(){
   for (var index=0; index<dynamicChart.series.length; index++)  // iterate through each series
   { 
@@ -424,7 +423,7 @@ function loadChannelHistory(sentChannelIndex,channelNumber,key,sentFieldList,sen
   	<title>Jerukagung Meteorologi Dashboard</title>    
 
   </head>
-  <body style="background-color: rgb(59, 59, 59);">
+  <body style="background-color: rgb(255, 162, 0);">
     <div id="chart-container" style="height: 600px;"><br>
       Highstock Chart Here<br>
     </div>
