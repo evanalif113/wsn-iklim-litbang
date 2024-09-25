@@ -32,31 +32,35 @@ float calculateDewPoint(float temperature, float humidity) {
   return dewPoint;
 }
 
-void setup() {
-  Serial.begin(115200);
-
-  // Initialize the SHT40 sensor
-  if (!sht4.begin()) {
-    Serial.println("Couldn't find SHT40 sensor! Check wiring.");
-    while (1);
-  }
-  Serial.println("Found SHT40 sensor!");
-
-  // Initialize the BMP280 sensor
-  if (!bmp.begin(0x76)) {
+// Initialize the BMP280 sensor
+void initBMP280(){
+  if (!bmp.begin(0x76))
+  {
     Serial.println("Couldn't find BMP280 sensor! Check wiring.");
-    while (1);
+    while (1)
+      ;
   }
   Serial.println("Found BMP280 sensor!");
 
   // Set BMP280 parameters
   bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,
-                  Adafruit_BMP280::SAMPLING_X2,   // temperature
-                  Adafruit_BMP280::SAMPLING_X16,  // pressure
+                  Adafruit_BMP280::SAMPLING_X2,  // temperature
+                  Adafruit_BMP280::SAMPLING_X16, // pressure
                   Adafruit_BMP280::FILTER_X16,
                   Adafruit_BMP280::STANDBY_MS_500);
-  
-  // Initialize Wi-Fi
+}
+
+// Initialize the SHT40 sensor
+void sht40(){
+  if (!sht4.begin()) {
+    Serial.println("Couldn't find SHT40 sensor! Check wiring.");
+    while (1);
+  }
+  Serial.println("Found SHT40 sensor!");
+}
+
+// Initialize Wi-Fi
+void wifiSetup(){
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
 
@@ -66,6 +70,16 @@ void setup() {
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
+}
+
+
+
+void setup() {
+  Serial.begin(115200);
+
+  initBMP280(); // bmp280 setup
+  sht40(); // sht40 setup
+  wifiSetup(); // wifi setup
 
   // Initialize the LED pin
   pinMode(ledPin, OUTPUT);
@@ -76,15 +90,8 @@ void loop() {
   if ((millis() - lastTime) > timerDelay) {
     digitalWrite(ledPin, HIGH);
 
-    // Check Wi-Fi connection
-    if (WiFi.status() != WL_CONNECTED) {
-      Serial.println("WiFi not connected. Reconnecting...");
-      while (WiFi.status() != WL_CONNECTED) {
-        WiFi.begin(ssid, password);
-        delay(1000);
-      }
-      Serial.println("WiFi reconnected.");
-    }
+    // wifi validation
+    wifiSetup();
 
     // Get data from SHT40 sensor (temperature and humidity)
     sensors_event_t humidity, temp;

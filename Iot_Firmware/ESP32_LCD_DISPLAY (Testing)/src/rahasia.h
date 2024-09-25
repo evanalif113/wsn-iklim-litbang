@@ -1,8 +1,8 @@
 //Gunakan untuk menyimpan informasi rahasia seperti SSID dan Password
 
 //Wifi 1
-#define RAHASIA_SSID1 "server"		//Isikan dengan SSID1
-#define RAHASIA_PASS1 "jeris6467"	//Isikan dengan Password1
+#define RAHASIA_SSID1 "Kazu"		//Isikan dengan SSID1
+#define RAHASIA_PASS1 "HasuminBest"	//Isikan dengan Password1
 
 //Wifi 2
 #define RAHASIA_SSID2 "Jerukagung Seismologi"		//Isikan dengan SSID2
