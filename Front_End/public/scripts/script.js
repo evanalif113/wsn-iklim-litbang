@@ -17,22 +17,46 @@ var musimSekarang = getMusim(bulanSekarang);
 var infoMusimElement = document.getElementById('info-musim');
 infoMusimElement.textContent = `Musim Sekarang: ${musimSekarang}`;
 
-
-// mengambil data
+// Mengambil data
 function hitungRataRataDataThingspeak(channelID, fieldNumber, numResults, resultElementId) {
-    const apiKey = '6NPQMVGO26LY3UCP'; //API Key Thingspeak User
-    const url = `https://api.thingspeak.com/channels/${channelID}/fields/${fieldNumber}.json?api_key=${'6NPQMVGO26LY3UCP'}&results=${numResults}`;
+    const apiKey = '6NPQMVGO26LY3UCP'; // API Key Thingspeak User
+    const url = `https://api.thingspeak.com/channels/${channelID}/fields/${fieldNumber}.json?api_key=${apiKey}&results=${numResults}`;
 
     fetch(url)
         .then((response) => response.json())
         .then((data) => {
             if (data.feeds && data.feeds.length > 0) {
                 const fieldValues = data.feeds.map((feed) => parseFloat(feed[`field${fieldNumber}`]));
-                const rataRata = fieldValues.reduce((total, value) => total + value, 0) / fieldValues.length;
+                
+                // Filter out invalid or NaN values
+                const validFieldValues = fieldValues.filter(value => !isNaN(value));
+                const rataRata = validFieldValues.reduce((total, value) => total + value, 0) / validFieldValues.length;
+
+                // Tentukan tipe data berdasarkan fieldNumber
+                let tipeData = '';
+                switch (fieldNumber) {
+                    case 1:
+                        tipeData = 'Suhu';
+                        break;
+                    case 2:
+                        tipeData = 'Kelembapan';
+                        break;
+                    case 3:
+                        tipeData = 'Tekanan Udara';
+                        break;
+                    default:
+                        tipeData = 'Data';
+                }
 
                 // Tampilkan rata-rata data
                 const rataRataElement = document.getElementById(resultElementId);
-                rataRataElement.textContent = `Hasil ${resultElementId}: ${rataRata.toFixed(2)}`;
+                if (rataRataElement) {
+                    rataRataElement.textContent = `Hasil ${tipeData}: ${rataRata.toFixed(2)}`;
+                } else {
+                    console.error(`Elemen dengan ID "${resultElementId}" tidak ditemukan.`);
+                }
+            } else {
+                console.warn(`Tidak ada data ditemukan untuk field ${fieldNumber} pada channel ${channelID}.`);
             }
         })
         .catch((error) => {
@@ -40,16 +64,17 @@ function hitungRataRataDataThingspeak(channelID, fieldNumber, numResults, result
         });
 }
 
-// panggil rata rata
+// Panggil fungsi hitungRataRataDataThingspeak untuk masing-masing channel dan field
 hitungRataRataDataThingspeak(2281820, 1, 60, 'rata-rata-suhu1');
-hitungRataRataDataThingspeak(2281820, 2, 60, 'rata-rata-kelembaban1');
+hitungRataRataDataThingspeak(2281820, 2, 60, 'rata-rata-kelembapan1');
 hitungRataRataDataThingspeak(2281820, 3, 60, 'rata-rata-tekanan1');
 hitungRataRataDataThingspeak(2289583, 1, 60, 'rata-rata-suhu2');
-hitungRataRataDataThingspeak(2289583, 2, 60, 'rata-rata-kelembaban2');
+hitungRataRataDataThingspeak(2289583, 2, 60, 'rata-rata-kelembapan2');
 hitungRataRataDataThingspeak(2289583, 3, 60, 'rata-rata-tekanan2');
 hitungRataRataDataThingspeak(2326256, 1, 60, 'rata-rata-suhu3');
-hitungRataRataDataThingspeak(2326256, 2, 60, 'rata-rata-kelembaban3');
+hitungRataRataDataThingspeak(2326256, 2, 60, 'rata-rata-kelembapan3');
 hitungRataRataDataThingspeak(2326256, 3, 60, 'rata-rata-tekanan3');
+
 
 
 
