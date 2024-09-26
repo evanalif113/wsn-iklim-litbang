@@ -18,7 +18,7 @@ var infoMusimElement = document.getElementById('info-musim');
 infoMusimElement.textContent = `Musim Sekarang: ${musimSekarang}`;
 
 // Mengambil data
-function hitungRataRataDataThingspeak(channelID, fieldNumber, numResults, resultElementId) {
+function hitungRerata(channelID, fieldNumber, numResults, resultElementId) {
     const apiKey = '6NPQMVGO26LY3UCP'; // API Key Thingspeak User
     const url = `https://api.thingspeak.com/channels/${channelID}/fields/${fieldNumber}.json?api_key=${apiKey}&results=${numResults}`;
 
@@ -65,15 +65,15 @@ function hitungRataRataDataThingspeak(channelID, fieldNumber, numResults, result
 }
 
 // Panggil fungsi hitungRataRataDataThingspeak untuk masing-masing channel dan field
-hitungRataRataDataThingspeak(2281820, 1, 60, 'suhu1');
-hitungRataRataDataThingspeak(2281820, 2, 60, 'kelembaban1');
-hitungRataRataDataThingspeak(2281820, 3, 60, 'tekanan1');
-hitungRataRataDataThingspeak(2289583, 1, 60, 'suhu2');
-hitungRataRataDataThingspeak(2289583, 2, 60, 'kelembaban2');
-hitungRataRataDataThingspeak(2289583, 3, 60, 'tekanan2');
-hitungRataRataDataThingspeak(2326256, 1, 60, 'suhu3');
-hitungRataRataDataThingspeak(2326256, 2, 60, 'kelembaban3');
-hitungRataRataDataThingspeak(2326256, 3, 60, 'tekanan3');
+hitungRerata(2281820, 1, 60, 'suhu1');
+hitungRerata(2281820, 2, 60, 'kelembaban1');
+hitungRerata(2281820, 3, 60, 'tekanan1');
+hitungRerata(2289583, 1, 60, 'suhu2');
+hitungRerata(2289583, 2, 60, 'kelembaban2');
+hitungRerata(2289583, 3, 60, 'tekanan2');
+hitungRerata(2326256, 1, 60, 'suhu3');
+hitungRerata(2326256, 2, 60, 'kelembaban3');
+hitungRerata(2326256, 3, 60, 'tekanan3');
 
 
 
