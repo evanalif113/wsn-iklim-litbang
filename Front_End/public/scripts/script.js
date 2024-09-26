@@ -65,15 +65,15 @@ function hitungRataRataDataThingspeak(channelID, fieldNumber, numResults, result
 }
 
 // Panggil fungsi hitungRataRataDataThingspeak untuk masing-masing channel dan field
-hitungRataRataDataThingspeak(2281820, 1, 60, 'rata-rata-suhu1');
-hitungRataRataDataThingspeak(2281820, 2, 60, 'rata-rata-kelembapan1');
-hitungRataRataDataThingspeak(2281820, 3, 60, 'rata-rata-tekanan1');
-hitungRataRataDataThingspeak(2289583, 1, 60, 'rata-rata-suhu2');
-hitungRataRataDataThingspeak(2289583, 2, 60, 'rata-rata-kelembapan2');
-hitungRataRataDataThingspeak(2289583, 3, 60, 'rata-rata-tekanan2');
-hitungRataRataDataThingspeak(2326256, 1, 60, 'rata-rata-suhu3');
-hitungRataRataDataThingspeak(2326256, 2, 60, 'rata-rata-kelembapan3');
-hitungRataRataDataThingspeak(2326256, 3, 60, 'rata-rata-tekanan3');
+hitungRataRataDataThingspeak(2281820, 1, 60, 'suhu1');
+hitungRataRataDataThingspeak(2281820, 2, 60, 'kelembaban1');
+hitungRataRataDataThingspeak(2281820, 3, 60, 'tekanan1');
+hitungRataRataDataThingspeak(2289583, 1, 60, 'suhu2');
+hitungRataRataDataThingspeak(2289583, 2, 60, 'kelembaban2');
+hitungRataRataDataThingspeak(2289583, 3, 60, 'tekanan2');
+hitungRataRataDataThingspeak(2326256, 1, 60, 'suhu3');
+hitungRataRataDataThingspeak(2326256, 2, 60, 'kelembaban3');
+hitungRataRataDataThingspeak(2326256, 3, 60, 'tekanan3');
 
 
 
