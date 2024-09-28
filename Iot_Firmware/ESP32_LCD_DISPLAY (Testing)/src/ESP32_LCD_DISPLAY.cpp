@@ -141,6 +141,31 @@ class ThingspeakClient {
 //Windy.comClient class: handles data sending to Windy.com
 class WindyClient {
   public: 
+    void sendData(SensorData& data) {
+      WiFiClient client;
+      HTTPClient http;
+      http.setTimeout(2000);
+
+      String url = "https://stations.windy.com/pws/update/" + String(WINDY_APIKEY);
+      url += "?temperature=" + String(data.getTemperature());
+      url += "&humidity=" + String(data.getHumidity());
+      url += "&pressure=" + String(data.getPressure());
+      url += "&dewpoint=" + String(data.getDewPoint());
+      url += "&voltage=" + String(data.getVoltage());
+
+      http.begin(client, url);
+      uint16_t httpResponseCode = http.GET();
+      if (httpResponseCode > 0) {
+        Serial.print(F("Windy.com Response code: "));
+        Serial.println(httpResponseCode);
+        String payload = http.getString();
+        Serial.println(payload);
+      } else {
+        Serial.print(F("Error code Windy.com: "));
+        Serial.println(httpResponseCode);
+      }
+      http.end();
+    }
 }
 
 //WeathercloudClient class: handles data sending to Weathercloud
