@@ -139,6 +139,9 @@ class ThingspeakClient {
 };
 
 //Windy.comClient class: handles data sending to Windy.com
+class WindyClient {
+  public: 
+}
 
 //WeathercloudClient class: handles data sending to Weathercloud
 
