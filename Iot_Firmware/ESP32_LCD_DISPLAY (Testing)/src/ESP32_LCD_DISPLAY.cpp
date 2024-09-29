@@ -55,7 +55,11 @@ void initSensors() {
     while (1);
   }
   Serial.println("Found BMP280 sensor!");
-  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL, Adafruit_BMP280::SAMPLING_X2, Adafruit_BMP280::SAMPLING_X16, Adafruit_BMP280::FILTER_X16, Adafruit_BMP280::STANDBY_MS_500);
+  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL, 
+                  Adafruit_BMP280::SAMPLING_X2, 
+                  Adafruit_BMP280::SAMPLING_X16, 
+                  Adafruit_BMP280::FILTER_X16, 
+                  Adafruit_BMP280::STANDBY_MS_500);
 
   // Inisialisasi MAX17048
   if (!maxWin.begin()) {
