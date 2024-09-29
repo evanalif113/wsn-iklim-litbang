@@ -127,6 +127,9 @@ void sendDataToThingspeak() {
   url += "&field2=" + String(humidity);
   url += "&field3=" + String(pressure);
   url += "&field4=" + String(dewPoint);
+  url += "&field5=" + String();
+  url += "&field6=" + String();
+  url += "&field7=" + String();
   url += "&field8=" + String(voltage);
 
   http.begin(client, url);
