@@ -73,12 +73,18 @@ void initSensors() {
   Serial.println("Found MAX17048 sensor!");
 }
 
+void initDisplay() {
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+}
+
 // Fungsi untuk koneksi WiFi
 void connectWiFi() {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.print("Attempting to connect");
     while (WiFi.status() != WL_CONNECTED) {
-      WiFi.begin(RAHASIA_SSID1, RAHASIA_PASS1);
+      WiFi.begin(RAHASIA_SSID2, RAHASIA_PASS2);
       delay(5000);
       Serial.print(".");
     }
@@ -142,8 +148,7 @@ void setup() {
   pinMode(ledPin, OUTPUT);
 
   // Inisialisasi LCD
-  lcd.init();
-  lcd.backlight();
+  initDisplay();
 
   // Koneksi WiFi
   connectWiFi();
