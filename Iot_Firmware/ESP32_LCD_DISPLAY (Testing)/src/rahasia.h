@@ -14,7 +14,7 @@
 #define DEVICEAPI   "eff661ec5f6725c5d95fec8fcf9d92f8"
 
 //WINDY
-#define WINDY_API ""
+#define WINDY_API "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaSI6MTExMjE1MzIsImlhdCI6MTcyNzU4Mzg3OX0.E2U63QoGM9ENisc0rE542mSUd9wjrMDJ17ZCenFd0pc"
 
 //THINGSPEAK
 #define CH_ID 2		//ISikan dengan Channel ID	

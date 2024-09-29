@@ -166,7 +166,7 @@ class WindyClient {
       }
       http.end();
     }
-}
+};
 
 //WeathercloudClient class: handles data sending to Weathercloud
 
