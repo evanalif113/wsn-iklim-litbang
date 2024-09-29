@@ -25,10 +25,6 @@ Adafruit_MAX17048 maxWin;
 // LCD Display
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
-// WiFi credentials
-const char* ssid = RAHASIA_SSID1;
-const char* password = RAHASIA_PASS1;
-
 // Data sensor
 float temperature = 0, 
       humidity = 0, 
@@ -75,6 +71,19 @@ void initSensors() {
     while (1);
   }
   Serial.println("Found MAX17048 sensor!");
+}
+
+// Fungsi untuk koneksi WiFi
+void connectWiFi() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.print("Attempting to connect");
+    while (WiFi.status() != WL_CONNECTED) {
+      WiFi.begin(RAHASIA_SSID1, RAHASIA_PASS1);
+      delay(5000);
+      Serial.print(".");
+    }
+    Serial.println("\nConnected.");
+  }
 }
 
 // Fungsi untuk update data sensor
@@ -126,19 +135,6 @@ void sendDataToThingspeak() {
     Serial.println(httpResponseCode);
   }
   http.end();
-}
-
-// Fungsi untuk koneksi WiFi
-void connectWiFi() {
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.print("Attempting to connect");
-    while (WiFi.status() != WL_CONNECTED) {
-      WiFi.begin(ssid, password);
-      delay(5000);
-      Serial.print(".");
-    }
-    Serial.println("\nConnected.");
-  }
 }
 
 void setup() {
