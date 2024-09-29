@@ -6,6 +6,9 @@
 #include <Adafruit_MAX1704X.h>
 #include <LiquidCrystal_I2C.h>
 #include <ArduinoJson.h>
+#include <Firebase_ESP_Client.h>
+#include "addons/TokenHelper.h"
+#include "addons/RTDBHelper.h"
 #include "time.h"
 #include "rahasia.h"
 
