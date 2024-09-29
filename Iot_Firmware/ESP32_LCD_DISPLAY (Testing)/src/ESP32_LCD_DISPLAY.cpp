@@ -30,7 +30,15 @@ const char* ssid = RAHASIA_SSID1;
 const char* password = RAHASIA_PASS1;
 
 // Data sensor
-float temperature = 0, humidity = 0, pressure = 0, dewPoint = 0, voltage = 0;
+float temperature = 0, 
+      humidity = 0, 
+      pressure = 0, 
+      dewPoint = 0, 
+      windSpeed = 0,
+      windDirection = 0,
+      rainFall = 0,
+      rainRate = 0,
+      voltage = 0;
 
 // Fungsi untuk menghitung titik embun (dew point)
 float calculateDewPoint(float temperature, float humidity) {
