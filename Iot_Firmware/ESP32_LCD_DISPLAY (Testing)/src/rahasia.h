@@ -1,5 +1,4 @@
 //Gunakan untuk menyimpan informasi rahasia seperti SSID dan Password
-
 //Wifi 1
 #define RAHASIA_SSID1 "Kazu"		//Isikan dengan SSID1
 #define RAHASIA_PASS1 "HasuminBest"	//Isikan dengan Password SSID1
