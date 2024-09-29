@@ -2,11 +2,11 @@
 
 //Wifi 1
 #define RAHASIA_SSID1 "Kazu"		//Isikan dengan SSID1
-#define RAHASIA_PASS1 "HasuminBest"	//Isikan dengan Password1
+#define RAHASIA_PASS1 "HasuminBest"	//Isikan dengan Password SSID1
 
 //Wifi 2
 #define RAHASIA_SSID2 "Jerukagung Seismologi"		//Isikan dengan SSID2
-#define RAHASIA_PASS2 "riset1234"	//Isikan 
+#define RAHASIA_PASS2 "riset1234"	//Isikan dengan Password SSID2
 
 //Credentials Client
 //WEATHERCLOUD
