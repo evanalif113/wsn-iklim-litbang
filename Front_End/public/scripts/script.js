@@ -75,9 +75,6 @@ hitungRerata(2326256, 1, 60, 'suhu3');
 hitungRerata(2326256, 2, 60, 'kelembaban3');
 hitungRerata(2326256, 3, 60, 'tekanan3');
 
-
-
-
 // Replace these coordinates with the actual latitude and longitude of your station
 var BalaiDesaKoordinat = [-7.620403, 109.644307];
 var StaKlim1Koordinat = [-7.62306333, 109.64390667];
