@@ -175,21 +175,21 @@ footer {
   background-color: #ffa200;
   color: white;
 }
-.kontak {
-  display: inline-block;
-  padding: 10px 15px;
-  font-size: 16px;
-  text-align: center;
-  text-decoration: none;
-  background-color: #008722;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease-in-out;
-}
+  .kontak {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    background-color: #008722;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
 
-.kontak:hover {
-  background-color: #00a028;
-  padding: 10px 15px;
-}
+  .kontak:hover {
+    background-color: #4fb268;
+    padding: 10px 15px;
+  }
