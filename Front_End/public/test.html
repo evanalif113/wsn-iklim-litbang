@@ -1,23 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style/style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-    <title>Penelitian dan Pengembangan Jaringan Sensor Iklim</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="./img/icon.png">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./style/style2.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <title>Penelitian dan Pengembangan Jaringan Sensor Iklim</title>
 </head>
+
 <body>
-    <nav>
-        <h1>Dashboard Informasi Data Iklim</h1>
-        <ul>
-            <li><a href="http://">Beranda</a></li>
-            <li><a href="http://"></a>Tentang</li>
-            <li><a href="http://"></a>Kontak</li>
-        </ul>
-    </nav>
-    <main>
-    
-    </main>
+  <!-- Navbar -->
+  <nav id="navbar">
+    <span class="logo">Dashboard Informasi Data Iklim</span>
+    <div class="menu">
+      <a href="#home">Beranda</a>
+      <a href="#about">Tentang</a>
+      <a href="#contact">Kontak</a>
+      <a href="#login">Masuk</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="dashboard-container">
+    <section class="dashboard" id="welcome-message">
+      <h1 style="color: #fdfbfb">Selamat datang di Sistem Informasi Data Iklim</h1>
+      <p style="color: #f8f6f6">Penelitian dan Pengembangan Jaringan Sensor Iklim UKM Litbang</p>
+    </section>
+
+    <!-- Lokasi Stasiun Iklim -->
+    <section class="dashboard-container">
+      <div class="stasiun-title">Lokasi Stasiun Iklim</div>
+      <div id="map"></div>
+      
+      <!-- Informasi Iklim -->
+      <div class="informasi-musim" id="info-musim">Informasi Iklim</div>
+      <div class="iframe-container"></div>
+
+      <!-- Stasiun Iklim 1 -->
+      <article class="dashboard" id="stasiun-1">
+        <h2 class="stasiun-title">Stasiun Iklim 1</h2>
+        <div class="iframe-container">
+          <iframe src="https://thingspeak.com/channels/2281820/charts/1?bgcolor=%23ffffff&color=%2300b3b3&dynamic=true&results=60&title=Suhu+Lingkungan&type=spline"></iframe>
+          <iframe src="https://thingspeak.com/channels/2281820/charts/2?bgcolor=%23ffffff&color=%230fa67e&dynamic=true&results=60&title=Kelembapan+Relatif&type=spline"></iframe>
+          <iframe src="https://thingspeak.com/channels/2281820/charts/3?bgcolor=%23ffffff&color=%23f68923&dynamic=true&results=60&title=Tekanan+Udara&type=spline"></iframe>
+        </div>
+        <div class="rata-rata" id="suhu1"></div>
+        <div class="rata-rata" id="kelembaban1"></div>
+        <div class="rata-rata" id="tekanan1"></div>
+      </article>
+
+      <!-- Stasiun Iklim 2 -->
+      <article class="dashboard" id="stasiun-2">
+        <h2 class="stasiun-title">Stasiun Iklim 2</h2>
+        <div class="iframe-container">
+          <iframe src="https://thingspeak.com/channels/2289583/charts/1?bgcolor=%23ffffff&color=%2300b3b3&dynamic=true&results=60&title=Suhu+Lingkungan&type=spline"></iframe>
+          <iframe src="https://thingspeak.com/channels/2289583/charts/2?bgcolor=%23ffffff&color=%230fa67e&dynamic=true&results=60&title=Kelembapan+Relatif&type=spline"></iframe>
+          <iframe src="https://thingspeak.com/channels/2289583/charts/3?bgcolor=%23ffffff&color=%23f68923&dynamic=true&results=60&title=Tekanan+Udara&type=spline"></iframe>
+        </div>
+        <div class="rata-rata" id="suhu2"></div>
+        <div class="rata-rata" id="kelembaban2"></div>
+        <div class="rata-rata" id="tekanan2"></div>
+      </article>
+
+      <!-- Stasiun Iklim 3 -->
+      <article class="dashboard" id="stasiun-3">
+        <h2 class="stasiun-title">Stasiun Iklim 3</h2>
+        <div class="iframe-container">
+          <iframe src="https://thingspeak.com/channels/2326256/charts/1?bgcolor=%23ffffff&color=%2300b3b3&dynamic=true&results=60&title=Staklim+2+Sensor+Suhu+Lingkungan&type=spline"></iframe>
+          <iframe src="https://thingspeak.com/channels/2326256/charts/2?bgcolor=%23ffffff&color=%230fa67e&dynamic=true&results=60&title=Kelembapan+Relatif&type=spline"></iframe>
+          <iframe src="https://thingspeak.com/channels/2326256/charts/3?bgcolor=%23ffffff&color=%23f68923&dynamic=true&results=60&title=Tekanan+Udara&type=spline"></iframe>
+        </div>
+        <div class="rata-rata" id="suhu3"></div>
+        <div class="rata-rata" id="kelembaban3"></div>
+        <div class="rata-rata" id="tekanan3"></div>
+      </article>
+    </section>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="./scripts/script.js"></script>
+
+  <!-- Footer -->
+  <footer>
+    <h4>UKM LITBANG UPB KEBUMEN</h4>
+    <div>
+      <button class="kontak">
+        <a href="mailto:ppkormawalitbang01@gmail.com">Hubungi Kami</a>
+      </button>
+    </div>
+  </footer>
 </body>
+
 </html>
