@@ -178,8 +178,8 @@ footer {
 }
   .kontak {
     display: inline-block;
-    padding: 10px 15px;
-    font-size: 16px;
+    padding: 12px 17px;
+    font-size: 17px;
     text-align: center;
     text-decoration: none;
     background-color: #008722;
@@ -190,7 +190,11 @@ footer {
     transition: background-color 0.3s ease-in-out;
   }
 
+  .kontak a {
+    color: inherit;
+    text-decoration: none;
+  }
+
   .kontak:hover {
     background-color: #4fb268;
-    padding: 10px 15px;
   }
