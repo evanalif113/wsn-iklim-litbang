@@ -89,7 +89,7 @@ void setup() {
     delay(500);
   }
   LoRa.setGain(6);
-  LoRa.setSpreadingFactor(12);           // ranges from 6-12,default 7 see API docs
+  LoRa.setSpreadingFactor(11);           // ranges from 6-12,default 7 see API docs
   LoRa.setSignalBandwidth(250E3);
   LoRa.setCodingRate4(5);
   LoRa.enableCrc();
