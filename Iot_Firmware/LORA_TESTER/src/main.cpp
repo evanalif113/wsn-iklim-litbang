@@ -1,9 +1,20 @@
 #include <SPI.h>
 #include <LoRa.h>
+#include <ArduinoJson.h>
 
 // Define relay pin and other settings
 const int relayPin = 13; // Pin relay
 const int freq = 922E6;  // Frequency for Asia (922 MHz)
+
+uint id;
+float temp;
+float humi;
+float pres;
+float dew;
+float volt;
+float windir;
+float windspeed;
+float rain;
 
 //define the pins used by the transceiver module
 #define ss 5
@@ -78,7 +89,7 @@ void setup() {
     delay(500);
   }
   LoRa.setGain(6);
-  LoRa.setSpreadingFactor(11);           // ranges from 6-12,default 7 see API docs
+  LoRa.setSpreadingFactor(12);           // ranges from 6-12,default 7 see API docs
   LoRa.setSignalBandwidth(250E3);
   LoRa.setCodingRate4(5);
   LoRa.enableCrc();
@@ -96,4 +107,58 @@ void setup() {
 
 void loop() {
   // Main loop doing nothing unless LoRa message received
+  if (buf_message != message) {
+    digitalWrite(2, HIGH);
+    Serial.print("JSON: ");
+    Serial.println(buf_message);
+    JsonDocument doc;
+    deserializeJson(doc, buf_message);
+    id = doc["i"];
+    float t= doc["t"];
+    float h= doc["h"];
+    float p= doc["p"];
+    float wd= doc["wd"];
+    float ws= doc["ws"];
+    float r= doc["r"];
+    float v= doc["v"];
+    temp = t/100;
+    humi = h/100;
+    pres = p/100;
+    volt = v/100;
+
+    //filter NULL
+    if (temp == 0) {
+      temp = NAN; // Set temp menjadi NaN (Not a Number)
+      }
+    if (humi == 0) {
+      humi = NAN; // Set temp menjadi NaN (Not a Number)
+      }
+    if (pres == 0) {
+      pres = NAN; // Set temp menjadi NaN (Not a Number)
+      }
+
+    double calc = log(humi / 100.0F) + ((17.625F * temp) / (243.04F + temp));
+    dew = (243.04F * calc / (17.625F - calc));
+
+    //filter calc
+    if (dew == 0){
+      dew = NAN;
+      }
+    
+    Serial.print(F("Suhu:")); Serial.println(temp);
+    Serial.print(F("Kelembapan:")); Serial.println(humi);
+    Serial.print(F("Titik Embun:")); Serial.println(dew);
+    Serial.print(F("Tekanan Udara:")); Serial.println(pres);
+    Serial.print(F("Volt")); Serial.println(volt);
+    buf_message = message;
+    // print RSSI of packet
+    Serial.print("RSSI :");
+    Serial.println(LoRa.packetRssi());
+    Serial.print("SNR :");
+    Serial.println(LoRa.packetSnr());
+    Serial.print("Freq Error :");
+    Serial.println(LoRa.packetFrequencyError());
+    Serial.println(); 
+    digitalWrite(2, LOW);
+  }
 }
