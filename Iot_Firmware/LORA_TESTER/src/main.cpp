@@ -145,11 +145,11 @@ void loop() {
       dew = NAN;
       }
     
-    Serial.print(F("Suhu:")); Serial.println(temp);
-    Serial.print(F("Kelembapan:")); Serial.println(humi);
-    Serial.print(F("Titik Embun:")); Serial.println(dew);
-    Serial.print(F("Tekanan Udara:")); Serial.println(pres);
-    Serial.print(F("Volt")); Serial.println(volt);
+    Serial.print(F("Suhu: ")); Serial.println(temp);
+    Serial.print(F("Kelembapan: ")); Serial.println(humi);
+    Serial.print(F("Titik Embun: ")); Serial.println(dew);
+    Serial.print(F("Tekanan Udara: ")); Serial.println(pres);
+    Serial.print(F("Volt: ")); Serial.println(volt);
     buf_message = message;
     // print RSSI of packet
     Serial.print("RSSI :");
