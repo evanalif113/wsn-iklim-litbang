@@ -4,7 +4,6 @@
 
 // Define relay pin and other settings
 const int relayPin = 13; // Pin relay
-const int freq = 922E6;  // Frequency for Asia (922 MHz)
 
 uint id;
 float temp;
