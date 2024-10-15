@@ -151,6 +151,11 @@ void loop() {
     // Dew point calculation
     double calc = log(humi / 100.0F) + ((17.625F * temp) / (243.04F + temp));
     dew = (243.04F * calc / (17.625F - calc));
+    if (!isnan(temp) && temp != 0 &&
+        !isnan(humi) && humi != 0 &&
+        !isnan(pres) && pres != 0 &&
+        !isnan(dew) && dew != 0 &&
+        !isnan(volt) && volt != 0) {
 
     Serial.print(F("Suhu: ")); Serial.println(temp);
     Serial.print(F("Kelembapan: ")); Serial.println(humi);
@@ -173,5 +178,6 @@ void loop() {
     Serial.println(); 
 
     digitalWrite(2, LOW);
+    }
   }
 }
