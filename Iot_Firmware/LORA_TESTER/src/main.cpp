@@ -151,6 +151,7 @@ void loop() {
     // Dew point calculation
     double calc = log(humi / 100.0F) + ((17.625F * temp) / (243.04F + temp));
     dew = (243.04F * calc / (17.625F - calc));
+    
     if (!isnan(temp) && temp != 0 &&
         !isnan(humi) && humi != 0 &&
         !isnan(pres) && pres != 0 &&
