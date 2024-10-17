@@ -3,6 +3,7 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include "Rahasia.h"
 
 
 uint id;
@@ -23,12 +24,7 @@ float rain;
 String buf_message;
 String message;
 
-// Wi-Fi credentials
-const char* ssid = "Jerukagung Seismologi";    // SSID WiFi
-const char* password = "riset1234";      // Password WiFi
 
-// ThingSpeak API Key
-const String apiKey = "FCFMA0BDB3NACBXE";
 
 void LoRa_rxMode() {
   LoRa.disableInvertIQ();               // normal mode
