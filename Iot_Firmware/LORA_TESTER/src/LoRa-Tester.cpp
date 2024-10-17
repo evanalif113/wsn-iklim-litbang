@@ -1,10 +1,13 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <WiFi.h>
-#include <HTTPClient.h>
+#include <ThingSpeak.h>
 #include <ArduinoJson.h>
-#include "Rahasia.h"
 
+// ThingSpeak settings
+WiFiClient client;                       // WiFi client untuk ThingSpeak
+unsigned long myChannelNumber = 2289583;  // Channel ID
+const char * myWriteAPIKey = "FCFMA0BDB3NACBXE"; // API Key
 
 uint id;
 float temp;
@@ -24,7 +27,9 @@ float rain;
 String buf_message;
 String message;
 
-
+// Wi-Fi credentials
+const char* ssid = "Jerukagung Seismologi";    // SSID WiFi
+const char* password = "riset1234";      // Password WiFi
 
 void LoRa_rxMode() {
   LoRa.disableInvertIQ();               // normal mode
@@ -57,32 +62,21 @@ void onTxDone() {
 }
 
 void sendDataToThingSpeak(float temperature, float humidity, float pressure, float voltage, float dew_point) {
-  if (WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-    
-    String url = "http://api.thingspeak.com/update?api_key=" + apiKey;
-    url += "&field1=" + String(temperature);
-    url += "&field2=" + String(humidity);
-    url += "&field3=" + String(pressure);
-    url += "&field4=" + String(dew_point);
-    url += "&field5=" + String(LoRa.packetRssi());
-    url += "&field6=" + String(LoRa.packetSnr());
-    url += "&field7=" + String(LoRa.packetFrequencyError());
-    url += "&field8=" + String(voltage);
-    
-    http.begin(url);
-    int httpCode = http.GET();  // Send the request
+  ThingSpeak.setField(1, temperature);      // Field 1 untuk Suhu
+  ThingSpeak.setField(2, humidity);         // Field 2 untuk Kelembapan
+  ThingSpeak.setField(3, pressure);         // Field 3 untuk Tekanan Udara
+  ThingSpeak.setField(4, dew_point);        // Field 4 untuk Titik Embun
+  ThingSpeak.setField(5, LoRa.packetRssi()); // Field 5 untuk RSSI
+  ThingSpeak.setField(6, LoRa.packetSnr());  // Field 6 untuk SNR
+  ThingSpeak.setField(7, LoRa.packetFrequencyError()); // Field 7 untuk Frequency Error
+  ThingSpeak.setField(8, voltage);          // Field 8 untuk Voltase
 
-    if (httpCode > 0) {
-      String payload = http.getString();  // Get the request response payload
-      Serial.println("ThingSpeak response: " + payload);
-    } else {
-      Serial.println("Error sending data to ThingSpeak");
-    }
-
-    http.end();  // Close connection
+  int x = ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
+  
+  if (x == 200) {
+    Serial.println("Data berhasil dikirim ke ThingSpeak.");
   } else {
-    Serial.println("WiFi not connected");
+    Serial.println("Gagal mengirim data ke ThingSpeak. Kode error: " + String(x));
   }
 }
 
@@ -98,6 +92,9 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("\nConnected to WiFi");
+
+  // Initialize ThingSpeak
+  ThingSpeak.begin(client);
 
   // setup LoRa transceiver module
   LoRa.setPins(ss, rst, dio0);
