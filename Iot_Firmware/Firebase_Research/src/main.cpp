@@ -1,84 +1,101 @@
 /**
- * SYNTAX:
+ * This example is for new users which are familiar with other legacy Firebase libraries.
  *
- * Firestore::Databases::patch(<AsyncClient>, <Firestore::Parent>, <Database>, <UpdateMask>, <AsyncResultCallback>, <uid>);
+ * The example shows how to listen the data changes in your Firebase Realtime database
+ * while the database was set periodically.
+ * 
+ * All functions used in this example are non-blocking (async) functions.
  *
- * <AsyncClient> - The async client.
- * <Firestore::Parent> - The Firestore::Parent object included project Id and database Id in its constructor.
- * <Database> - The Firestore::Database object that holds the database information to update.
- * <UpdateMask> - The list of fields to be updated. This is a comma-separated list of fully qualified names of fields. Example: "user.displayName,photo".
- * <AsyncResultCallback> - The async result callback (AsyncResultCallback).
- * <uid> - The user specified UID of async result (optional).
+ * This example will use the database secret for priviledge Realtime database access which does not need
+ * to change the security rules or it can access Realtime database no matter what the security rules are set.
  *
- * The Firebase project Id should be only the name without the firebaseio.com.
- * The Firestore database id is the id of database to update.
+ * This example is for ESP32, ESP8266 and Raspberry Pi Pico W.
  *
- * The complete usage guidelines, please visit https://github.com/mobizt/FirebaseClient
+ * You can adapt the WiFi and SSL client library that are available for your devices.
+ *
+ * For the ethernet and GSM network which are not covered by this example,
+ * you have to try another elaborate examples and read the library documentation thoroughly.
+ *
  */
 
 #include <Arduino.h>
-#if defined(ESP32) || defined(ARDUINO_RASPBERRY_PI_PICO_W) || defined(ARDUINO_GIGA) || defined(ARDUINO_OPTA)
+#if defined(ESP32) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
 #include <WiFi.h>
 #elif defined(ESP8266)
 #include <ESP8266WiFi.h>
-#elif __has_include(<WiFiNINA.h>) || defined(ARDUINO_NANO_RP2040_CONNECT)
-#include <WiFiNINA.h>
-#elif __has_include(<WiFi101.h>)
-#include <WiFi101.h>
-#elif __has_include(<WiFiS3.h>) || defined(ARDUINO_UNOWIFIR4)
-#include <WiFiS3.h>
-#elif __has_include(<WiFiC3.h>) || defined(ARDUINO_PORTENTA_C33)
-#include <WiFiC3.h>
-#elif __has_include(<WiFi.h>)
-#include <WiFi.h>
 #endif
 
 #include <FirebaseClient.h>
+#include <WiFiClientSecure.h>
 
-#define WIFI_SSID "WIFI_AP"
-#define WIFI_PASSWORD "WIFI_PASSWORD"
+#define WIFI_SSID "server"
+#define WIFI_PASSWORD "jeris6467"
 
-// The API key can be obtained from Firebase console > Project Overview > Project settings.
-#define API_KEY "Web_API_KEY"
+#define DATABASE_SECRET "411cD22EWnsZKH1ovsFTjkUDCHWtZ2wu1aHahC21"
+#define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
 
-/**
- * This information can be taken from the service account JSON file.
- *
- * To download service account file, from the Firebase console, goto project settings,
- * select "Service accounts" tab and click at "Generate new private key" button
- */
-#define FIREBASE_PROJECT_ID "PROJECT_ID"
-#define FIREBASE_CLIENT_EMAIL "CLIENT_EMAIL"
-const char PRIVATE_KEY[] PROGMEM = "-----BEGIN PRIVATE KEY-----XXXXXXXXXXXX-----END PRIVATE KEY-----\n";
+// The SSL client used for secure server connection.
+WiFiClientSecure ssl1, ssl2;
 
-void timeStatusCB(uint32_t &ts);
+// The default network config object that used in this library.
+DefaultNetwork network;
 
-void asyncCB(AsyncResult &aResult);
+// The client, aka async client, is the client that handles many tasks required for each operation.
+AsyncClientClass client1(ssl1, getNetwork(network)), client2(ssl2, getNetwork(network));
 
-void printResult(AsyncResult &aResult);
-
-DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
-
-// ServiceAuth is required for Databases functions.
-ServiceAuth sa_auth(timeStatusCB, FIREBASE_CLIENT_EMAIL, FIREBASE_PROJECT_ID, PRIVATE_KEY, 3000 /* expire period in seconds (<= 3600) */);
-
+// The authentication task handler, aka FirebaseApp.
 FirebaseApp app;
 
-#if defined(ESP32) || defined(ESP8266) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
-#include <WiFiClientSecure.h>
-WiFiClientSecure ssl_client;
-#elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_UNOWIFIR4) || defined(ARDUINO_GIGA) || defined(ARDUINO_OPTA) || defined(ARDUINO_PORTENTA_C33) || defined(ARDUINO_NANO_RP2040_CONNECT)
-#include <WiFiSSLClient.h>
-WiFiSSLClient ssl_client;
-#endif
+// The Realtime database class object that provides the functions.
+RealtimeDatabase Database;
 
-using AsyncClient = AsyncClientClass;
+// The class that stores the operating result, aka AsyncResult.
+AsyncResult result1, result2;
 
-AsyncClient aClient(ssl_client, getNetwork(network));
+// The legacy token provider class used for authentication initialization.
+LegacyToken dbSecret(DATABASE_SECRET);
 
-Firestore::Databases Databases;
+unsigned long ms = 0;
 
-bool taskCompleted = false;
+void printResult(AsyncResult &aResult)
+{
+
+    if (aResult.isDebug())
+    {
+        Firebase.printf("Debug task: %s, msg: %s\n", aResult.uid().c_str(), aResult.debug().c_str());
+    }
+
+    if (aResult.isError())
+    {
+        Firebase.printf("Error task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.error().message().c_str(), aResult.error().code());
+    }
+
+    if (aResult.available())
+    {
+        RealtimeDatabaseResult &RTDB = aResult.to<RealtimeDatabaseResult>();
+        if (RTDB.isStream())
+        {
+            Serial.println("----------------------------");
+            Firebase.printf("task: %s\n", aResult.uid().c_str());
+            Firebase.printf("event: %s\n", RTDB.event().c_str());
+            Firebase.printf("path: %s\n", RTDB.dataPath().c_str());
+            Firebase.printf("data: %s\n", RTDB.to<const char *>());
+            Firebase.printf("type: %d\n", RTDB.type());
+
+            // The stream event from RealtimeDatabaseResult can be converted to the values as following.
+            bool v1 = RTDB.to<bool>();
+            int v2 = RTDB.to<int>();
+            float v3 = RTDB.to<float>();
+            double v4 = RTDB.to<double>();
+            String v5 = RTDB.to<String>();
+        }
+        else
+        {
+            Serial.println("----------------------------");
+            Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
+        }
+    }
+}
 
 void setup()
 {
@@ -99,97 +116,48 @@ void setup()
 
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
 
-    Serial.println("Initializing app...");
-
-#if defined(ESP32) || defined(ESP8266) || defined(PICO_RP2040)
-    ssl_client.setInsecure();
+    ssl1.setInsecure();
+    ssl2.setInsecure();
 #if defined(ESP8266)
-    ssl_client.setBufferSizes(4096, 1024);
-#endif
+    ssl1.setBufferSizes(1024, 1024);
+    ssl2.setBufferSizes(1024, 1024);
 #endif
 
-    initializeApp(aClient, app, getAuth(sa_auth), asyncCB, "authTask");
+    // Initialize the authentication handler.
+    initializeApp(client1, app, getAuth(dbSecret));
 
-    // Binding the FirebaseApp for authentication handler.
-    // To unbind, use Databases.resetApp();
-    app.getApp<Firestore::Databases>(Databases);
+    // Binding the authentication handler with your Database class object.
+    app.getApp<RealtimeDatabase>(Database);
+
+    // Set your database URL
+    Database.url(DATABASE_URL);
+
+    // Initiate the Stream connection to listen the data changes.
+    // This function can be called once.
+    // The Stream was connected using async get function (non-blocking) which the result will assign to the function in this case.
+    Database.get(client1, "/test/stream", result1, true /* this option is for Stream connection */);
 }
 
 void loop()
 {
-    // The async task handler should run inside the main loop
-    // without blocking delay or bypassing with millis code blocks.
+    // Polling for internal task operation
+    // This required for Stream in this case.
+    Database.loop();
 
-    // The JWT token processor required for ServiceAuth and CustomAuth authentications.
-    // JWT is a static object of JWTClass and it's not thread safe.
-    // In multi-threaded operations (multi-FirebaseApp), you have to define JWTClass for each FirebaseApp,
-    // and set it to the FirebaseApp via FirebaseApp::setJWTProcessor(<JWTClass>), before calling initializeApp.
-    JWT.loop(app.getAuth());
+    // We don't have to poll authentication handler task using app.loop() as seen in other examples
+    // because the database secret is the priviledge access key that never expired.
 
-    app.loop();
+    // Set the random int value to "/test/stream/int" every 20 seconds.
+    if (millis() - ms > 2000 || ms == 0) {
+        ms = millis();
 
-    Databases.loop();
-
-    if (app.ready() && !taskCompleted)
-    {
-        taskCompleted = true;
-
-        Serial.println("Updates a database... ");
-
-        Firestore::Database db;
-        db.pointInTimeRecoveryEnablement(Firestore::PointInTimeRecoveryEnablement::POINT_IN_TIME_RECOVERY_ENABLED);
-
-        String updateMask;
-
-        Databases.patch(aClient, Firestore::Parent(FIREBASE_PROJECT_ID, "myDb" /* database Id */), db, updateMask, asyncCB, "patchTask");
-    }
-}
-
-void timeStatusCB(uint32_t &ts)
-{
-#if defined(ESP8266) || defined(ESP32) || defined(CORE_ARDUINO_PICO)
-    if (time(nullptr) < FIREBASE_DEFAULT_TS)
-    {
-
-        configTime(3 * 3600, 0, "pool.ntp.org");
-        while (time(nullptr) < FIREBASE_DEFAULT_TS)
-        {
-            delay(100);
-        }
-    }
-    ts = time(nullptr);
-#elif __has_include(<WiFiNINA.h>) || __has_include(<WiFi101.h>)
-    ts = WiFi.getTime();
-#endif
-}
-
-void asyncCB(AsyncResult &aResult)
-{
-    // WARNING!
-    // Do not put your codes inside the callback and printResult.
-
-    printResult(aResult);
-}
-
-void printResult(AsyncResult &aResult)
-{
-    if (aResult.isEvent())
-    {
-        Firebase.printf("Event task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.appEvent().message().c_str(), aResult.appEvent().code());
+        // We set the data with this non-blocking set function (async) which the result was assign to the function.
+        Database.set<float>(client2, "/test/stream/int", random(100, 999), result2);
+        Database.set<float>(client2, "/test/stream/int2", random(100, 999), result2);
+        Database.set<float>(client2, "/test/stream/int3", random(100, 999), result2);
     }
 
-    if (aResult.isDebug())
-    {
-        Firebase.printf("Debug task: %s, msg: %s\n", aResult.uid().c_str(), aResult.debug().c_str());
-    }
-
-    if (aResult.isError())
-    {
-        Firebase.printf("Error task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.error().message().c_str(), aResult.error().code());
-    }
-
-    if (aResult.available())
-    {
-        Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
-    }
+    // Polling print the result if it is available.
+    printResult(result1);
+    printResult(result2);
 }
