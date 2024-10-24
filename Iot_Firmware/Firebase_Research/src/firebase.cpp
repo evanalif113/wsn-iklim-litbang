@@ -93,59 +93,50 @@ void setup()
     timeClient.begin();  // Initialize NTP Client
 }
 
-void loop()
-{
+void loop() {
     app.loop();
     Database.loop();
     timeClient.update();  // Update NTP time
 
-    if (millis() - ms > 2000 && app.ready())
-    {
+    if (millis() - ms > 2000 && app.ready()) {
         ms = millis();
         JsonWriter writer;
+        object_t json, obj, temp, humi, press;
 
-        object_t json, obj1, obj2;
-
-        writer.create(obj1, "ms", ms);
-        writer.create(obj2, "rand", random(10000, 30000));
-        writer.join(json, 2, obj1, obj2);
+        writer.create(obj, "ms", ms);
+        writer.create(temp, "suhu", random(20, 35));
+        writer.create(humi, "kelembapan", random(40, 80));
+        writer.create(press, "tekanan", random(1000, 1010));
+        writer.join(json, 4, obj, temp, humi, press);
 
         String timestamp = String(timeClient.getEpochTime()); // Get current epoch time
 
         // Dynamically use timestamp in the path
         String dbPath = "/test/stream/" + timestamp;
-        
         Database.set<object_t>(aClient2, dbPath.c_str(), json, asyncCB, "setTask");
     }
 }
 
-void asyncCB(AsyncResult &aResult)
-{
+void asyncCB(AsyncResult &aResult){
     printResult(aResult);
 }
 
-void printResult(AsyncResult &aResult)
-{
-    if (aResult.isEvent())
-    {
+void printResult(AsyncResult &aResult){
+    if (aResult.isEvent()) {
         Firebase.printf("Event task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.appEvent().message().c_str(), aResult.appEvent().code());
     }
 
-    if (aResult.isDebug())
-    {
+    if (aResult.isDebug()) {
         Firebase.printf("Debug task: %s, msg: %s\n", aResult.uid().c_str(), aResult.debug().c_str());
     }
 
-    if (aResult.isError())
-    {
+    if (aResult.isError()) {
         Firebase.printf("Error task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.error().message().c_str(), aResult.error().code());
     }
 
-    if (aResult.available())
-    {
+    if (aResult.available()) {
         RealtimeDatabaseResult &RTDB = aResult.to<RealtimeDatabaseResult>();
-        if (RTDB.isStream())
-        {
+        if (RTDB.isStream()) {
             Serial.println("----------------------------");
             Firebase.printf("task: %s\n", aResult.uid().c_str());
             Firebase.printf("event: %s\n", RTDB.event().c_str());
@@ -153,8 +144,7 @@ void printResult(AsyncResult &aResult)
             Firebase.printf("data: %s\n", RTDB.to<const char *>());
             Firebase.printf("type: %d\n", RTDB.type());
         }
-        else
-        {
+        else {
             Serial.println("----------------------------");
             Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
         }
