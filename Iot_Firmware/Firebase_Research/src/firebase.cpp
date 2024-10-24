@@ -65,10 +65,10 @@ void setup(){
 void loop() {
     app.loop();
     Database.loop();
-    timeClient.update();  // Update NTP time
-
+    
     if (millis() - ms > 10000 && app.ready()) {
         ms = millis();
+        timeClient.update();  // Update NTP time
         String timestamp = String(timeClient.getEpochTime()); // Get current epoch time
         JsonWriter writer;
         object_t json, t, h, p, d, v, times;
