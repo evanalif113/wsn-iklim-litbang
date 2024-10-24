@@ -71,16 +71,16 @@ void loop() {
         ms = millis();
         String timestamp = String(timeClient.getEpochTime()); // Get current epoch time
         JsonWriter writer;
-        object_t json, temp, humi, press, dew, volt, times;
+        object_t json, t, h, p, d, v, times;
 
-        writer.create(temp, "suhu", random(20, 35));
-        writer.create(humi, "kelembapan", random(40, 80));
-        writer.create(press, "tekanan", random(1000, 1010));
-        writer.create(dew, "embun", random(20,25));
-        writer.create(volt, "volt",random(0,4));
+        writer.create(t, "suhu", random(20, 35));
+        writer.create(h, "kelembapan", random(40, 80));
+        writer.create(p, "tekanan", random(1000, 1010));
+        writer.create(d, "embun", random(20,25));
+        writer.create(v, "volt",random(0,4));
         writer.create(times, "timestamp",timestamp);
 
-        writer.join(json, 6, temp, humi, press, dew, volt, times);
+        writer.join(json, 6, t, h, p, d, v, times);
 
         // Dynamically use timestamp in the path
         String dbPath = "/test/stream/" + timestamp;
