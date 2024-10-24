@@ -98,18 +98,22 @@ void loop() {
     Database.loop();
     timeClient.update();  // Update NTP time
 
-    if (millis() - ms > 2000 && app.ready()) {
+    if (millis() - ms > 10000 && app.ready()) {
         ms = millis();
+        String timestamp = String(timeClient.getEpochTime()); // Get current epoch time
         JsonWriter writer;
-        object_t json, obj, temp, humi, press;
+        object_t json, temp, humi, press, dew, volt, times;
 
-        writer.create(obj, "ms", ms);
         writer.create(temp, "suhu", random(20, 35));
         writer.create(humi, "kelembapan", random(40, 80));
         writer.create(press, "tekanan", random(1000, 1010));
-        writer.join(json, 4, obj, temp, humi, press);
+        writer.create(dew, "embun", random(20,25));
+        writer.create(volt, "volt",random(0,4));
+        writer.create(times, "timestamp",timestamp);
 
-        String timestamp = String(timeClient.getEpochTime()); // Get current epoch time
+        writer.join(json, 6, temp, humi, press, dew, volt, times);
+
+        
 
         // Dynamically use timestamp in the path
         String dbPath = "/test/stream/" + timestamp;
