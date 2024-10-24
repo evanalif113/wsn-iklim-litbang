@@ -35,16 +35,14 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200, 60000);  // UTC+7
 
 unsigned long ms = 0;
 
-void setup()
-{
+void setup(){
     Serial.begin(115200);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
     Serial.print("Connecting to Wi-Fi");
-    while (WiFi.status() != WL_CONNECTED)
-    {
+    while (WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
-        delay(300);
+        delay(50);
     }
     Serial.println();
     Serial.print("Connected with IP: ");
