@@ -16,6 +16,8 @@
 #endif
 
 #include <FirebaseClient.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 
 #define WIFI_SSID "server"
 #define WIFI_PASSWORD "jeris6467"
@@ -28,36 +30,30 @@
 #define USER_PASSWORD "kirim1234"
 #define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
 
-void authHandler();
-
+void asyncCB(AsyncResult &aResult);
 void printResult(AsyncResult &aResult);
 
-void printError(int code, const String &msg);
-
-DefaultNetwork network; // initialize with boolean parameter to enable/disable network reconnection
-
+DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
 UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
-
 FirebaseApp app;
 
-#if defined(ESP32) || defined(ESP8266) || defined(PICO_RP2040)
+#if defined(ESP32) || defined(ESP8266) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
 #include <WiFiClientSecure.h>
-WiFiClientSecure ssl_client;
+WiFiClientSecure ssl_client1, ssl_client2;
 #elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_UNOWIFIR4) || defined(ARDUINO_GIGA) || defined(ARDUINO_OPTA) || defined(ARDUINO_PORTENTA_C33) || defined(ARDUINO_NANO_RP2040_CONNECT)
 #include <WiFiSSLClient.h>
-WiFiSSLClient ssl_client;
+WiFiSSLClient ssl_client1, ssl_client2;
 #endif
 
 using AsyncClient = AsyncClientClass;
 
-AsyncClient aClient(ssl_client, getNetwork(network));
-
+AsyncClient aClient(ssl_client1, getNetwork(network)), aClient2(ssl_client2, getNetwork(network));
 RealtimeDatabase Database;
 
-AsyncResult aResult_no_callback;
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200, 60000);  // UTC+7
 
-unsigned long lastSendTime = 0;
-const unsigned long interval = 10000; // 10 detik pengulangan
+unsigned long ms = 0;
 
 void setup()
 {
@@ -76,62 +72,56 @@ void setup()
     Serial.println();
 
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
-
     Serial.println("Initializing app...");
 
 #if defined(ESP32) || defined(ESP8266) || defined(PICO_RP2040)
-    ssl_client.setInsecure();
+    ssl_client1.setInsecure();
+    ssl_client2.setInsecure();
 #if defined(ESP8266)
-    ssl_client.setBufferSizes(4096, 1024);
+    ssl_client1.setBufferSizes(4096, 1024);
+    ssl_client2.setBufferSizes(4096, 1024);
 #endif
 #endif
 
-    initializeApp(aClient, app, getAuth(user_auth), aResult_no_callback);
+    initializeApp(aClient2, app, getAuth(user_auth), asyncCB, "authTask");
 
-    authHandler();
-
-    // Binding the FirebaseApp for authentication handler.
     app.getApp<RealtimeDatabase>(Database);
-
     Database.url(DATABASE_URL);
 
-    // In case setting the external async result to the sync task (optional)
-    aClient.setAsyncResult(aResult_no_callback);
-}
-void sendDataWithTimestamp()
-{
-    object_t ts_json;
-    JsonWriter writer;
-    writer.create(ts_json, ".sv", "timestamp"); // -> {".sv": "timestamp"}
+    Database.setSSEFilters("get,put,patch,keep-alive,cancel,auth_revoked");
 
-    Serial.println("Set only timestamp... ");
-    bool status = Database.push<object_t>(aClient, "/test/timestamp", ts_json);
-    if (status)
-        Serial.println(String("ok"));
-    else
-        printError(aClient.lastError().code(), aClient.lastError().message());
-
-    object_t data_json, ts_data_json;
-
-    writer.create(data_json, "data", "hello");        // -> {"data": "hello"}
-    writer.join(ts_data_json, 2, data_json, ts_json); // -> {"data":"hello",".sv":"timestamp"}
-
-    Serial.println("Set timestamp and data... ");
-    status = Database.set<object_t>(aClient, "/test/timestamp", ts_data_json);
-    if (status)
-        Serial.println(String("ok"));
-    else
-        printError(aClient.lastError().code(), aClient.lastError().message());
+    timeClient.begin();  // Initialize NTP Client
 }
 
-void authHandler()
+void loop()
 {
-    unsigned long ms = millis();
-    while (app.isInitialized() && !app.ready() && millis() - ms < 120 * 1000)
+    app.loop();
+    Database.loop();
+    timeClient.update();  // Update NTP time
+
+    if (millis() - ms > 2000 && app.ready())
     {
-        JWT.loop(app.getAuth());
-        printResult(aResult_no_callback);
+        ms = millis();
+        JsonWriter writer;
+
+        object_t json, obj1, obj2;
+
+        writer.create(obj1, "ms", ms);
+        writer.create(obj2, "rand", random(10000, 30000));
+        writer.join(json, 2, obj1, obj2);
+
+        String timestamp = String(timeClient.getEpochTime()); // Get current epoch time
+
+        // Dynamically use timestamp in the path
+        String dbPath = "/test/stream/" + timestamp;
+        
+        Database.set<object_t>(aClient2, dbPath.c_str(), json, asyncCB, "setTask");
     }
+}
+
+void asyncCB(AsyncResult &aResult)
+{
+    printResult(aResult);
 }
 
 void printResult(AsyncResult &aResult)
@@ -150,24 +140,29 @@ void printResult(AsyncResult &aResult)
     {
         Firebase.printf("Error task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.error().message().c_str(), aResult.error().code());
     }
-}
 
-void printError(int code, const String &msg)
-{
-    Firebase.printf("Error, msg: %s, code: %d\n", msg.c_str(), code);
-}
-void loop()
-{
-    authHandler();
-    Database.loop();
-
-    // Cek apakah waktu 10 detik sudah berlalu
-    if (millis() - lastSendTime >= interval)
+    if (aResult.available())
     {
-        // Mengirimkan timestamp dan data
-        sendDataWithTimestamp();
-        lastSendTime = millis(); // Reset waktu terakhir pengiriman
+        RealtimeDatabaseResult &RTDB = aResult.to<RealtimeDatabaseResult>();
+        if (RTDB.isStream())
+        {
+            Serial.println("----------------------------");
+            Firebase.printf("task: %s\n", aResult.uid().c_str());
+            Firebase.printf("event: %s\n", RTDB.event().c_str());
+            Firebase.printf("path: %s\n", RTDB.dataPath().c_str());
+            Firebase.printf("data: %s\n", RTDB.to<const char *>());
+            Firebase.printf("type: %d\n", RTDB.type());
+        }
+        else
+        {
+            Serial.println("----------------------------");
+            Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
+        }
+
+#if defined(ESP32) || defined(ESP8266)
+        Firebase.printf("Free Heap: %d\n", ESP.getFreeHeap());
+#elif defined(ARDUINO_RASPBERRY_PI_PICO_W)
+        Firebase.printf("Free Heap: %d\n", rp2040.getFreeHeap());
+#endif
     }
 }
-
-
