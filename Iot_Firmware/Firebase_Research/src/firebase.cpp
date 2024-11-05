@@ -88,7 +88,7 @@ void loop() {
     }
 }
 
-void asyncCB(AsyncResult &aResult){
+void asyncCB(AsyncResult &aResult) {
     printResult(aResult);
 }
 
