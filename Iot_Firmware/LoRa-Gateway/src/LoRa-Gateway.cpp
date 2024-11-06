@@ -8,6 +8,8 @@
 #include <HTTPClient.h>
 #include <WiFiClient.h>
 #include <WiFiClientSecure.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 #include <FirebaseClient.h>
 #include <SPI.h>
 #include <LoRa.h>
@@ -21,7 +23,6 @@
 #define USER_EMAIL "esp32@mail.com"
 #define USER_PASSWORD "kirim1234"
 #define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
-String id = "3";
 
 void asyncCB(AsyncResult &aResult);
 void printResult(AsyncResult &aResult);
@@ -60,157 +61,37 @@ float rain;
 String buf_message;
 String message;
 
-void Windy() {
-const char* windy_ca= \
-  "-----BEGIN CERTIFICATE-----\n" \
-"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\n"\
-"-----END CERTIFICATE-----\n" ;
-
-      WiFiClientSecure client;
-      client.setCACert(windy_ca);
-      HTTPClient https;
-
-      http.setTimeout(2000);
-      String serverPath = "https://stations.windy.com/pws/update/";
-      serverPath += "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaSI6MTM2NjMyNiwiaWF0IjoxNjY4OTYxMTYwfQ._axcUYfBSkHB_L1_NB5Vrru2aDUfFwj-ua7ewqXrPpA?";
-      serverPath += "temp=" + String(temp); //suhu (Celcius)
-      serverPath += "&humidity=" + String(humi); //kelembapan (Persen)
-      serverPath += "&mbar=" + String(pres); //tekanan (hPa)
-      serverPath += "&dewpoint=" + String(dew); //titik embun (Celcius)
-      serverPath += "&wind=" + String(5); //kecepatan angin (m/s)
-      serverPath += "&winddir=" + String(0); //arah angin (derajat)
-      serverPath += "&rain=" + String(0); //curah hujan (mm) tiap jam
-      serverPath += "&station=0";
-      serverPath += "&name=Jerukagung_Meteorologi";
-      https.addHeader("Content-Type", "text/plain");
-      https.begin(client, serverPath.c_str());
-
-      // Send HTTP GET request
-      int ResponseCode = https.GET();
-      
-      if (ResponseCode>0) {
-        Serial.print("Windy Response code: ");
-        Serial.println(ResponseCode);
-        String payload = https.getString();
-        Serial.println(payload);
-      }
-      else {
-        Serial.print("Windy Error code: ");
-        Serial.println(ResponseCode);
-      }
-      // Free resources
-      //Serial.println(serverPath);
-      https.end();
-}
-
-void Thingspeak() {
-      WiFiClient client;
-      HTTPClient http;
-
-      http.setTimeout(2000);
-      String url1 = "http://api.thingspeak.com/update?api_key=" + ThingspeaKey;
-      url1 += "&field1=" + String(temp);
-      url1 += "&field2=" + String(humi);
-      url1 += "&field3=" + String(pres);
-      url1 += "&field4=" + String(dew);
-      url1 += "&field8=" + String(volt);
-      // Send HTTP POST request
-      http.begin(client, url1);
-      int httpResponseCode1 = http.GET();
-      if (httpResponseCode1 > 0) {
-        Serial.print(F("Thingspeak Response code: "));
-        Serial.println(httpResponseCode1);
-        String payload = http.getString();
-        Serial.println(payload);
-      } 
-      else {
-        Serial.print(F("Error code Thingspeak: "));
-        Serial.println(httpResponseCode1);
-      }
-      http.end();
-}
 void FirebaseSetup() {
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer); //NTP Server
-  // Assign the api key (required)
-  config.api_key = FIREBASE_AUTH;
-  // Assign the user sign in credentials
-  auth.user.email = FIREBASE_USER;
-  auth.user.password = FIREBASE_PASS;
-  // Assign the RTDB URL (required)
-  config.database_url = FIREBASE_HOST;
-  Firebase.reconnectWiFi(true);
-  fbdo.setResponseSize(4096);
-  // Assign the callback function for the long running token generation task */
-  config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
+    Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
+    Serial.println("Initializing app...");
 
-  // Assign the maximum retry of token generation
-  config.max_token_generation_retry = 5;
+    ssl_client2.setInsecure();
 
-  // Initialize the library with the Firebase authen and config
-  Firebase.begin(&config, &auth);
-
-  // Getting the user UID might take a few seconds
-  Serial.println("Getting User UID");
-  while ((auth.token.uid) == "") {
-    Serial.print('.');
-    delay(1000);
-  }
-  // Print user UID
-  String uid = auth.token.uid.c_str();
-  Serial.print("User UID: "); Serial.println(uid);
-
+    initializeApp(aClient2, app, getAuth(user_auth), asyncCB, "authTask");
+    app.getApp<RealtimeDatabase>(Database);
+    Database.url(DATABASE_URL);
+    Database.setSSEFilters("get,put,patch,keep-alive,cancel,auth_revoked");
+    timeClient.begin();  // Initialize NTP Client
 }
 
 void FirebaseData() {
-    // Update database path
-    databasePath = "/auto_weather_stat/id-0"+String(id)+"/data";
-    timestamp = getTime();
-    espheapram = ESP.getFreeHeap();
-    Serial.println (timestamp);
-    Serial.println (espheapram);
-    
-    parentPath = databasePath + "/" + String(timestamp);
-    json.set(TempPath.c_str(), String(temp));
-    json.set(HumiPath.c_str(), String(humi));
-    json.set(PresPath.c_str(), String(pres));
-    json.set(DewPath.c_str(),  String(dew));
-    json.set(VoltPath.c_str(), String(volt));
-    
-    
-    //json.set(espheapramPath.c_str(),  String(espheapram));
-    json.set(timePath.c_str(),  String(timestamp));
+  timeClient.update();  // Update NTP time
+  String timestamp = String(timeClient.getEpochTime()); // Get current epoch time
+  JsonWriter writer;
+  object_t json, t, h, p, d, v, times;
 
-    Serial.printf("Set json... %s\n", Firebase.RTDB.setJSON(&fbdo, parentPath.c_str(), &json) ? "ok" : fbdo.errorReason().c_str());
-   
-    Serial.println(ESP.getFreeHeap());
+  writer.create(t, "temp", random(20, 35));
+  writer.create(h, "humi", random(40, 80));
+  writer.create(p, "pres", random(1000, 1010));
+  writer.create(d, "dew", random(20,25));
+  writer.create(v, "volt",random(0,4));
+  writer.create(times, "timestamp",timestamp);
+
+  writer.join(json, 6, t, h, p, d, v, times);
+
+  // Dynamically use timestamp in the path
+  String dbPath = "/auto_weather_stat/id-0"+String(id)+"/data/" + timestamp;
+  Database.set<object_t>(aClient2, dbPath.c_str(), json, asyncCB, "setTask");
 }
 
 void LoRa_rxMode() {
@@ -260,7 +141,7 @@ WiFiMulti wifiMulti;
 void initMultiWiFi() {
   // Add list of wifi networks
   wifiMulti.addAP("Jerukagung Seismologi", "riset1234");
-  wifiMulti.addAP("server", "risetiklim");
+  wifiMulti.addAP("server", "jeris6467");
   // Connect to Wi-Fi using wifiMulti (connects to the SSID with strongest connection)
   Serial.println("Connecting Wifi.....");
   if (wifiMulti.run() == WL_CONNECTED) {
@@ -296,6 +177,41 @@ void connectionstatusMulti() {
     } else {
     Serial.println("WiFi Failed!");
   }
+}
+
+void asyncCB(AsyncResult &aResult) {
+    printResult(aResult);
+}
+
+void printResult(AsyncResult &aResult){
+    if (aResult.isEvent()) {
+        Firebase.printf("Event task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.appEvent().message().c_str(), aResult.appEvent().code());
+    }
+
+    if (aResult.isDebug()) {
+        Firebase.printf("Debug task: %s, msg: %s\n", aResult.uid().c_str(), aResult.debug().c_str());
+    }
+
+    if (aResult.isError()) {
+        Firebase.printf("Error task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.error().message().c_str(), aResult.error().code());
+    }
+
+    if (aResult.available()) {
+        RealtimeDatabaseResult &RTDB = aResult.to<RealtimeDatabaseResult>();
+        if (RTDB.isStream()) {
+            Serial.println("----------------------------");
+            Firebase.printf("task: %s\n", aResult.uid().c_str());
+            Firebase.printf("event: %s\n", RTDB.event().c_str());
+            Firebase.printf("path: %s\n", RTDB.dataPath().c_str());
+            Firebase.printf("data: %s\n", RTDB.to<const char *>());
+            Firebase.printf("type: %d\n", RTDB.type());
+        }
+        else {
+            Serial.println("----------------------------");
+            Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
+        }
+        Firebase.printf("Free Heap: %d\n", ESP.getFreeHeap());
+    }
 }
 
 void setup() {
@@ -343,10 +259,6 @@ void setup() {
 
 unsigned int checkStatusPeriode = 120000;
 unsigned int checkStatusNext;
-//unsigned int checkGpsPeriode = 5000;
-//unsigned int checkGpsNext;
-unsigned int WeathercloudPeriode = 150000;
-unsigned int WeathercloudNext;
 unsigned int WindyPeriode = 600000;
 unsigned int WindyNext;
 unsigned long FirebasePeriode = 60000;
@@ -357,7 +269,7 @@ void Data() {
     digitalWrite(2, HIGH);
     Serial.print("JSON: ");
     Serial.println(buf_message);
-    DynamicJsonDocument doc(128);
+    JsonDocument doc;
     deserializeJson(doc, buf_message);
     id = doc["i"];
     float t= doc["t"];
@@ -416,12 +328,8 @@ void Data() {
     Serial.println("RSSI LoRa:" + String(LoRa.packetRssi()));
     Serial.println("SNR:" + String(LoRa.packetSnr()));
     Serial.println(); 
-    Thingspeak();
-
-    if (Firebase.ready()) {
-    FirebaseData();
-    }
-    Windy();
+    //Thingspeak();
+    //Windy();
     digitalWrite(2, LOW);
   }
 }
