@@ -3,6 +3,7 @@
 #include <FirebaseClient.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
+#include <WiFiClientSecure.h>
 
 #define WIFI_SSID "server"
 #define WIFI_PASSWORD "jeris6467"
@@ -14,6 +15,7 @@
 #define USER_EMAIL "esp32@mail.com"
 #define USER_PASSWORD "kirim1234"
 #define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
+String id = "3";
 
 void asyncCB(AsyncResult &aResult);
 void printResult(AsyncResult &aResult);
@@ -22,12 +24,10 @@ DefaultNetwork network; // initilize with boolean parameter to enable/disable ne
 UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
 FirebaseApp app;
 
-#include <WiFiClientSecure.h>
-WiFiClientSecure ssl_client1, ssl_client2;
-
 using AsyncClient = AsyncClientClass;
 
-AsyncClient aClient(ssl_client1, getNetwork(network)), aClient2(ssl_client2, getNetwork(network));
+WiFiClientSecure ssl_client2;
+AsyncClient aClient2(ssl_client2, getNetwork(network));
 RealtimeDatabase Database;
 
 WiFiUDP ntpUDP;
@@ -52,7 +52,6 @@ void setup(){
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
     Serial.println("Initializing app...");
 
-    ssl_client1.setInsecure();
     ssl_client2.setInsecure();
 
     initializeApp(aClient2, app, getAuth(user_auth), asyncCB, "authTask");
@@ -73,17 +72,17 @@ void loop() {
         JsonWriter writer;
         object_t json, t, h, p, d, v, times;
 
-        writer.create(t, "suhu", random(20, 35));
-        writer.create(h, "kelembapan", random(40, 80));
-        writer.create(p, "tekanan", random(1000, 1010));
-        writer.create(d, "embun", random(20,25));
+        writer.create(t, "temp", random(20, 35));
+        writer.create(h, "humi", random(40, 80));
+        writer.create(p, "pres", random(1000, 1010));
+        writer.create(d, "dew", random(20,25));
         writer.create(v, "volt",random(0,4));
         writer.create(times, "timestamp",timestamp);
 
         writer.join(json, 6, t, h, p, d, v, times);
 
         // Dynamically use timestamp in the path
-        String dbPath = "/test/stream/" + timestamp;
+        String dbPath = "/auto_weather_stat/id-0"+String(id)+"/data/" + timestamp;
         Database.set<object_t>(aClient2, dbPath.c_str(), json, asyncCB, "setTask");
     }
 }
