@@ -13,24 +13,17 @@
 #include "addons/TokenHelper.h"
 // Provide the RTDB payload printing info and other helper functions.
 #include "addons/RTDBHelper.h"
-//#include <TinyGPS++.h>
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>
 #include "time.h"
 #include "rahasia.h"
 
-//#include <BlynkSimpleEsp32.h>
-
-//#define RXD2 25
-//#define TXD2 26
-//HardwareSerial neogps(1);
-//TinyGPSPlus gps;
 
 //ConfigTime Constanta
 const char* gmtOffset_sec = "25200"; //GMT +7
 const char* daylightOffset_sec = "0";
-const char* ntpServer = "time.google.com";  //NTP server
+const char* ntpServer = "pool.ntp.org";  //NTP server
 
 // Define Firebase objects
 FirebaseData fbdo;
@@ -86,42 +79,6 @@ unsigned long getTime() {
   }
   time(&now);
   return now;
-}
-
-void Weathercloud() {
-      WiFiClient client;
-      HTTPClient http;
-
-      http.setTimeout(2000);
-      String url2 = "http://api.weathercloud.net/set/wid/" + deviceID + "/key/" + deviceApi;
-      url2 += "/temp/" + String(temp * 10);
-      url2 += "/hum/" + String(humi);
-      url2 += "/bar/" + String(pres * 10);
-      url2 += "/dew/" + String(dew * 10);
-      url2 += "/heat/" + String(dew * 10);
-      //url2 += "/chill/" + String(dew * 10);
-      url2 += "/wspd/" + String(0);
-      url2 += "/wspdhi/" + String(0);
-      url2 += "/wdir/" + String(0);
-      url2 += "/rain/" + String(0 * 10);
-      url2 += "/rainrate/" + String(0 * 10);
-      //url2 += "/solarrad/" + String(0 * 10);
-      //url2 += "/et/" + String(0 * 10);
-      //url2 += "/uvi/" + String(0 * 10);
-
-      http.begin(client, url2);
-      int WCResponseCode = http.GET();
-      if (WCResponseCode > 0) {
-        Serial.print("Weathercloud Response code: ");
-        Serial.println(WCResponseCode);
-        String payload = http.getString();
-        Serial.println(payload);
-      } 
-      else {
-        Serial.print("Error code Weathercloud: ");
-        Serial.println(WCResponseCode);
-      }
-      http.end();
 }
 
 void Windy() {
@@ -319,51 +276,6 @@ boolean runEvery(unsigned long interval) {
   return false;
 }
 
-/*void GpsData() {
-  while (neogps.available()){
-    if (gps.encode(neogps.read())){
-      Serial.print("SATS: ");
-      Serial.println(gps.satellites.value());
-      Serial.print("LATITUDE: ");
-      Serial.println(gps.location.lat(), 8);
-      Serial.print("LONGITUDE: ");
-      Serial.println(gps.location.lng(), 8);
-      Serial.println("---------------------------");
-    }
-  }
-}*/
-
-// Initialize WiFi
-/*void initWiFi() {
-  WiFi.begin(ssid, pass);
-  Serial.print("Connecting to WiFi....");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print('.');
-    delay(100);
-  }
-  Serial.println(WiFi.localIP());
-  Serial.println();
-}
-// Maintain WiFi connection
-void connectionstatus() {
-  if ((WiFi.status() != WL_CONNECTED) ) {
-    Serial.println("Reconnecting to WiFi...");
-    WiFi.disconnect();
-    WiFi.reconnect();
-    WiFi.begin(ssid, pass);
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(100);
-      Serial.print(".");
-    }
-    Serial.println();
-    Serial.println(WiFi.localIP());
-    //Alternatively, you can restart your board
-    //ESP.restart();
-  } else {
-    Serial.println("WiFi OK!");
-  }
-}*/
-
 WiFiMulti wifiMulti;
 
 void initMultiWiFi() {
@@ -525,8 +437,7 @@ void Data() {
     Serial.println("RSSI LoRa:" + String(LoRa.packetRssi()));
     Serial.println("SNR:" + String(LoRa.packetSnr()));
     Serial.println(); 
-    Thingspeak(); 
-    Weathercloud();
+    Thingspeak();
 
     if (Firebase.ready()) {
     FirebaseData();
@@ -545,15 +456,7 @@ void loop() {
   connectionstatusMulti();
   checkStatusNext = millis() + checkStatusPeriode;
   }
-  /*
-  if (checkGpsNext <= millis()) {
-  GpsData();
-  checkGpsNext = millis() + checkGpsPeriode;
-  }
-  if (checkWeatherNext <= millis()) {
-  Weathercloud();
-  checkWeatherNext = millis() + checkWeatherPeriode;
-  }
+  /**
   if (Firebase.ready() && (FirebaseNext <= millis() || FirebaseNext == 0)) {
   FirebaseData();
   FirebaseNext = millis() + FirebasePeriode;
