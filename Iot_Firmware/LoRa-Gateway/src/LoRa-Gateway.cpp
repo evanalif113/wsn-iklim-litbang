@@ -8,15 +8,10 @@
 #include <HTTPClient.h>
 #include <WiFiClient.h>
 #include <WiFiClientSecure.h>
-#include <Firebase_ESP_Client.h>
-// Provide the token generation process info.
-#include "addons/TokenHelper.h"
-// Provide the RTDB payload printing info and other helper functions.
-#include "addons/RTDBHelper.h"
+#include <FirebaseClient.h>
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>
-#include "time.h"
 #include "rahasia.h"
 
 
