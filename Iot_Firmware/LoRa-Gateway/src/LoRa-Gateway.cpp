@@ -14,36 +14,33 @@
 #include <ArduinoJson.h>
 #include "rahasia.h"
 
+// The API key can be obtained from Firebase console > Project Overview > Project settings.
+#define API_KEY "AIzaSyCLnLUN0jSUj7X37VTVJciUHsIyl4sT0-0"
 
-//ConfigTime Constanta
-const char* gmtOffset_sec = "25200"; //GMT +7
-const char* daylightOffset_sec = "0";
-const char* ntpServer = "pool.ntp.org";  //NTP server
+// User Email and password that already registerd or added in your project.
+#define USER_EMAIL "esp32@mail.com"
+#define USER_PASSWORD "kirim1234"
+#define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
+String id = "3";
 
-// Define Firebase objects
-FirebaseData fbdo;
-FirebaseAuth auth;
-FirebaseConfig config;
+void asyncCB(AsyncResult &aResult);
+void printResult(AsyncResult &aResult);
 
-// Variable to save USER UID
-//String uid;
-// Database main path (to be updated in setup with the user UID)
-String databasePath;
-// Database child nodes
-String TempPath = "/temperature";
-String HumiPath = "/humidity";
-String PresPath = "/pressure";
-String DewPath  = "/dew";
+DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
+UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
+FirebaseApp app;
 
-String VoltPath        = "/volt";
-String timePath        = "/timestamp";
-String espheapramPath  = "/espheapram";
+using AsyncClient = AsyncClientClass;
 
-// Parent Node (to be updated in every loop)
-String parentPath;
+WiFiClientSecure ssl_client2;
+AsyncClient aClient2(ssl_client2, getNetwork(network));
+RealtimeDatabase Database;
+
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200, 60000);  // UTC+7
+
 int timestamp;
 int espheapram;
-FirebaseJson json;
 
 //define the pins used by the transceiver module
 #define ss 5
@@ -60,21 +57,8 @@ float windir;
 float windspeed;
 float rain;
 
-
 String buf_message;
 String message;
-
-// Function that gets current epoch time
-unsigned long getTime() {
-  time_t now;
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    //Serial.println("Failed to obtain time");
-    return (0);
-  }
-  time(&now);
-  return now;
-}
 
 void Windy() {
 const char* windy_ca= \
@@ -443,6 +427,8 @@ void Data() {
 }
 
 void loop() {
+  app.loop();
+  Database.loop();
   /*if (checkStatusNext<=millis() && WiFi.status() !=WL_CONNECTED) {
   connectionstatus();
   checkStatusNext = millis() + checkStatusPeriode;
