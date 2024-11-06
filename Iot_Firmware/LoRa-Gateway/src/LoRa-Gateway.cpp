@@ -14,7 +14,6 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>
-#include "rahasia.h"
 
 // The API key can be obtained from Firebase console > Project Overview > Project settings.
 #define API_KEY "AIzaSyCLnLUN0jSUj7X37VTVJciUHsIyl4sT0-0"
@@ -80,11 +79,11 @@ void FirebaseData() {
   JsonWriter writer;
   object_t json, t, h, p, d, v, times;
 
-  writer.create(t, "temp", random(20, 35));
-  writer.create(h, "humi", random(40, 80));
-  writer.create(p, "pres", random(1000, 1010));
-  writer.create(d, "dew", random(20,25));
-  writer.create(v, "volt",random(0,4));
+  writer.create(t, "temp", temp);
+  writer.create(h, "humi", humi);
+  writer.create(p, "pres", pres);
+  writer.create(d, "dew", dew);
+  writer.create(v, "volt", volt);
   writer.create(times, "timestamp",timestamp);
 
   writer.join(json, 6, t, h, p, d, v, times);
@@ -314,6 +313,8 @@ void Data() {
     int rssi = WiFi.RSSI();
     int ram = ESP.getFreeHeap();
     int rssiLora = LoRa.packetRssi();
+
+    FirebaseData();
 
     // print RSSI of packet
     //SerialBT.print("RSSI :");
