@@ -42,7 +42,7 @@ AsyncClient aClient(ssl_client, getNetwork(network));
 RealtimeDatabase Database;
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200, 60000);  // UTC+7
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 0, 60000);
 
 //define the pins used by the transceiver module
 #define ss 5
@@ -63,6 +63,7 @@ String buf_message;
 String message;
 
 void FirebaseSetup() {
+    timeClient.begin();  // Initialize NTP Client
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
 
     ssl_client.setInsecure();
@@ -70,8 +71,7 @@ void FirebaseSetup() {
     initializeApp(aClient, app, getAuth(user_auth), asyncCB, "authTask");
     app.getApp<RealtimeDatabase>(Database);
     Database.url(DATABASE_URL);
-    Database.setSSEFilters("get,put,patch,keep-alive,cancel,auth_revoked");
-    timeClient.begin();  // Initialize NTP Client
+    Database.setSSEFilters("get,put,patch,keep-alive,cancel,auth_revoked");   
 }
 
 void FirebaseData() {
