@@ -3,6 +3,7 @@
   @date 2024
   @version 4.1
 *********/
+
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <HTTPClient.h>
@@ -40,9 +41,6 @@ RealtimeDatabase Database;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 25200, 60000);  // UTC+7
 
-int timestamp;
-int espheapram;
-
 //define the pins used by the transceiver module
 #define ss 5
 #define rst 16
@@ -75,8 +73,10 @@ void FirebaseSetup() {
 
 void FirebaseData() {
   timeClient.update();  // Update NTP time
-  String timestamp = String(timeClient.getEpochTime()); // Get current epoch time
-  JsonWriter writer;
+  unsigned long timestamp = timeClient.getEpochTime(); // Get current epoch time
+
+  //JSON Constructor by FirebaseClient
+  /*JsonWriter writer;
   object_t json, t, h, p, d, v, times;
 
   writer.create(t, "temp", temp);
@@ -86,11 +86,26 @@ void FirebaseData() {
   writer.create(v, "volt", volt);
   writer.create(times, "timestamp",timestamp);
 
-  writer.join(json, 6, t, h, p, d, v, times);
+  writer.join(json, 6, t, h, p, d, v, times);*/
+
+  //JSON Constructor by ArduinoJSON
+  JsonDocument doc1;
+
+  doc1["dew"] = dew;
+  doc1["humi"] = humi;
+  doc1["pres"] = pres;
+  doc1["temp"] = temp;
+  doc1["timestamp"] = timestamp;
+  doc1["volt"] = volt;
+
+  String datCu;
+
+  doc1.shrinkToFit();  // optional
+  serializeJson(doc1, datCu);
 
   // Dynamically use timestamp in the path
   String dbPath = "/auto_weather_stat/id-0"+String(id)+"/data/" + timestamp;
-  Database.set<object_t>(aClient, dbPath.c_str(), json, asyncCB, "setTask");
+  Database.set<object_t>(aClient, dbPath.c_str(), object_t(datCu), asyncCB, "setTask");
 }
 
 void LoRa_rxMode() {
@@ -260,8 +275,6 @@ unsigned int checkStatusPeriode = 120000;
 unsigned int checkStatusNext;
 unsigned int WindyPeriode = 600000;
 unsigned int WindyNext;
-unsigned long FirebasePeriode = 60000;
-unsigned long FirebaseNext;
 
 void Data() {
   if (buf_message != message) {
@@ -283,25 +296,14 @@ void Data() {
     pres = p/100;
     volt = v/100;
 
-    //filter NULL
-    if (temp == 0) {
-      temp = NAN; // Set temp menjadi NaN (Not a Number)
-      }
-    if (humi == 0) {
-      humi = NAN; // Set temp menjadi NaN (Not a Number)
-      }
-    if (pres == 0) {
-      pres = NAN; // Set temp menjadi NaN (Not a Number)
-      }
+  double calc = log(humi / 100.0F) + ((17.625F * temp) / (243.04F + temp));
+  dew = (243.04F * calc / (17.625F - calc));
 
-    double calc = log(humi / 100.0F) + ((17.625F * temp) / (243.04F + temp));
-    dew = (243.04F * calc / (17.625F - calc));
-
-    //filter calc
-    if (dew == 0){
-      dew = NAN;
-      }
-    
+  if (!isnan(temp) && temp != 0 &&
+      !isnan(humi) && humi != 0 &&
+      !isnan(pres) && pres != 0 &&
+      !isnan(dew)  && dew != 0 &&
+      !isnan(volt) && volt != 0) {
     Serial.print(F("Suhu:")); Serial.println(temp);
     Serial.print(F("Kelembapan:")); Serial.println(humi);
     Serial.print(F("Titik Embun:")); Serial.println(dew);
@@ -310,28 +312,13 @@ void Data() {
     Serial.print(F("Volt")); Serial.println(volt);
     buf_message = message;
 
-    int rssi = WiFi.RSSI();
-    int ram = ESP.getFreeHeap();
-    int rssiLora = LoRa.packetRssi();
-
-    FirebaseData();
-
-    // print RSSI of packet
-    //SerialBT.print("RSSI :");
-    //SerialBT.println(LoRa.packetRssi());
-    //SerialBT.print("SNR :");
-    //SerialBT.println(LoRa.packetSnr());
-    //SerialBT.print("Freq Error :");
-    //SerialBT.println(LoRa.packetFrequencyError());
-    //SerialBT.println();  
-    
     // Free resources
     Serial.println("RSSI LoRa:" + String(LoRa.packetRssi()));
     Serial.println("SNR:" + String(LoRa.packetSnr()));
     Serial.println(); 
-    //Thingspeak();
-    //Windy();
+    FirebaseData();
     digitalWrite(2, LOW);
+    }
   }
 }
 
@@ -346,10 +333,5 @@ void loop() {
   connectionstatusMulti();
   checkStatusNext = millis() + checkStatusPeriode;
   }
-  /**
-  if (Firebase.ready() && (FirebaseNext <= millis() || FirebaseNext == 0)) {
-  FirebaseData();
-  FirebaseNext = millis() + FirebasePeriode;
-  }*/
   Data();
 }
