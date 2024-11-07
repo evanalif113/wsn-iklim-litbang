@@ -63,7 +63,6 @@ String message;
 
 void FirebaseSetup() {
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
-    Serial.println("Initializing app...");
 
     ssl_client.setInsecure();
 
