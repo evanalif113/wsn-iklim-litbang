@@ -28,10 +28,10 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto custom-nav">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="./index.html">Beranda</a>
+                    <a class="nav-link" aria-current="page" href="./index.html">Beranda</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./riset.html">Riset</a>
+                    <a class="nav-link active" href="./riset.html">Riset</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="./timpengabdian.html">Tim Pengabdian</a>
@@ -47,66 +47,27 @@
     </div>
 </nav>
 <!--KONTEN LAINNYA-->
-
-  <div class="dashboard-container">
-    <div class="dashboard" id="welcome-message">
-      <h1 style="color: #fdfbfb">Selamat datang di Halaman Informasi PPK Ormawa Litbang</h1>
-      <p style="color: #f8f6f6">Pengabdian Masyarakat Ormawa Litbang 2023</p>
+<div class="container my-5">
+    <h2 class="text-center mb-4">Datalogger</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Waktu</th>
+                    <th scope="col">Suhu Linkungan (°C)</th>
+                    <th scope="col">Kelembapan Relatif (Rh%)</th>
+                    <th scope="col">Tekanan Udara (hPa)</th>
+                    <th scope="col">Titik Embun (°C)</th>
+                    <th scope="col">Tegangan (V)</th>
+                </tr>
+            </thead>
+            <tbody id="datalogger">
+                <!-- Data akan ditambahkan di sini -->
+            </tbody>
+        </table>
     </div>
-    <div class="dashboard-container">
-      <!-- Lokasi Stasiun Iklim Prigi-->
-      <div class="stasiun-title">Lokasi Pengabdian Masyarakat</div>
-      <div id="map"></div>
-      <!-- Informasi Iklim-->
-      <div class="informasi-musim" id="info-musim"> Informasi Iklim</div>
-      <div class="iframe-container">
-      </div>
-      <div class="dashboard" id="stasiun-1">
-        <div class="stasiun-title">Stasiun Iklim 1</div>
-        <div class="iframe-container">
-          <iframe
-            src="https://thingspeak.com/channels/2281820/charts/1?bgcolor=%23ffffff&color=%2300b3b3&dynamic=true&results=60&title=Suhu+Lingkungan&type=spline"></iframe>
-          <iframe
-            src="https://thingspeak.com/channels/2281820/charts/2?bgcolor=%23ffffff&color=%230fa67e&dynamic=true&results=60&title=Kelembapan+Relatif&type=spline"></iframe>
-          <iframe
-            src="https://thingspeak.com/channels/2281820/charts/3?bgcolor=%23ffffff&color=%23f68923&dynamic=true&results=60&title=Tekanan+Udara&type=spline"></iframe>
-        </div>
-        <div class="rata-rata" id="suhu1"></div>
-        <div class="rata-rata" id="kelembaban1"></div>
-        <div class="rata-rata" id="tekanan1"></div>
-      </div>
-      <!-- Stasiun Iklim Prigi 2 -->
-      <div class="dashboard" id="stasiun-2">
-        <div class="stasiun-title">Stasiun Iklim 2</div>
-        <div class="iframe-container">
-          <iframe
-            src="https://thingspeak.com/channels/2289583/charts/1?bgcolor=%23ffffff&color=%2300b3b3&dynamic=true&results=60&title=Suhu+Lingkungan&type=spline"></iframe>
-          <iframe
-            src="https://thingspeak.com/channels/2289583/charts/2?bgcolor=%23ffffff&color=%230fa67e&dynamic=true&results=60&title=Kelembapan+Relatif&type=spline"></iframe>
-          <iframe
-            src="https://thingspeak.com/channels/2289583/charts/3?bgcolor=%23ffffff&color=%23f68923&dynamic=true&results=60&title=Tekanan+Udara&type=spline"></iframe>
-        </div>
-        <div class="rata-rata" id="suhu2"></div>
-        <div class="rata-rata" id="kelembaban2"></div>
-        <div class="rata-rata" id="tekanan2"></div>
-      </div>
-      <!-- Stasiun Iklim Prigi 3-->
-      <div class="dashboard" id="stasiun-3">
-        <div class="stasiun-title"> Stasiun Iklim 3</div>
-        <div class="iframe-container">
-          <iframe
-            src="https://thingspeak.com/channels/2326256/charts/1?bgcolor=%23ffffff&color=%2300b3b3&dynamic=true&results=60&title=Staklim+2+Sensor+Suhu+Lingkungan&type=spline"></iframe>
-          <iframe
-            src="https://thingspeak.com/channels/2326256/charts/2?bgcolor=%23ffffff&color=%230fa67e&dynamic=true&results=60&title=Kelembapan+Relatif&type=spline"></iframe>
-          <iframe
-            src="https://thingspeak.com/channels/2326256/charts/3?bgcolor=%23ffffff&color=%23f68923&dynamic=true&results=60&title=Tekanan+Udara&type=spline"></iframe>
-        </div>
-        <div class="rata-rata" id="suhu3"></div>
-        <div class="rata-rata" id="kelembaban3"></div>
-        <div class="rata-rata" id="tekanan3"></div>
-      </div>
-    </div>
-    <!--END MAIN CONTENT-->
+  </div>
+<!--END MAIN CONTENT-->
     <!--FOOTER-->
     <footer class="bg-dark text-white py-4">
       <div class="container">
@@ -144,6 +105,6 @@
       <!--reference to JS-->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="./scripts/script.js"></script>
+  <script type="module" src="./scripts/data.js"></script>
 </body>
 </html>

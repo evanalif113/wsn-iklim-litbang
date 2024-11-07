@@ -1,7 +1,6 @@
 html {
   scroll-behavior: smooth;
   user-select: none; /* Standard syntax */
-  
 }
 
 /* width */
@@ -29,7 +28,7 @@ body {
   background-color: #f0f0f0;
   margin: 0;
   padding: 0;
-  }
+}
 
   .custom-bg-body-tertiary {
     background-color: #ff7e26;
