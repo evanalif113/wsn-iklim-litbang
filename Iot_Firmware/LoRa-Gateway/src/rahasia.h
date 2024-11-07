@@ -8,10 +8,6 @@
 #define RAHASIA_SSID2 "Jerukagung Seismologi"		//Isikan dengan SSID2
 #define RAHASIA_PASS2 "riset1234"	//Isikan 
 
-//Credentials Client
-//WEATHERCLOUD
-#define DEVICEID    "e2013519a7853ac0"
-#define DEVICEAPI   "eff661ec5f6725c5d95fec8fcf9d92f8"
 
 //WINDY
 #define WINDY_API ""

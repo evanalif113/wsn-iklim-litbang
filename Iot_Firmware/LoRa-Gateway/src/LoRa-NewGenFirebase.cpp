@@ -1,7 +1,7 @@
 /*********
   @author By Evan Aif Widhyatma
   @date 2024
-  @version 3.1
+  @version 4.1
 *********/
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -14,6 +14,7 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>
+#include "UserConfig.h"
 
 // The API key can be obtained from Firebase console > Project Overview > Project settings.
 #define API_KEY "AIzaSyCLnLUN0jSUj7X37VTVJciUHsIyl4sT0-0"
@@ -32,8 +33,8 @@ FirebaseApp app;
 
 using AsyncClient = AsyncClientClass;
 
-WiFiClientSecure ssl_client2;
-AsyncClient aClient2(ssl_client2, getNetwork(network));
+WiFiClientSecure ssl_client;
+AsyncClient aClient(ssl_client, getNetwork(network));
 RealtimeDatabase Database;
 
 WiFiUDP ntpUDP;
@@ -64,9 +65,9 @@ void FirebaseSetup() {
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
     Serial.println("Initializing app...");
 
-    ssl_client2.setInsecure();
+    ssl_client.setInsecure();
 
-    initializeApp(aClient2, app, getAuth(user_auth), asyncCB, "authTask");
+    initializeApp(aClient, app, getAuth(user_auth), asyncCB, "authTask");
     app.getApp<RealtimeDatabase>(Database);
     Database.url(DATABASE_URL);
     Database.setSSEFilters("get,put,patch,keep-alive,cancel,auth_revoked");
@@ -90,7 +91,7 @@ void FirebaseData() {
 
   // Dynamically use timestamp in the path
   String dbPath = "/auto_weather_stat/id-0"+String(id)+"/data/" + timestamp;
-  Database.set<object_t>(aClient2, dbPath.c_str(), json, asyncCB, "setTask");
+  Database.set<object_t>(aClient, dbPath.c_str(), json, asyncCB, "setTask");
 }
 
 void LoRa_rxMode() {
