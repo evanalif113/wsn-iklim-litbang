@@ -74,3 +74,4 @@ Iot_Firmware/ESP32_SENDER/src/rahasia.h
 Iot_Firmware/ESP32_LCD_DISPLAY (Testing)/src/rahasia.h
 Iot_Firmware/LORA_TESTER/src/Rahasia.h
 Iot_Firmware/LORA_TESTER/src/mqtt_secrets.h
+Iot_Firmware/LoRa-Gateway.code-workspace
