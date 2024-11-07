@@ -92,9 +92,9 @@ void FirebaseData() {
   JsonDocument doc1;
 
   doc1["dew"] = dew;
-  doc1["humi"] = humi;
-  doc1["pres"] = pres;
-  doc1["temp"] = temp;
+  doc1["humidity"] = humi;
+  doc1["pressure"] = pres;
+  doc1["temperature"] = temp;
   doc1["timestamp"] = timestamp;
   doc1["volt"] = volt;
 

@@ -28,9 +28,9 @@ function loadWeatherData() {
                                         });
                 dataArray.push({
                     date: timeFormatted,
-                    temperature: data.temp,
-                    humidity: data.humi,
-                    pressure: data.pres,
+                    temperature: data.temperature,
+                    humidity: data.humidity,
+                    pressure: data.pressure,
                     dew: data.dew,
                     volt: data.volt
                 });
