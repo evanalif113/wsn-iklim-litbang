@@ -17,6 +17,9 @@
 #include <ArduinoJson.h>
 #include "UserConfig.h"
 
+#define ARDUINOJSON_SLOT_ID_SIZE 1
+#define ARDUINOJSON_STRING_LENGTH_SIZE 1
+
 // The API key can be obtained from Firebase console > Project Overview > Project settings.
 #define API_KEY "AIzaSyCLnLUN0jSUj7X37VTVJciUHsIyl4sT0-0"
 
