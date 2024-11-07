@@ -100,8 +100,8 @@ void FirebaseData() {
 
   String dataCuaca;
 
-  doc1.shrinkToFit();  // optional
-  serializeJson(doc1, dataCuaca);
+  docW.shrinkToFit();  // optional
+  serializeJson(docW, dataCuaca);
 
   // Dynamically use timestamp in the path
   String dbPath = "/auto_weather_stat/id-0"+String(id)+"/data/" + timestamp;
