@@ -1,0 +1,37 @@
+name: PlatformIO CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        platform: [esp32]  # Sesuaikan dengan platform yang Anda gunakan
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install platformio
+
+      - name: Build Firmware
+        run: platformio run --environment ${{ matrix.platform }}
+
+      - name: Run Unit Tests (jika ada)
+        run: platformio test --environment ${{ matrix.platform }}
