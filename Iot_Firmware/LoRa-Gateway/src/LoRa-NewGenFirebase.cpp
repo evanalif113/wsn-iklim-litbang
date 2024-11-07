@@ -91,21 +91,21 @@ void FirebaseData() {
   //JSON Constructor by ArduinoJSON
   JsonDocument doc1;
 
-  doc1["dew"] = dew;
-  doc1["humidity"] = humi;
-  doc1["pressure"] = pres;
-  doc1["temperature"] = temp;
-  doc1["timestamp"] = timestamp;
-  doc1["volt"] = volt;
+  docW["dew"] = dew;
+  docW["humidity"] = humi;
+  docW["pressure"] = pres;
+  docW["temperature"] = temp;
+  docW["timestamp"] = timestamp;
+  docW["volt"] = volt;
 
-  String datCu;
+  String dataCuaca;
 
   doc1.shrinkToFit();  // optional
-  serializeJson(doc1, datCu);
+  serializeJson(doc1, dataCuaca);
 
   // Dynamically use timestamp in the path
   String dbPath = "/auto_weather_stat/id-0"+String(id)+"/data/" + timestamp;
-  Database.set<object_t>(aClient, dbPath.c_str(), object_t(datCu), asyncCB, "setTask");
+  Database.set<object_t>(aClient, dbPath.c_str(), object_t(dataCuaca), asyncCB, "setTask");
 }
 
 void LoRa_rxMode() {
