@@ -89,7 +89,7 @@ void FirebaseData() {
   writer.join(json, 6, t, h, p, d, v, times);*/
 
   //JSON Constructor by ArduinoJSON
-  JsonDocument doc1;
+  JsonDocument docW;
 
   docW["dew"] = dew;
   docW["humidity"] = humi;
