@@ -26,6 +26,7 @@
 #define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
 
 const char* ntpServer = "time.google.com";
+const char* ntpServer2 = "pool.ntp.org";
 
 void asyncCB(AsyncResult &aResult);
 void printResult(AsyncResult &aResult);
@@ -55,8 +56,6 @@ float windir;
 float windspeed;
 float rain;
 
-
-
 String buf_message;
 String message;
 
@@ -73,7 +72,7 @@ unsigned long getTime() {
 }
 
 void FirebaseSetup() {
-    configTime(0, 0, ntpServer); // Initialize NTP Client
+    configTime(0, 0, ntpServer, ntpServer2); // Initialize NTP Client
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
 
     ssl_client.setInsecure();
