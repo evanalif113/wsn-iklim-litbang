@@ -9,12 +9,11 @@
 #include <HTTPClient.h>
 #include <WiFiClient.h>
 #include <WiFiClientSecure.h>
-#include <NTPClient.h>
-#include <WiFiUdp.h>
 #include <FirebaseClient.h>
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>
+#include "time.h"
 #include "UserConfig.h"
 
 #define ARDUINOJSON_SLOT_ID_SIZE 1
@@ -28,6 +27,8 @@
 #define USER_PASSWORD "kirim1234"
 #define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
 
+const char* ntpServer = "time.google.com";
+
 void asyncCB(AsyncResult &aResult);
 void printResult(AsyncResult &aResult);
 
@@ -40,9 +41,6 @@ using AsyncClient = AsyncClientClass;
 WiFiClientSecure ssl_client;
 AsyncClient aClient(ssl_client, getNetwork(network));
 RealtimeDatabase Database;
-
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", 0, 60000);
 
 //define the pins used by the transceiver module
 #define ss 5
@@ -59,11 +57,25 @@ float windir;
 float windspeed;
 float rain;
 
+unsigned long timestamp;
+
 String buf_message;
 String message;
 
+// Function that gets current epoch time
+unsigned long getTime() {
+  time_t now;
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return (0);
+  }
+  time(&now);
+  return now;
+}
+
 void FirebaseSetup() {
-    timeClient.begin();  // Initialize NTP Client
+    configTime(0, 0, ntpServer); // Initialize NTP Client
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
 
     ssl_client.setInsecure();
@@ -75,8 +87,8 @@ void FirebaseSetup() {
 }
 
 void FirebaseData() {
-  timeClient.update();  // Update NTP time
-  unsigned long timestamp = timeClient.getEpochTime(); // Get current epoch time
+  // Update NTP time
+  timestamp = getTime();// Get current epoch time
 
   //JSON Constructor by FirebaseClient
   /*JsonWriter writer;
