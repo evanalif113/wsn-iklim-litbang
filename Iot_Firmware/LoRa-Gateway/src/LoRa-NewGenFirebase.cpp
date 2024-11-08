@@ -6,8 +6,6 @@
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
-#include <HTTPClient.h>
-#include <WiFiClient.h>
 #include <WiFiClientSecure.h>
 #include <FirebaseClient.h>
 #include <SPI.h>
@@ -57,7 +55,7 @@ float windir;
 float windspeed;
 float rain;
 
-unsigned long timestamp;
+
 
 String buf_message;
 String message;
@@ -88,6 +86,7 @@ void FirebaseSetup() {
 
 void FirebaseData() {
   // Update NTP time
+  unsigned long timestamp;
   timestamp = getTime();// Get current epoch time
 
   //JSON Constructor by FirebaseClient
