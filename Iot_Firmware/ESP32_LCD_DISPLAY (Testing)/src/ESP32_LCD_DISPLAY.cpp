@@ -30,7 +30,7 @@
 
 
 //PENTING
-uint id = 2;
+uint id = 1;
 
 // Pin dan LED indicator
 int ledPin = 2; // GPIO 2
@@ -343,8 +343,9 @@ void loop() {
   connectionstatusMulti();
   checkStatusNext = millis() + checkStatusPeriode;
   }
-  
-  if ((millis() - lastTime) > timerDelay) {
+
+  unsigned long millisSekarang = millis();
+  if (millisSekarang - lastTime >= timerDelay ) {
     digitalWrite(ledPin, HIGH);
 
     // Update data sensor
@@ -373,7 +374,8 @@ void loop() {
     Serial.print("Voltage: ");
     Serial.println(voltage);
 
-    lastTime = millis();
+    lastTime = millisSekarang;
     digitalWrite(ledPin, LOW);
+    
   }
 }
