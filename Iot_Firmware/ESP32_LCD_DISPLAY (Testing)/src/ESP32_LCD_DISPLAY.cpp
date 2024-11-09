@@ -29,7 +29,7 @@
 
 
 //PENTING ini ID DEVICE
-uint id = 1;
+uint id = 2;
 
 // Delay with millis
 unsigned long lastTime = 0;
