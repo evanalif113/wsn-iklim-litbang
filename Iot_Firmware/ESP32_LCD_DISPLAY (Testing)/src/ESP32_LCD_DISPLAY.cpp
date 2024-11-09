@@ -343,6 +343,7 @@ void loop() {
   connectionstatusMulti();
   checkStatusNext = millis() + checkStatusPeriode;
   }
+  
   if ((millis() - lastTime) > timerDelay) {
     digitalWrite(ledPin, HIGH);
 
