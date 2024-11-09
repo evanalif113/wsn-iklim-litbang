@@ -28,8 +28,7 @@
 #define ARDUINOJSON_STRING_LENGTH_SIZE 1
 
 
-
-//PENTING
+//PENTING ini ID DEVICE
 uint id = 1;
 
 // Pin dan LED indicator
