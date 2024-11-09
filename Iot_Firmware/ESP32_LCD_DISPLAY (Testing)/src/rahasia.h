@@ -10,6 +10,6 @@
 // The API key can be obtained from Firebase console > Project Overview > Project settings.
 #define API_KEY "AIzaSyCLnLUN0jSUj7X37VTVJciUHsIyl4sT0-0"
 #define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
-#define USER_EMAIL "esp32@mail.com"
-#define USER_PASSWORD "kirim1234"
+#define USER_EMAIL "sensor@gmail.com"
+#define USER_PASSWORD "sensor1234"
 
