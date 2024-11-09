@@ -5,7 +5,7 @@
 *********/
 
 //Komen jika tidak menggunakan LCD
-//#define USE_LCD
+#define USE_LCD
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
