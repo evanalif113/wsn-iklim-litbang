@@ -31,10 +31,12 @@
 //PENTING ini ID DEVICE
 uint id = 1;
 
+// Delay with millis
+unsigned long lastTime = 0;
+unsigned long timerDelay = 15000; // Atur delay
+
 // Pin dan LED indicator
 int ledPin = 2; // GPIO 2
-unsigned long lastTime = 0;
-unsigned long timerDelay = 60000; // 60 seconds
 
 const char* ntpServer = "time.google.com";
 const char* ntpServer2 = "pool.ntp.org";
@@ -317,7 +319,7 @@ void printResult(AsyncResult &aResult){
 void setup() {
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
-
+  digitalWrite(ledPin, HIGH);
   #ifdef USE_LCD
   // Inisialisasi LCD
   initDisplay();
@@ -325,12 +327,12 @@ void setup() {
 
   // Koneksi WiFi
   initMultiWiFi();
-
   // Inisialisasi sensor
   initSensors();
 
   // Inisialisasi Firebase
   FirebaseSetup();
+  digitalWrite(ledPin, LOW);
 }
 unsigned int checkStatusPeriode = 120000;
 unsigned int checkStatusNext;
