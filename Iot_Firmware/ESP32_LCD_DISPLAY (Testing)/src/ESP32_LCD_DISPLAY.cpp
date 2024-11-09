@@ -203,11 +203,21 @@ void displayDataOnLCD() {
 
 // Fungsi untuk mengirim data ke ThingSpeak
 void sendDataToThingspeak() {
+
+  String Thingskey;
   WiFiClient client;
   HTTPClient http;
   http.setTimeout(2000);
 
-  String url = "http://api.thingspeak.com/update?api_key=" + String(WRITE_APIKEY);
+  if (id == 1) {
+    Thingskey = String(WRITE_APIKEY_1);
+  }
+
+  if (id == 2) {
+    Thingskey = String(WRITE_APIKEY_2);
+  }
+
+  String url = "http://api.thingspeak.com/update?api_key=" + String(ThingsKey);
   url += "&field1=" + String(temperature);
   url += "&field2=" + String(humidity);
   url += "&field3=" + String(pressure);
