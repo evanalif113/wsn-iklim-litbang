@@ -66,6 +66,9 @@ node_modules/
 .env
 Iot_Firmware/ESP32_SENDER/src/rahasia.h
 
+# python
+.venv
+
 # platform IO dependensi
 .pio
 
