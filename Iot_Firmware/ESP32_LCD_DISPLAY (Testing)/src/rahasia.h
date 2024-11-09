@@ -1,3 +1,10 @@
+// SSID
+#define SSID_1 "RisetIklim"
+#define SSID_2 "Kazu"
+
+// PASS
+#define PASS "HasuminBest"
+
 //Credentials Client
 //WINDY
 #define WINDY_APIKEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaSI6MTExMjE1MzIsImlhdCI6MTcyNzU4Mzg3OX0.E2U63QoGM9ENisc0rE542mSUd9wjrMDJ17ZCenFd0pc"
