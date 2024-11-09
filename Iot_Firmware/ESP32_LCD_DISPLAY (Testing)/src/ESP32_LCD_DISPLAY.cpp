@@ -217,7 +217,7 @@ void sendDataToThingspeak() {
     Thingskey = String(WRITE_APIKEY_2);
   }
 
-  String url = "http://api.thingspeak.com/update?api_key=" + String(ThingsKey);
+  String url = "http://api.thingspeak.com/update?api_key=" + String(Thingskey);
   url += "&field1=" + String(temperature);
   url += "&field2=" + String(humidity);
   url += "&field3=" + String(pressure);
