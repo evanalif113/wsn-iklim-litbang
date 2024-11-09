@@ -1,21 +1,48 @@
+/*********
+  @author By Evan Aif Widhyatma
+  @date 2024
+  @version 4.1
+*********/
+
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
+#include <FirebaseClient.h>
 #include <Adafruit_SHT4x.h>
 #include <Adafruit_BMP280.h>
 #include <Adafruit_MAX1704X.h>
 #include <LiquidCrystal_I2C.h>
 #include <ArduinoJson.h>
-#include <Firebase_ESP_Client.h>
-#include "addons/TokenHelper.h"
-#include "addons/RTDBHelper.h"
 #include "time.h"
 #include "rahasia.h"
+#include "UserConfig.h"
+
+#define ARDUINOJSON_SLOT_ID_SIZE 1
+#define ARDUINOJSON_STRING_LENGTH_SIZE 1
+
+//PENTING
+uint id = 2;
 
 // Pin dan LED indicator
 int ledPin = 2; // GPIO 2
 unsigned long lastTime = 0;
-unsigned long timerDelay = 30000; // 30 seconds
+unsigned long timerDelay = 60000; // 60 seconds
+
+const char* ntpServer = "time.google.com";
+const char* ntpServer2 = "pool.ntp.org";
+
+void async(AsyncResult &aResult);
+void printResult(AsyncResult &aResult);
+
+DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
+UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
+FirebaseApp app;
+
+using AsyncClient = AsyncClientClass;
+
+WiFiClientSecure ssl_client;
+AsyncClient aClient(ssl_client, getNetwork(network));
+RealtimeDatabase Database;
 
 // Sensor SHT40, BMP280, MAX17048
 Adafruit_SHT4x sht4;
@@ -35,6 +62,18 @@ float temperature = 0,
       rainFall = 0,
       rainRate = 0,
       voltage = 0;
+
+// Fungsi untuk mengambil waktu epoch saat ini
+unsigned long getTime() {
+  time_t now;
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return (0);
+  }
+  time(&now);
+  return now;
+}
 
 // Fungsi untuk menghitung titik embun (dew point)
 float calculateDewPoint(float temperature, float humidity) {
@@ -84,7 +123,7 @@ void connectWiFi() {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.print("Attempting to connect");
     while (WiFi.status() != WL_CONNECTED) {
-      WiFi.begin(RAHASIA_SSID2, RAHASIA_PASS2);
+      WiFi.begin(RAHASIA_SSID1, RAHASIA_PASS1);
       delay(5000);
       Serial.print(".");
     }
@@ -145,6 +184,90 @@ void sendDataToThingspeak() {
   }
   http.end();
 }
+void FirebaseSetup() {
+    configTime(0, 0, ntpServer, ntpServer2); // Initialize NTP Client
+    Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
+
+    ssl_client.setInsecure();
+
+    initializeApp(aClient, app, getAuth(user_auth), asyncCB, "authTask");
+    app.getApp<RealtimeDatabase>(Database);
+    Database.url(DATABASE_URL);
+    Database.setSSEFilters("get,put,patch,keep-alive,cancel,auth_revoked");   
+}
+
+void FirebaseData() {
+  // Update NTP time
+  unsigned long timestamp;
+  timestamp = getTime();// Get current epoch time
+
+  //JSON Constructor by FirebaseClient
+  /*JsonWriter writer;
+  object_t json, t, h, p, d, v, times;
+
+  writer.create(t, "temp", temp);
+  writer.create(h, "humi", humi);
+  writer.create(p, "pres", pres);
+  writer.create(d, "dew", dew);
+  writer.create(v, "volt", volt);
+  writer.create(times, "timestamp",timestamp);
+
+  writer.join(json, 6, t, h, p, d, v, times);*/
+
+  //JSON Constructor by ArduinoJSON
+  JsonDocument docW;
+
+  docW["dew"] = dewPoint;
+  docW["humidity"] = humidity;
+  docW["pressure"] = pressure;
+  docW["temperature"] = temperature;
+  docW["timestamp"] = timestamp;
+  docW["volt"] = voltage;
+
+  String dataCuaca;
+
+  docW.shrinkToFit();  // optional
+  serializeJson(docW, dataCuaca);
+
+  // Dynamically use timestamp in the path
+  String dbPath = "/auto_weather_stat/id-0"+String(id)+"/data/" + timestamp;
+  Database.set<object_t>(aClient, dbPath.c_str(), object_t(dataCuaca), asyncCB, "setTask");
+}
+
+void asyncCB(AsyncResult &aResult) {
+    printResult(aResult);
+}
+
+void printResult(AsyncResult &aResult){
+    if (aResult.isEvent()) {
+        Firebase.printf("Event task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.appEvent().message().c_str(), aResult.appEvent().code());
+    }
+
+    if (aResult.isDebug()) {
+        Firebase.printf("Debug task: %s, msg: %s\n", aResult.uid().c_str(), aResult.debug().c_str());
+    }
+
+    if (aResult.isError()) {
+        Firebase.printf("Error task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.error().message().c_str(), aResult.error().code());
+    }
+
+    if (aResult.available()) {
+        RealtimeDatabaseResult &RTDB = aResult.to<RealtimeDatabaseResult>();
+        if (RTDB.isStream()) {
+            Serial.println("----------------------------");
+            Firebase.printf("task: %s\n", aResult.uid().c_str());
+            Firebase.printf("event: %s\n", RTDB.event().c_str());
+            Firebase.printf("path: %s\n", RTDB.dataPath().c_str());
+            Firebase.printf("data: %s\n", RTDB.to<const char *>());
+            Firebase.printf("type: %d\n", RTDB.type());
+        }
+        else {
+            Serial.println("----------------------------");
+            Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
+        }
+        Firebase.printf("Free Heap: %d\n", ESP.getFreeHeap());
+    }
+}
 
 void setup() {
   Serial.begin(115200);
@@ -158,9 +281,14 @@ void setup() {
 
   // Inisialisasi sensor
   initSensors();
+
+  // Inisialisasi Firebase
+  FirebaseSetup();
 }
 
 void loop() {
+  app.loop();
+  Database.loop();
   if ((millis() - lastTime) > timerDelay) {
     digitalWrite(ledPin, HIGH);
 
@@ -169,6 +297,9 @@ void loop() {
 
     // Tampilkan data di LCD
     displayDataOnLCD();
+
+    // Kirim data ke Firebase
+    FirebaseData();
 
     // Kirim data ke ThingSpeak
     sendDataToThingspeak();
