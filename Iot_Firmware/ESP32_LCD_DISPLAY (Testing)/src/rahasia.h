@@ -1,12 +1,3 @@
-//Gunakan untuk menyimpan informasi rahasia seperti SSID dan Password
-//Wifi 1
-#define RAHASIA_SSID1 "Kazu"		//Isikan dengan SSID1
-#define RAHASIA_PASS1 "HasuminBest"	//Isikan dengan Password SSID1
-
-//Wifi 2
-#define RAHASIA_SSID2 "Jerukagung Seismologi"		//Isikan dengan SSID2
-#define RAHASIA_PASS2 "riset1234"	//Isikan dengan Password SSID2
-
 //Credentials Client
 //WINDY
 #define WINDY_APIKEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaSI6MTExMjE1MzIsImlhdCI6MTcyNzU4Mzg3OX0.E2U63QoGM9ENisc0rE542mSUd9wjrMDJ17ZCenFd0pc"

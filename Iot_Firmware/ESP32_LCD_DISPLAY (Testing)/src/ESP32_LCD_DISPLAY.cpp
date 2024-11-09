@@ -4,21 +4,30 @@
   @version 4.1
 *********/
 
+//Komen jika tidak menggunakan LCD
+//#define USE_LCD
+
 #include <WiFi.h>
+#include <WiFiMulti.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <FirebaseClient.h>
 #include <Adafruit_SHT4x.h>
 #include <Adafruit_BMP280.h>
 #include <Adafruit_MAX1704X.h>
-#include <LiquidCrystal_I2C.h>
 #include <ArduinoJson.h>
 #include "time.h"
 #include "rahasia.h"
 #include "UserConfig.h"
 
+#ifdef USE_LCD
+#include <LiquidCrystal_I2C.h>
+#endif
+
 #define ARDUINOJSON_SLOT_ID_SIZE 1
 #define ARDUINOJSON_STRING_LENGTH_SIZE 1
+
+
 
 //PENTING
 uint id = 2;
@@ -31,7 +40,7 @@ unsigned long timerDelay = 60000; // 60 seconds
 const char* ntpServer = "time.google.com";
 const char* ntpServer2 = "pool.ntp.org";
 
-void async(AsyncResult &aResult);
+void asyncCB(AsyncResult &aResult);
 void printResult(AsyncResult &aResult);
 
 DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
@@ -49,8 +58,10 @@ Adafruit_SHT4x sht4;
 Adafruit_BMP280 bmp;
 Adafruit_MAX17048 maxWin;
 
+#ifdef USE_LCD
 // LCD Display
 LiquidCrystal_I2C lcd(0x27, 20, 4);
+#endif 
 
 // Data sensor
 float temperature = 0, 
@@ -112,22 +123,54 @@ void initSensors() {
   Serial.println("Found MAX17048 sensor!");
 }
 
+#ifdef USE_LCD
 void initDisplay() {
   lcd.init();
   lcd.backlight();
   lcd.clear();
 }
+#endif
 
-// Fungsi untuk koneksi WiFi
-void connectWiFi() {
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.print("Attempting to connect");
-    while (WiFi.status() != WL_CONNECTED) {
-      WiFi.begin(RAHASIA_SSID1, RAHASIA_PASS1);
-      delay(5000);
+WiFiMulti wifiMulti;
+
+void initMultiWiFi() {
+  // Add list of wifi networks
+  wifiMulti.addAP("Jerukagung Seismologi", "riset1234");
+  wifiMulti.addAP("server", "jeris6467");
+  // Connect to Wi-Fi using wifiMulti (connects to the SSID with strongest connection)
+  Serial.println("Connecting Wifi.....");
+  if (wifiMulti.run() == WL_CONNECTED) {
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.print(WiFi.SSID());
+    Serial.print(" ");
+    Serial.println(WiFi.RSSI());
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+  }
+}
+
+// Maintain WiFi connection
+void connectionstatusMulti() {
+  if ((wifiMulti.run(10000) != WL_CONNECTED) ) {
+    Serial.println("Reconnecting to WiFi...");
+    Serial.print("WiFi connected: ");
+    Serial.print(WiFi.SSID());
+    Serial.print(" ");
+    Serial.println(WiFi.RSSI());
+    while (wifiMulti.run() != WL_CONNECTED) {
+      delay(100);
       Serial.print(".");
     }
-    Serial.println("\nConnected.");
+    Serial.println();
+    Serial.print(WiFi.SSID());
+    Serial.print(" ");
+    Serial.println(WiFi.RSSI());
+    Serial.println(WiFi.localIP());
+    //Alternatively, you can restart your board
+    //ESP.restart();
+    } else {
+    Serial.println("WiFi Failed!");
   }
 }
 
@@ -142,6 +185,7 @@ void updateSensorData() {
   dewPoint = calculateDewPoint(temperature, humidity);
 }
 
+#ifdef USE_LCD
 // Fungsi untuk menampilkan data di LCD
 void displayDataOnLCD() {
   lcd.clear();
@@ -154,6 +198,7 @@ void displayDataOnLCD() {
   lcd.setCursor(0, 3);
   lcd.print("DewP: " + String(dewPoint, 1) + (char)223 + "C");
 }
+#endif
 
 // Fungsi untuk mengirim data ke ThingSpeak
 void sendDataToThingspeak() {
@@ -184,6 +229,7 @@ void sendDataToThingspeak() {
   }
   http.end();
 }
+
 void FirebaseSetup() {
     configTime(0, 0, ntpServer, ntpServer2); // Initialize NTP Client
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
@@ -273,11 +319,13 @@ void setup() {
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
 
+  #ifdef USE_LCD
   // Inisialisasi LCD
   initDisplay();
+  #endif
 
   // Koneksi WiFi
-  connectWiFi();
+  initMultiWiFi();
 
   // Inisialisasi sensor
   initSensors();
@@ -285,18 +333,26 @@ void setup() {
   // Inisialisasi Firebase
   FirebaseSetup();
 }
+unsigned int checkStatusPeriode = 120000;
+unsigned int checkStatusNext;
 
 void loop() {
   app.loop();
   Database.loop();
+  if (checkStatusNext<=millis() && WiFi.status() !=WL_CONNECTED) {
+  connectionstatusMulti();
+  checkStatusNext = millis() + checkStatusPeriode;
+  }
   if ((millis() - lastTime) > timerDelay) {
     digitalWrite(ledPin, HIGH);
 
     // Update data sensor
     updateSensorData();
 
+    #ifdef USE_LCD
     // Tampilkan data di LCD
     displayDataOnLCD();
+    #endif
 
     // Kirim data ke Firebase
     FirebaseData();
