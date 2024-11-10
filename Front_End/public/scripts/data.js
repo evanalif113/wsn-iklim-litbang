@@ -1,16 +1,17 @@
-import app from './config.js';  // Impor app dari fireconfig.js
+// Impor app dari fireconfig.js
+import app from './config.js';
 import { getDatabase, ref, query, orderByKey, limitToLast, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 // Inisialisasi Realtime Database
 const database = getDatabase(app);
 
-// Ambil data dari Firebase dan tampilkan di tabel
-function loadWeatherData() {
+// Fungsi untuk mengambil dan menampilkan data berdasarkan ID stasiun yang dipilih
+function loadWeatherData(stationId = 'id-02') {
     const tableBody = document.getElementById("datalogger");
     tableBody.innerHTML = ""; // Kosongkan tabel sebelum mengisi data
 
-    // Ambil data terakhir dari database
-    const dataRef = query(ref(database, 'auto_weather_stat/id-02/data'), orderByKey(), limitToLast(15));
+    // Ambil data terakhir dari database sesuai ID stasiun
+    const dataRef = query(ref(database, `auto_weather_stat/${stationId}/data`), orderByKey(), limitToLast(15));
     
     get(dataRef).then((snapshot) => {
         if (snapshot.exists()) {
@@ -63,9 +64,24 @@ function loadWeatherData() {
     });
 }
 
+// Fungsi untuk menangani perubahan ID stasiun
+function handleStationChange() {
+    const stationSelector = document.getElementById("stationSelector");
+    const selectedStation = stationSelector.value;
+    loadWeatherData(selectedStation);
+}
+
 // Muat data saat halaman siap
 document.addEventListener('DOMContentLoaded', () => {
-    loadWeatherData(); // Panggil pertama kali saat halaman dimuat
+    // Panggil loadWeatherData pertama kali dengan stasiun default
+    loadWeatherData();
+
+    // Tambahkan event listener ke dropdown selector
+    document.getElementById("stationSelector").addEventListener("change", handleStationChange);
+
     // Perbarui data setiap 1 menit (60000 milidetik)
-    setInterval(loadWeatherData, 60000);
+    setInterval(() => {
+        const stationSelector = document.getElementById("stationSelector");
+        loadWeatherData(stationSelector.value || 'id-02');
+    }, 60000);
 });
