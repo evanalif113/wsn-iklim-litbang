@@ -1,9 +1,13 @@
 // SSID
 #define SSID_1 "RisetIklim"
 #define SSID_2 "Kazu"
+#define SSID_3 "server"
 
 // PASS
-#define PASS "HasuminBest"
+#define PASS1 "HasuminBest"
+#define PASS2 "HasuminBest"
+#define PASS3 "jeris6467"
+
 
 //Credentials Client
 //WINDY

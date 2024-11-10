@@ -5,7 +5,7 @@
 *********/
 
 //Komen jika tidak menggunakan LCD
-#define USE_LCD
+//#define USE_LCD
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -136,8 +136,9 @@ WiFiMulti wifiMulti;
 
 void initMultiWiFi() {
   // Add list of wifi networks
-  wifiMulti.addAP(SSID_1, PASS);
-  wifiMulti.addAP(SSID_2, PASS);
+  wifiMulti.addAP(SSID_1, PASS1);
+  wifiMulti.addAP(SSID_2, PASS2);
+  wifiMulti.addAP(SSID_3, PASS3);
   // Connect to Wi-Fi using wifiMulti (connects to the SSID with strongest connection)
   Serial.println("Connecting Wifi.....");
   if (wifiMulti.run() == WL_CONNECTED) {
