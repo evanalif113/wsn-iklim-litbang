@@ -10,7 +10,7 @@ function loadWeatherData() {
     tableBody.innerHTML = ""; // Kosongkan tabel sebelum mengisi data
 
     // Ambil data terakhir dari database
-    const dataRef = query(ref(database, 'auto_weather_stat/id-03/data'), orderByKey(), limitToLast(15));
+    const dataRef = query(ref(database, 'auto_weather_stat/id-02/data'), orderByKey(), limitToLast(15));
     
     get(dataRef).then((snapshot) => {
         if (snapshot.exists()) {
