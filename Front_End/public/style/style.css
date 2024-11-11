@@ -83,6 +83,11 @@ body {
     box-sizing: border-box;
   }
 
+  /* Style for iframe to fill the container */
+  .iframe-container iframe {
+    width: 100%;
+  }
+
   .stasiun-title {
     text-align: center;
     font-size: 20px;
