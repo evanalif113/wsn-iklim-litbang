@@ -85,3 +85,14 @@ document.addEventListener('DOMContentLoaded', () => {
         loadWeatherData(stationSelector.value || 'id-02');
     }, 60000);
 });
+
+document.getElementById('searchStation').addEventListener('input', function() {
+    var filter = this.value.toLowerCase();
+    var options = document.getElementById('stationSelector').options;
+    
+    for (var i = 1; i < options.length; i++) {
+        var option = options[i];
+        var text = option.text.toLowerCase();
+        option.style.display = text.includes(filter) ? '' : 'none';
+    }
+});
