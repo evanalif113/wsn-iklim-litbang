@@ -6,6 +6,7 @@ function getMusim(bulan) {
         return 'Musim Kemarau'; // April hingga September
     }
 }
+
 var bulanSekarang = new Date().getMonth() + 1;
 var musimSekarang = getMusim(bulanSekarang);
 var infoMusimElement = document.getElementById('info-musim');

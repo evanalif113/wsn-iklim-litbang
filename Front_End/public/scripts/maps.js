@@ -31,10 +31,7 @@ L.marker(BalaiDesaKoordinat, { icon: HomeIcon })
     .addTo(map)
     .bindPopup('Lokasi Kampung Iklim Desa Prigi <br>Latitude: ' + BalaiDesaKoordinat[0] + '<br>Longitude: ' + BalaiDesaKoordinat[1])
     .openPopup();
-
-
-
-    /*
+/*
 // Penanada Stasiun Iklim 1
 L.marker(StaKlim1Koordinat, { icon: HomeIcon })
     .addTo(map)

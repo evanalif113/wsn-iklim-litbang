@@ -6,7 +6,7 @@ import { getDatabase, ref, query, orderByKey, limitToLast, get } from "https://w
 const database = getDatabase(app);
 
 // Fungsi untuk mengambil dan menampilkan data berdasarkan ID stasiun yang dipilih
-function loadWeatherData(stationId) {
+function loadWeatherData(stationId = 'id-02') {
     const tableBody = document.getElementById("datalogger");
     tableBody.innerHTML = ""; // Kosongkan tabel sebelum mengisi data
 
