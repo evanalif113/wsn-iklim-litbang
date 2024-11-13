@@ -107,7 +107,7 @@ function plotTemperatureChart() {
         title: 'Suhu Lingkungan (°C)',
         xaxis: { title: 'Waktu' },
         yaxis: { title: 'Suhu Lingkungan (°C)' },
-        height: 400
+        height: 600
     };
 
     Plotly.newPlot('temperature-chart', [trace], layout);
@@ -128,7 +128,7 @@ function plotHumidityChart() {
         title: 'Kelembapan Relatif (%)',
         xaxis: { title: 'Waktu' },
         yaxis: { title: 'Kelembapan Relatif (%)' },
-        height: 400
+        height: 600
     };
 
     Plotly.newPlot('humidity-chart', [trace], layout);
@@ -149,7 +149,7 @@ function plotDewChart() {
         title: 'Titik Embun (°C)',
         xaxis: { title: 'Waktu' },
         yaxis: { title: 'Titik Embun (°C)' },
-        height: 400
+        height: 600
     };
 
     Plotly.newPlot('dew-chart', [trace], layout);
@@ -170,7 +170,7 @@ function plotPressureChart() {
         title: 'Tekanan Udara (hPa)',
         xaxis: { title: 'Waktu' },
         yaxis: { title: 'Tekanan Udara (hPa)' },
-        height: 400
+        height: 600
     };
 
     Plotly.newPlot('pressure-chart', [trace], layout);
@@ -190,7 +190,7 @@ function plotVoltChart() {
         title: 'Tegangan (V)',
         xaxis: { title: 'Waktu' },
         yaxis: { title: 'Tegangan (V)' },
-        height: 400
+        height: 600
     };
 
     Plotly.newPlot('volt-chart', [trace], layout);
@@ -209,7 +209,7 @@ function plotTempHumiScatter() {
         title: 'Scatter Suhu dan Kelembapan',
         xaxis: { title: 'Kelembapan' },
         yaxis: { title: 'Suhu' },
-        height: 400
+        height: 600
     };
 
     var data = [trace1];
@@ -239,7 +239,7 @@ function plotStacked() {
         title: 'Scatter Suhu dan Titik Embun',
         xaxis: { title: 'Waktu' },
         yaxis: { title: 'Suhu' },
-        height: 400
+        height: 600
     };
       
       Plotly.newPlot('stacked-chart', data, layout);
@@ -304,4 +304,49 @@ $(document).ready(function() {
     setInterval(fetchLastData, 30000); // Fetch new data every 30 seconds
 });
 
+document.getElementById('exportToPDF').addEventListener('click', function () {
+    const { jsPDF } = window.jspdf;
 
+    // Create a new jsPDF instance with portrait orientation and A4 size
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    // Define the PDF page size and desired image size
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const chartHeight = 120; // Height of each chart in the PDF
+    const padding = 10; // Space between charts
+
+    // List of chart IDs to be exported
+    const charts = ['temperature-chart', 'humidity-chart', 'pressure-chart', 'dew-chart', 'scatter-chart', 'stacked-chart'];
+
+    // Function to add charts to the PDF
+    const addChartToPDF = (chartId, index) => {
+        const chartElement = document.getElementById(chartId);
+
+        // Export chart as an image
+        Plotly.toImage(chartElement, { 
+            format: 'png', 
+            height: 600 })
+            .then(function (dataUrl) {
+            const positionY = 10 + (chartHeight + padding) * (index % 2); // Calculate Y position for each chart
+
+            // Add chart image to the PDF
+            pdf.addImage(dataUrl, 'PNG', 10, positionY, pageWidth - 20, chartHeight); // Adjust width for side padding
+
+            // Add a new page after every two charts
+            if ((index + 1) % 2 === 0 && index !== charts.length - 1) {
+                pdf.addPage();
+            }
+
+            // Save PDF after the last chart is added
+            if (index === charts.length - 1) {
+                pdf.save("grafik-cuaca.pdf");
+            }
+        });
+    };
+
+    // Loop through each chart and add it to the PDF
+    charts.forEach((chartId, index) => {
+        addChartToPDF(chartId, index);
+    });
+});
