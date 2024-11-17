@@ -11,6 +11,7 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>
+#include <RTClib.h>
 #include "time.h"
 #include "UserConfig.h"
 
@@ -46,6 +47,8 @@ RealtimeDatabase Database;
 #define rst 16
 #define dio0 4
 
+RTC_DS3231 rtc;
+
 uint id;
 float temp;
 float humi;
@@ -59,20 +62,43 @@ float rain;
 String buf_message;
 String message;
 
-// Function that gets current epoch time
-unsigned long getTime() {
-  time_t now;
+unsigned long checkStatusPeriode = 120000;
+unsigned long checkStatusNext;
+//unsigned int WindyPeriode = 600000;
+//unsigned int WindyNext;
+
+time_t ntpTime;
+time_t lastSyncTime = 0;
+
+void syncTimeWithNTP() {
+  time_t ntpTime;
   struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return (0);
+  if (getLocalTime(&timeinfo)) {
+    ntpTime = mktime(&timeinfo);
+
+    // Menampilkan waktu yang diperoleh dari NTP
+    Serial.print("Waktu NTP (Unix): ");
+    Serial.println(ntpTime);
+
+    // Mengatur RTC dengan waktu dari NTP
+    rtc.adjust(DateTime(ntpTime));
+
+    Serial.println("Waktu berhasil disinkronisasi dengan NTP!");
+  } else {
+    Serial.println("Gagal mendapatkan waktu dari NTP!");
   }
-  time(&now);
-  return now;
 }
 
 void FirebaseSetup() {
     configTime(0, 0, ntpServer, ntpServer2); // Initialize NTP Client
+    // Inisialisasi RTC
+    if (!rtc.begin()) {
+      Serial.println("RTC tidak terdeteksi!");
+      while (1);
+    }
+    // Sinkronisasi awal dengan NTP
+    syncTimeWithNTP();
+
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
 
     ssl_client.setInsecure();
@@ -85,8 +111,9 @@ void FirebaseSetup() {
 
 void FirebaseData() {
   // Update NTP time
-  unsigned long timestamp;
-  timestamp = getTime();// Get current epoch time
+  time_t timestamp;
+  timestamp = rtc.now().unixtime();// Get current epoch time
+
 
   //JSON Constructor by FirebaseClient
   /*JsonWriter writer;
@@ -284,11 +311,6 @@ void setup() {
   Serial.println("LoRa Sukses");
 }
 
-unsigned int checkStatusPeriode = 120000;
-unsigned int checkStatusNext;
-unsigned int WindyPeriode = 600000;
-unsigned int WindyNext;
-
 void Data() {
   if (buf_message != message) {
     digitalWrite(2, HIGH);
@@ -343,8 +365,13 @@ void loop() {
   checkStatusNext = millis() + checkStatusPeriode;
   }*/
   if (checkStatusNext<=millis() && WiFi.status() !=WL_CONNECTED) {
-  connectionstatusMulti();
-  checkStatusNext = millis() + checkStatusPeriode;
+    connectionstatusMulti();
+    checkStatusNext = millis() + checkStatusPeriode;
+  }
+  // Cek apakah sudah 1 jam sejak sinkronisasi terakhir
+  if (millis() - lastSyncTime >= 3600000) {
+    syncTimeWithNTP();
+    lastSyncTime = millis();
   }
   Data();
 }
