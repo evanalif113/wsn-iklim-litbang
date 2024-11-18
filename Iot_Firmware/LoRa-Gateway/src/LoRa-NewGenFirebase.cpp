@@ -114,21 +114,6 @@ void FirebaseData() {
   time_t timestamp;
   timestamp = rtc.now().unixtime();// Get current epoch time
 
-
-  //JSON Constructor by FirebaseClient
-  /*JsonWriter writer;
-  object_t json, t, h, p, d, v, times;
-
-  writer.create(t, "temp", temp);
-  writer.create(h, "humi", humi);
-  writer.create(p, "pres", pres);
-  writer.create(d, "dew", dew);
-  writer.create(v, "volt", volt);
-  writer.create(times, "timestamp",timestamp);
-
-  writer.join(json, 6, t, h, p, d, v, times);*/
-
-  //JSON Constructor by ArduinoJSON
   JsonDocument docW;
 
   docW["dew"] = dew;
@@ -273,11 +258,9 @@ void setup() {
   pinMode(2, OUTPUT);
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
-  //neogps.begin(9600, SERIAL_8N1, RXD2, TXD2);
   //initWiFi();
   initMultiWiFi();
   FirebaseSetup();
-  //SerialBT.begin("LoRa Receiver"); //Bluetooth device name
   while (!Serial);
   Serial.println("LoRa Gateway");
 
@@ -360,10 +343,6 @@ void Data() {
 void loop() {
   app.loop();
   Database.loop();
-  /*if (checkStatusNext<=millis() && WiFi.status() !=WL_CONNECTED) {
-  connectionstatus();
-  checkStatusNext = millis() + checkStatusPeriode;
-  }*/
   if (checkStatusNext<=millis() && WiFi.status() !=WL_CONNECTED) {
     connectionstatusMulti();
     checkStatusNext = millis() + checkStatusPeriode;
