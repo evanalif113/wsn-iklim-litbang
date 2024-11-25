@@ -107,7 +107,7 @@ function authenticateUser(email, password) {
             localStorage.setItem('isLoggedIn', 'true');
 
             // Tutup modal setelah login
-            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
             loginModal.hide();
         })
         .catch((error) => {
