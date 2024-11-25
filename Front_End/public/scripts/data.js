@@ -32,7 +32,7 @@ function authenticateUser(email, password) {
             localStorage.setItem('isLoggedIn', 'true');
 
             // Tutup modal setelah login
-            const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            var loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
             loginModal.hide();
 
             // Tampilkan tombol logout dan sembunyikan tombol login
@@ -41,11 +41,10 @@ function authenticateUser(email, password) {
         })
         .catch((error) => {
             console.error("Error signing in:", error);
-            // Tampilkan pesan kesalahan di modal
-            document.getElementById('loginErrorMessage').textContent = error.message;
+            alert("Error signing in: " + error.message);
 
             // Tampilkan kembali modal login jika autentikasi gagal
-            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
             loginModal.show();
         });
 }
