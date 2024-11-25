@@ -3,6 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebas
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
 import { getDatabase, ref, query, orderByKey, limitToLast, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app-check.js";
 
 // Konfigurasi Firebase
 const firebaseConfig = {
@@ -21,6 +22,12 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const database = getDatabase(app);
 const auth = getAuth(app);
+// Tambahkan ini sebelum initializeAppCheck()
+self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+const appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider("6LeHB4kqAAAAAL8XJp8D80fy_34nRO1nxN6uK0yp"), // Ganti dengan site key Anda
+    isTokenAutoRefreshEnabled: true // Mengaktifkan pembaruan token otomatis
+});
 
 // Fungsi untuk mengambil dan menampilkan data berdasarkan ID stasiun yang dipilih
 function loadWeatherData(stationId) {

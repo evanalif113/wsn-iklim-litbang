@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "firebase": "^11.0.1",
     "jslint": "^0.12.1"
   }
 }
