@@ -20,13 +20,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
 
-// Fungsi untuk menampilkan modal notifikasi
-function showModal(modalId) {
-    const modalElement = document.getElementById(modalId);
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
-}
-
 // Fungsi untuk autentikasi pengguna
 function authenticateUser(email, password) {
     signInWithEmailAndPassword(auth, email, password)
@@ -45,9 +38,6 @@ function authenticateUser(email, password) {
             // Tampilkan tombol logout dan sembunyikan tombol login
             document.getElementById('loginButton').style.display = 'none';
             document.getElementById('logoutButton').style.display = 'block';
-
-            // Tampilkan modal notifikasi berhasil login
-            showModal('loginSuccessModal');
         })
         .catch((error) => {
             console.error("Error signing in:", error);
@@ -57,9 +47,6 @@ function authenticateUser(email, password) {
             // Tampilkan kembali modal login jika autentikasi gagal
             const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
             loginModal.show();
-
-            // Tampilkan modal notifikasi gagal login
-            showModal('loginErrorModal');
         });
 }
 
@@ -94,9 +81,6 @@ window.addEventListener('load', function() {
         // Tampilkan tombol logout dan sembunyikan tombol login
         document.getElementById('loginButton').style.display = 'none';
         document.getElementById('logoutButton').style.display = 'block';
-
-        // Panggil loadWeatherData pertama kali dengan stasiun default
-        loadWeatherData('id-02');
     }
 });
 
@@ -125,6 +109,13 @@ function handleStationChange() {
 
 // Fungsi untuk mengambil dan menampilkan data berdasarkan ID stasiun yang dipilih
 function loadWeatherData(stationId) {
+    // Cek status login dari localStorage
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+    if (isLoggedIn !== 'true') {
+        return;
+    }
+
     const tableBody = document.getElementById("datalogger");
     tableBody.innerHTML = ""; // Kosongkan tabel sebelum mengisi data
 
