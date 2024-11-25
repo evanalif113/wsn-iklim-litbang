@@ -1,8 +1,7 @@
 // Impor app dari fireconfig.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getDatabase, ref, query, orderByKey, limitToLast, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 // Konfigurasi Firebase
 const firebaseConfig = {
@@ -18,9 +17,100 @@ const firebaseConfig = {
 
 // Inisialisasi Firebase App
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const database = getDatabase(app);
 const auth = getAuth(app);
+const database = getDatabase(app);
+
+// Fungsi untuk autentikasi pengguna
+function authenticateUser(email, password) {
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            console.log("User signed in:", userCredential.user);
+            const uid = userCredential.user.uid;
+            console.log("User UID:", uid);
+
+            // Simpan status login ke localStorage
+            localStorage.setItem('isLoggedIn', 'true');
+
+            // Tutup modal setelah login
+            const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+            loginModal.hide();
+
+            // Tampilkan tombol logout dan sembunyikan tombol login
+            document.getElementById('loginButton').style.display = 'none';
+            document.getElementById('logoutButton').style.display = 'block';
+
+            // Panggil loadWeatherData pertama kali dengan stasiun default
+            loadWeatherData('id-02');
+        })
+        .catch((error) => {
+            console.error("Error signing in:", error);
+            alert("Login failed: " + error.message);
+
+            // Tampilkan kembali modal login jika autentikasi gagal
+            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.show();
+        });
+}
+
+// Fungsi untuk logout pengguna
+function logoutUser() {
+    signOut(auth).then(() => {
+        console.log("User signed out");
+
+        // Hapus status login dari localStorage
+        localStorage.removeItem('isLoggedIn');
+
+        // Tampilkan tombol login dan sembunyikan tombol logout
+        document.getElementById('loginButton').style.display = 'block';
+        document.getElementById('logoutButton').style.display = 'none';
+
+        // Tampilkan modal login setelah logout
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+    }).catch((error) => {
+        console.error("Error signing out:", error);
+    });
+}
+
+// Periksa status login saat halaman dimuat
+window.addEventListener('load', function() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
+        // Tampilkan modal login jika belum login
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+    } else {
+        // Tampilkan tombol logout dan sembunyikan tombol login
+        document.getElementById('loginButton').style.display = 'none';
+        document.getElementById('logoutButton').style.display = 'block';
+
+        // Panggil loadWeatherData pertama kali dengan stasiun default
+        loadWeatherData('id-02');
+    }
+});
+
+// Tambahkan event listener untuk form login
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    // Panggil fungsi autentikasi
+    authenticateUser(email, password);
+});
+
+// Tambahkan event listener untuk tombol logout
+document.getElementById('logoutButton').addEventListener('click', function() {
+    logoutUser();
+});
+
+// Fungsi untuk menangani perubahan ID stasiun
+function handleStationChange() {
+    const stationSelector = document.getElementById("stationSelector");
+    const selectedStation = stationSelector.value;
+    loadWeatherData(selectedStation);
+}
 
 // Fungsi untuk mengambil dan menampilkan data berdasarkan ID stasiun yang dipilih
 function loadWeatherData(stationId) {
@@ -38,40 +128,30 @@ function loadWeatherData(stationId) {
             snapshot.forEach((childSnapshot) => {
                 const data = childSnapshot.val();
                 const timeFormatted = new Date(data.timestamp * 1000)
-                                        .toLocaleTimeString([], { 
-                                            year: 'numeric', 
-                                            month: '2-digit', 
-                                            day: '2-digit', 
-                                            hour: '2-digit', 
-                                            minute: '2-digit', 
-                                            second: '2-digit', 
-                                            hour12: false
-                                        });
+                .toLocaleString([], { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    second: '2-digit',
+                    hour12: false // Mengatur format 24 jam
+                });
                 dataArray.push({
-                    date: timeFormatted,
-                    temperature: data.temperature,
-                    humidity: data.humidity,
-                    pressure: data.pressure,
-                    dew: data.dew,
-                    volt: data.volt
+                    time: timeFormatted,
+                    ...data
                 });
             });
 
-            // Balik array agar data terbaru di atas
-            dataArray.reverse();
-
-            // Tambahkan data ke tabel
-            dataArray.forEach(entry => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${entry.date}</td>
-                    <td>${entry.temperature}</td>
-                    <td>${entry.humidity}</td>
-                    <td>${entry.pressure}</td>
-                    <td>${entry.dew}</td>
-                    <td>${entry.volt}</td>
-                `;
-                tableBody.appendChild(row);
+            // Tampilkan data di tabel
+            dataArray.forEach((data) => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = data.time;
+                row.insertCell(1).textContent = data.temperature;
+                row.insertCell(2).textContent = data.humidity;
+                row.insertCell(3).textContent = data.pressure;
+                row.insertCell(4).textContent = data.dew;
+                row.insertCell(5).textContent = data.volt;
             });
         } else {
             console.warn("Tidak ada data yang tersedia.");
@@ -80,55 +160,6 @@ function loadWeatherData(stationId) {
         console.error("Error fetching data: ", error);
     });
 }
-
-// Fungsi untuk menangani perubahan ID stasiun
-function handleStationChange() {
-    const stationSelector = document.getElementById("stationSelector");
-    const selectedStation = stationSelector.value;
-    loadWeatherData(selectedStation);
-}
-
-// Fungsi untuk autentikasi pengguna
-function authenticateUser(email, password) {
-    signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            console.log("User signed in:", userCredential.user);
-            const uid = userCredential.user.uid;
-            console.log("User UID:", uid);
-
-            // Simpan status login ke localStorage
-            localStorage.setItem('isLoggedIn', 'true');
-
-            // Tutup modal setelah login
-            const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-            loginModal.hide();
-        })
-        .catch((error) => {
-            console.error("Error signing in:", error);
-            alert("Login failed: " + error.message);
-        });
-}
-
-// Periksa status login saat halaman dimuat
-window.addEventListener('load', function() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (!isLoggedIn) {
-        // Tampilkan modal login jika belum login
-        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-        loginModal.show();
-    }
-});
-
-// Tambahkan event listener untuk form login
-document.getElementById('loginForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    // Panggil fungsi autentikasi
-    authenticateUser(email, password);
-});
 
 // Tambahkan event listener ke dropdown selector
 document.getElementById("stationSelector").addEventListener("change", handleStationChange);

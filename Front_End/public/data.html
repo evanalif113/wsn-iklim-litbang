@@ -19,16 +19,16 @@
   <!--NAVBAR-->
   <nav class="navbar sticky-top navbar-expand-sm custom-bg-body-tertiary">
     <div class="container-fluid">
-        <a class="navbar-brand" href="./index.html">
-            <img src="./img/icon-nobg.png" alt="logo" width="50" height="50" class="d-inline-block align-text-top">
-        </a>
+      <a class="navbar-brand" href="./index.html">
+        <img src="./img/icon-nobg.png" alt="logo" width="50" height="50" class="d-inline-block align-text-top">
+    </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto custom-nav">
                 <li class="nav-item">
-                    <a class="nav-link" aria-current="page" href="./index.html">Beranda</a>
+                    <a class="nav-link" href="./index.html">Beranda</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="./riset.html">Riset</a>
@@ -37,7 +37,7 @@
                     <a class="nav-link active" href="./data.html">Data</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="./CSI.html">CSI</a>
+                    <a class="nav-link" href="./CSI.html">CSI</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="./timpengabdian.html">Tim Pengabdian</a>
@@ -49,10 +49,58 @@
             <span class="navbar-text ms-auto">
                 "Berkomitmen pada Penelitian untuk Kelestarian Bumi"
             </span>
+            <!-- Tambahkan tombol login dan logout di sini -->
+            <button id="loginButton" type="button" class="btn btn-primary ms-3" data-bs-toggle="modal" data-bs-target="#loginModal">
+                Login
+            </button>
+            <button id="logoutButton" type="button" class="btn btn-danger ms-3" style="display: none;">
+                Logout
+            </button>
+            <!-- Tambahkan tombol menu di sini -->
+            <button class="btn btn-success ms-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+                Menu
+            </button>
         </div>
     </div>
 </nav>
-<!-- Login Modal -->
+
+<!-- Offcanvas Menu -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menu</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <ul class="list-unstyled">
+      <li class="menu-item">
+        <a href="./index.html" class="text-decoration-none">
+          <i class="fas fa-home"></i> Beranda
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="./riset.html" class="text-decoration-none">
+          <i class="fas fa-flask"></i> Riset
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="./data.html" class="text-decoration-none">
+          <i class="fas fa-database"></i> Data
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="./timpengabdian.html" class="text-decoration-none">
+          <i class="fas fa-users"></i> Tim Pengabdian
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="./timriset.html" class="text-decoration-none">
+          <i class="fas fa-user-graduate"></i> Tim Pengembangan
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
 <!-- Login Modal -->
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog">
@@ -76,6 +124,7 @@
     </div>
   </div>
 </div>
+
 <!--KONTEN LAINNYA-->
 <div class="container my-5">
     <h2 class="text-center mb-4">Datalogger</h2>
