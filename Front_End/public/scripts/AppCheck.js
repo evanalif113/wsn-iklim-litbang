@@ -2,6 +2,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
 
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
+
 // Konfigurasi Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyDPoeHnDs1E4BxAMDoLEub2uE9q6H_YDw4",
@@ -12,11 +14,15 @@ const firebaseConfig = {
     messagingSenderId: "849206798206",
     appId: "1:849206798206:web:7fe6fe938389658302752f",
     measurementId: "G-GH86DQR6NJ"
-  };
+};
 
 // Inisialisasi Firebase App
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-export {analytics};
-export default app;  // Menggunakan default export untuk app
+// Create a ReCaptchaEnterpriseProvider instance using your reCAPTCHA Enterprise
+// site key and pass it to initializeAppCheck().
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaEnterpriseProvider(/* reCAPTCHA Enterprise site key */),
+  isTokenAutoRefreshEnabled: true // Set to true to allow auto-refresh.
+});
