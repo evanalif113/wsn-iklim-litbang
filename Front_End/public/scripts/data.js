@@ -27,7 +27,10 @@ function loadWeatherData(stationId = 'id-02') {
     tableBody.innerHTML = ""; // Kosongkan tabel sebelum mengisi data
 
     // Ambil data terakhir dari database sesuai ID stasiun
-    const dataRef = query(ref(database, `auto_weather_stat/${stationId}/data`), orderByKey(), limitToLast(15));
+    const dataRef = query(ref(database, 
+        `auto_weather_stat/${stationId}/data`), 
+        orderByKey(), 
+        limitToLast(15));
     
     get(dataRef).then((snapshot) => {
         if (snapshot.exists()) {

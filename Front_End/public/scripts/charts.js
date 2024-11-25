@@ -36,7 +36,8 @@ var volt = [];
 // Muat data saat halaman siap
 document.addEventListener('DOMContentLoaded', () => {
     // Tambahkan event listener ke dropdown selector
-    document.getElementById("stationSelector").addEventListener("change", handleStationChange);
+    document.getElementById("stationSelector")
+    .addEventListener("change", handleStationChange);
 
     // Perbarui data setiap 1 menit (60000 milidetik)
     setInterval(() => {
@@ -60,7 +61,10 @@ function handleStationChange() {
 function fetchLastData(stationId) {
     var hour = 1;
     var fetchCount = hour * 60;
-    var dataRef = query(ref(database, `auto_weather_stat/${stationId}/data`), orderByKey(), limitToLast(fetchCount));
+    var dataRef = query(ref(database, 
+        `auto_weather_stat/${stationId}/data`), 
+        orderByKey(), 
+        limitToLast(fetchCount));
 
     get(dataRef).then((snapshot) => {
         if (snapshot.exists()) {
