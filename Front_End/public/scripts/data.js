@@ -1,6 +1,24 @@
-import { auth, database } from "./fireconfig.js";
-import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { ref, query, orderByKey, limitToLast, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+// Impor app dari fireconfig.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getDatabase, ref, query, orderByKey, limitToLast, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+// Konfigurasi Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyDPoeHnDs1E4BxAMDoLEub2uE9q6H_YDw4",
+    authDomain: "database-sensor-iklim-litbang.firebaseapp.com",
+    databaseURL: "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "database-sensor-iklim-litbang",
+    storageBucket: "database-sensor-iklim-litbang.appspot.com",
+    messagingSenderId: "849206798206",
+    appId: "1:849206798206:web:7fe6fe938389658302752f",
+    measurementId: "G-GH86DQR6NJ"
+};
+
+// Inisialisasi Firebase App
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
 
 // Fungsi untuk autentikasi pengguna
 function authenticateUser(email, password) {
