@@ -38,9 +38,6 @@ function authenticateUser(email, password) {
             // Tampilkan tombol logout dan sembunyikan tombol login
             document.getElementById('loginButton').style.display = 'none';
             document.getElementById('logoutButton').style.display = 'block';
-
-            // Panggil loadWeatherData pertama kali dengan stasiun default
-            loadWeatherData('id-02');
         })
         .catch((error) => {
             console.error("Error signing in:", error);
