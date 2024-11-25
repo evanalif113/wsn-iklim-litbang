@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
 import { getDatabase, ref, query, orderByKey, limitToLast, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
 // Konfigurasi Firebase
 const firebaseConfig = {
@@ -18,19 +19,16 @@ const firebaseConfig = {
 // Inisialisasi Firebase App
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-// Inisialisasi Realtime Database
 const database = getDatabase(app);
+const auth = getAuth(app);
 
 // Fungsi untuk mengambil dan menampilkan data berdasarkan ID stasiun yang dipilih
-function loadWeatherData(stationId = 'id-02') {
+function loadWeatherData(stationId) {
     const tableBody = document.getElementById("datalogger");
     tableBody.innerHTML = ""; // Kosongkan tabel sebelum mengisi data
 
     // Ambil data terakhir dari database sesuai ID stasiun
-    const dataRef = query(ref(database, 
-        `auto_weather_stat/${stationId}/data`), 
-        orderByKey(), 
-        limitToLast(15));
+    const dataRef = query(ref(database, `auto_weather_stat/${stationId}/data`), orderByKey(), limitToLast(15));
     
     get(dataRef).then((snapshot) => {
         if (snapshot.exists()) {
@@ -90,21 +88,58 @@ function handleStationChange() {
     loadWeatherData(selectedStation);
 }
 
-// Muat data saat halaman siap
-document.addEventListener('DOMContentLoaded', () => {
-    // Panggil loadWeatherData pertama kali dengan stasiun default
-    loadWeatherData();
+// Fungsi untuk autentikasi pengguna
+function authenticateUser(email, password) {
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            console.log("User signed in:", userCredential.user);
+            const uid = userCredential.user.uid;
+            console.log("User UID:", uid);
 
-    // Tambahkan event listener ke dropdown selector
-    document.getElementById("stationSelector").addEventListener("change", handleStationChange);
+            // Simpan status login ke localStorage
+            localStorage.setItem('isLoggedIn', 'true');
 
-    // Perbarui data setiap 1 menit (60000 milidetik)
-    setInterval(() => {
-        const stationSelector = document.getElementById("stationSelector");
-        loadWeatherData(stationSelector.value || 'id-02');
-    }, 60000);
+            // Tutup modal setelah login
+            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            loginModal.hide();
+        })
+        .catch((error) => {
+            console.error("Error signing in:", error);
+            alert("Login failed: " + error.message);
+        });
+}
+
+// Periksa status login saat halaman dimuat
+window.addEventListener('load', function() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
+        // Tampilkan modal login jika belum login
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+    }
 });
 
+// Tambahkan event listener untuk form login
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    // Panggil fungsi autentikasi
+    authenticateUser(email, password);
+});
+
+// Tambahkan event listener ke dropdown selector
+document.getElementById("stationSelector").addEventListener("change", handleStationChange);
+
+// Perbarui data setiap 1 menit (60000 milidetik)
+setInterval(() => {
+    const stationSelector = document.getElementById("stationSelector");
+    loadWeatherData(stationSelector.value);
+}, 60000);
+
+// Bagian Pencarian
 document.getElementById('searchStation').addEventListener('input', function() {
     var filter = this.value.toLowerCase();
     var options = document.getElementById('stationSelector').options;
