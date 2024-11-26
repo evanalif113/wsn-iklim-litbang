@@ -49,6 +49,9 @@ function loadWeatherData(stationId) {
                 });
             });
 
+            // Balikkan urutan data
+            dataArray.reverse();
+
             // Tampilkan data di tabel
             dataArray.forEach((data) => {
                 const row = tableBody.insertRow();
