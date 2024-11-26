@@ -80,6 +80,12 @@ window.addEventListener('load', function() {
         // Tampilkan tombol logout dan sembunyikan tombol login
         document.getElementById('loginButton').style.display = 'none';
         document.getElementById('logoutButton').style.display = 'block';
+
+        // Set timer untuk logout otomatis setelah 1 jam
+        setTimeout(() => {
+            logoutUser();
+            alert("You have been logged out due to inactivity.");
+        }, 3600000); // 1 jam = 3600000 milidetik
     }
 });
 
