@@ -103,6 +103,31 @@
     </button>
   </div>
 </div>
+
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" data-bs-keyboard="false">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary">
+        <h5 class="modal-title text-white" id="loginModalLabel">Sistem Admin</h5>
+      </div>
+      <div class="modal-body">
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!--KONTEN LAINNYA-->
 <!-- Main Content -->
      <!-- MENU SELECTOR FOR STATION ID -->
@@ -250,5 +275,6 @@
   <script src="./scripts/kalkulasi.js"></script>
   <script src="./scripts/musim.js"></script>
   <script type="module" src="./scripts/charts.js"></script>
+  <script type="module" src="./scripts/auth.js"></script>
 </body>
 </html>

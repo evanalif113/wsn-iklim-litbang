@@ -25,12 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Perbarui data setiap 1 menit (60000 milidetik)
     setInterval(() => {
         const stationSelector = document.getElementById("stationSelector");
-        fetchLastData(stationSelector.value); // Gunakan stationId dari selector atau default 'id-02'
+        fetchLastData(stationSelector.value);
     }, 60000);
-
-    // Load data pertama kali menggunakan stationId default atau dari dropdown
-    const initialStationId = document.getElementById("stationSelector").value || 'id-02';
-    fetchLastData(initialStationId);
 });
 
 // Fungsi untuk menangani perubahan ID stasiun
