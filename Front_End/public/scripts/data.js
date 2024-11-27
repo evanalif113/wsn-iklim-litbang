@@ -1,8 +1,10 @@
 // Impor app dari fireconfig.js
 import { app } from "./fireconfig.js";
 import { getDatabase, ref, query, orderByKey, limitToLast, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getPerformance } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-performance.js";
 
 const database = getDatabase(app);
+const perf = getPerformance(app);
 
 // Fungsi untuk menangani perubahan ID stasiun
 function handleStationChange() {

@@ -1,9 +1,11 @@
 // fireconfig.js
 import { app } from './fireconfig.js';
 import { getDatabase, ref, query, orderByKey, limitToLast, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getPerformance } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-performance.js";
 
 // Inisialisasi Realtime Database
 const database = getDatabase(app);
+const perf = getPerformance(app);
 
 // Maksimal panjang array data (misalnya, 60 data poin)
 var maxDataLength = 60;
