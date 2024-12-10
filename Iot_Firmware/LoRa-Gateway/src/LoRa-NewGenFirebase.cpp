@@ -181,6 +181,7 @@ void initMultiWiFi() {
   // Add list of wifi networks
   wifiMulti.addAP("Jerukagung Seismologi", "riset1234");
   wifiMulti.addAP("server", "jeris6467");
+  wifiMulti.addAP("Departemen Sains Atmosfer", "peneliti");
   // Connect to Wi-Fi using wifiMulti (connects to the SSID with strongest connection)
   Serial.println("Connecting Wifi.....");
   if (wifiMulti.run() == WL_CONNECTED) {
