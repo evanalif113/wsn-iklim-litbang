@@ -3,13 +3,14 @@
 #define SSID_2 "Kazu"
 #define SSID_3 "server"
 #define SSID_4 "Jerukagung Seismologi"
+#define SSID_5 "risetiklim"
 
 // PASS
 #define PASS1 "HasuminBest"
 #define PASS2 "HasuminBest"
 #define PASS3 "jeris6467"
 #define PASS4 "riset1234"
-
+#define PASS5 "iklim6467"
 
 //Credentials Client
 //WINDY

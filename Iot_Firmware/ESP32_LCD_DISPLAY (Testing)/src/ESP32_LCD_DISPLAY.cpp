@@ -139,6 +139,8 @@ void initMultiWiFi() {
   wifiMulti.addAP(SSID_1, PASS1);
   wifiMulti.addAP(SSID_2, PASS2);
   wifiMulti.addAP(SSID_3, PASS3);
+  wifiMulti.addAP(SSID_4, PASS4);
+  wifiMulti.addAP(SSID_5, PASS5);
   // Connect to Wi-Fi using wifiMulti (connects to the SSID with strongest connection)
   Serial.println("Connecting Wifi.....");
   if (wifiMulti.run() == WL_CONNECTED) {
