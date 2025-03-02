@@ -13,7 +13,6 @@
 #include <ArduinoJson.h>
 #include <RTClib.h>
 #include "time.h"
-#include "UserConfig.h"
 
 #define ARDUINOJSON_SLOT_ID_SIZE 1
 #define ARDUINOJSON_STRING_LENGTH_SIZE 1
@@ -262,7 +261,6 @@ void setup() {
   //initWiFi();
   initMultiWiFi();
   FirebaseSetup();
-  while (!Serial);
   Serial.println("LoRa Gateway");
 
   //setup LoRa transceiver module
