@@ -1,5 +1,5 @@
 /*********
-  @author By Evan Aif Widhyatma
+  @author By Widhyatma Sensei
   @date 2024
   @version 4.1
 *********/
