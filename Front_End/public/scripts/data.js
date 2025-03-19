@@ -62,7 +62,9 @@ function loadWeatherData(stationId) {
                 row.insertCell(2).textContent = data.humidity;
                 row.insertCell(3).textContent = data.pressure;
                 row.insertCell(4).textContent = data.dew;
-                row.insertCell(5).textContent = data.volt;
+                row.insertCell(5).textContent = data.rainfall;
+                row.insertCell(5).textContent = data.rainrate;
+                row.insertCell(7).textContent = data.volt;
             });
         } else {
             console.warn("Tidak ada data yang tersedia.");

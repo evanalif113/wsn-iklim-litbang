@@ -209,7 +209,7 @@ function plotRainfallRainrateStacked() {
     var layout = {
         title: 'Curah Hujan dan Laju Hujan',
         xaxis: { title: 'Waktu' },
-        yaxis: { title: 'Nilai' },
+        yaxis: { title: 'Curah Hujan' },
         height: 600
     };
 
