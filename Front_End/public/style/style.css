@@ -40,11 +40,11 @@ body {
   }
 
   .custom-nav .nav-link:hover {
-    color: #26f4ff; /* Warna teks link navbar saat di-hover */
+    color: #000000; /* Warna teks link navbar saat di-hover */
   }
 
   .custom-nav .nav-link.active {
-    color: #fffb00; /* Warna teks link aktif */
+    color: #000000; /* Warna teks link aktif */
   }
 
 
