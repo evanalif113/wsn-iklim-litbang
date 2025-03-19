@@ -6,19 +6,22 @@
 
 //Komen jika tidak menggunakan LCD
 //#define USE_LCD
+//Komen Jika tidak menggunakan Rainfal Sensor
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
+#include <WebServer.h>
+#include <LittleFS.h>
 #include <WiFiClientSecure.h>
-#include <HTTPClient.h>
 #include <FirebaseClient.h>
 #include <Adafruit_SHT4x.h>
 #include <Adafruit_BMP280.h>
 #include <Adafruit_MAX1704X.h>
+#include "DFRobot_RainfallSensor.h"
 #include <ArduinoJson.h>
+#include <ElegantOTA.h>
 #include "time.h"
 #include "rahasia.h"
-#include "UserConfig.h"
 
 #ifdef USE_LCD
 #include <LiquidCrystal_I2C.h>
@@ -29,7 +32,7 @@
 
 
 //PENTING ini ID DEVICE
-uint id = 4;
+uint id = 5;
 
 // Delay with millis
 unsigned long lastTime = 0;
@@ -58,6 +61,9 @@ RealtimeDatabase Database;
 Adafruit_SHT4x sht4;
 Adafruit_BMP280 bmp;
 Adafruit_MAX17048 maxWin;
+DFRobot_RainfallSensor_I2C Sensor(&Wire);
+
+WebServer server(80);
 
 #ifdef USE_LCD
 // LCD Display
@@ -71,9 +77,12 @@ float temperature = 0,
       dewPoint = 0, 
       windSpeed = 0,
       windDirection = 0,
-      rainFall = 0,
-      rainRate = 0,
-      voltage = 0;
+      rainFall = 0, //Total in One Day
+      rainRate = 0, //Total in One Hour
+      voltage = 0,
+      sensorWorkingTime = 0;
+// Variabel tiping bucket
+int rawData = 0;
 
 // Fungsi untuk mengambil waktu epoch saat ini
 unsigned long getTime() {
@@ -122,7 +131,15 @@ void initSensors() {
     while (1);
   }
   Serial.println("Found MAX17048 sensor!");
+
+  while (!Sensor.begin()) {
+    Serial.println("Sensor init err!!!");
+    delay(1000);
+    }
+  // Set nilai awal curah hujan (unit: mm)
+  Sensor.setRainAccumulatedValue(0.2794);
 }
+
 
 #ifdef USE_LCD
 void initDisplay() {
@@ -187,6 +204,11 @@ void updateSensorData() {
   pressure = bmp.readPressure() / 100.0F;
   voltage = maxWin.cellVoltage();
   dewPoint = calculateDewPoint(temperature, humidity);
+  // Update data sensor curah hujan
+  sensorWorkingTime = Sensor.getSensorWorkingTime() * 60;
+  rainFall = Sensor.getRainfall(24);            // Total curah hujan (mm)
+  rainRate = Sensor.getRainfall(1);           // Curah hujan selama 1 jam (mm)
+  rawData = Sensor.getRawData();  
 }
 
 #ifdef USE_LCD
@@ -203,46 +225,6 @@ void displayDataOnLCD() {
   lcd.print("DewP: " + String(dewPoint, 1) + (char)223 + "C");
 }
 #endif
-
-// Fungsi untuk mengirim data ke ThingSpeak
-void sendDataToThingspeak() {
-
-  String Thingskey;
-  WiFiClient client;
-  HTTPClient http;
-  http.setTimeout(2000);
-
-  if (id == 1) {
-    Thingskey = String(WRITE_APIKEY_1);
-  }
-
-  if (id == 2) {
-    Thingskey = String(WRITE_APIKEY_2);
-  }
-
-  String url = "http://api.thingspeak.com/update?api_key=" + String(Thingskey);
-  url += "&field1=" + String(temperature);
-  url += "&field2=" + String(humidity);
-  url += "&field3=" + String(pressure);
-  url += "&field4=" + String(dewPoint);
-  url += "&field5=" + String();
-  url += "&field6=" + String();
-  url += "&field7=" + String();
-  url += "&field8=" + String(voltage);
-
-  http.begin(client, url);
-  uint16_t httpResponseCode = http.GET();
-  if (httpResponseCode > 0) {
-    Serial.print(F("Thingspeak Response code: "));
-    Serial.println(httpResponseCode);
-    String payload = http.getString();
-    Serial.println(payload);
-  } else {
-    Serial.print(F("Error code Thingspeak: "));
-    Serial.println(httpResponseCode);
-  }
-  http.end();
-}
 
 void FirebaseSetup() {
     configTime(0, 0, ntpServer, ntpServer2); // Initialize NTP Client
@@ -281,6 +263,8 @@ void FirebaseData() {
   docW["humidity"] = humidity;
   docW["pressure"] = pressure;
   docW["temperature"] = temperature;
+  docW["rainfall"] = rainFall;
+  docW["rainrate"] = rainRate;
   docW["timestamp"] = timestamp;
   docW["volt"] = voltage;
 
@@ -329,6 +313,33 @@ void printResult(AsyncResult &aResult){
     }
 }
 
+void handleRoot() {
+  File file = LittleFS.open("/index.html", "r");
+  if (!file) {
+    server.send(500, "text/plain", "Index file not found");
+    return;
+  }
+  server.streamFile(file, "text/html");
+  file.close();
+}
+
+void handleData() {
+  JsonDocument doc;
+  doc["workingTime"] = sensorWorkingTime;
+  doc["totalRainfall"] = rainFall;
+  doc["HourRainfall"] = rainRate;
+  doc["rawData"] = rawData;
+  doc["temperature"] = temperature;
+  doc["humidity"] = humidity;
+  doc["pressure"] = pressure;
+  doc["dewPoint"] = dewPoint;
+  doc["voltage"] = voltage;
+
+  String jsonStr;
+  serializeJson(doc, jsonStr);
+  server.send(200, "application/json", jsonStr);
+}
+
 void setup() {
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
@@ -338,10 +349,25 @@ void setup() {
   initDisplay();
   #endif
 
+  // Inisialisasi LittleFS
+  if (!LittleFS.begin(true)) {  // Format otomatis jika mount gagal
+    Serial.println("LittleFS mount failed");
+    while (1);
+  }
+  Serial.println("LittleFS mounted successfully");
+
   // Koneksi WiFi
   initMultiWiFi();
   // Inisialisasi sensor
+  Wire.begin();
   initSensors();
+
+    // Konfigurasi endpoint web server
+  server.on("/", handleRoot);
+  server.on("/data", handleData);
+  ElegantOTA.begin(&server);
+  server.begin();
+  Serial.println("HTTP server started");
 
   // Inisialisasi Firebase
   FirebaseSetup();
@@ -353,6 +379,8 @@ unsigned int checkStatusNext;
 void loop() {
   app.loop();
   Database.loop();
+  server.handleClient();
+  ElegantOTA.loop();
   if (checkStatusNext<=millis() && WiFi.status() !=WL_CONNECTED) {
   connectionstatusMulti();
   checkStatusNext = millis() + checkStatusPeriode;
@@ -372,9 +400,6 @@ void loop() {
 
     // Kirim data ke Firebase
     FirebaseData();
-
-    // Kirim data ke ThingSpeak
-    sendDataToThingspeak();
 
     // Cetak data ke serial
     Serial.print("Temperature: ");

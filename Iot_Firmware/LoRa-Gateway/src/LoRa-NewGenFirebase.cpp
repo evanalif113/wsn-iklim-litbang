@@ -1,13 +1,14 @@
 /*********
   @author By Widhyatma Sensei
   @date 2024
-  @version 4.1
+  @version 4.4
 *********/
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <WiFiClientSecure.h>
 #include <FirebaseClient.h>
+#include "ExampleFunctions.h"
 #include <SPI.h>
 #include <LoRa.h>
 #include <ArduinoJson.h>
@@ -19,7 +20,6 @@
 
 // The API key can be obtained from Firebase console > Project Overview > Project settings.
 #define API_KEY "AIzaSyCLnLUN0jSUj7X37VTVJciUHsIyl4sT0-0"
-
 // User Email and password that already registerd or added in your project.
 #define USER_EMAIL "esp32@mail.com"
 #define USER_PASSWORD "kirim1234"
@@ -34,12 +34,12 @@ void printResult(AsyncResult &aResult);
 DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
 UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
 FirebaseApp app;
-
-using AsyncClient = AsyncClientClass;
+RealtimeDatabase Database;
 
 WiFiClientSecure ssl_client;
+
+using AsyncClient = AsyncClientClass;
 AsyncClient aClient(ssl_client, getNetwork(network));
-RealtimeDatabase Database;
 
 //define the pins used by the transceiver module
 #define ss 5
@@ -223,6 +223,7 @@ void asyncCB(AsyncResult &aResult) {
 }
 
 void printResult(AsyncResult &aResult){
+    
     if (aResult.isEvent()) {
         Firebase.printf("Event task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.appEvent().message().c_str(), aResult.appEvent().code());
     }
@@ -341,7 +342,6 @@ void Data() {
 
 void loop() {
   app.loop();
-  Database.loop();
   if (checkStatusNext<=millis() && WiFi.status() !=WL_CONNECTED) {
     connectionstatusMulti();
     checkStatusNext = millis() + checkStatusPeriode;
