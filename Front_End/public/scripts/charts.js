@@ -16,6 +16,8 @@ var temperatures = [];
 var humidity = [];
 var pressure = [];
 var dew = [];
+var rainfall = [];
+var rainrate = [];
 var volt = [];
 
 // Muat data saat halaman siap
@@ -55,6 +57,8 @@ function fetchLastData(stationId) {
             humidity = [];
             pressure = [];
             dew = [];
+            rainfall = [];
+            rainrate = [];
             volt = [];
 
             Object.values(data).forEach(entry => {
@@ -73,6 +77,8 @@ function fetchLastData(stationId) {
                 updateDataArray(humidity, entry.humidity);
                 updateDataArray(pressure, entry.pressure);
                 updateDataArray(dew, entry.dew);
+                updateDataArray(rainfall, entry.rainfall);
+                updateDataArray(rainrate, entry.rainrate);
                 updateDataArray(volt, entry.volt);
             });
 
@@ -178,6 +184,38 @@ function plotPressureChart() {
     Plotly.newPlot('pressure-chart', [trace], layout, {responsive: true});
 }
 
+// Fungsi untuk menampilkan chart stacked untuk rainfall dan rainrate
+function plotRainfallRainrateStacked() {
+    var trace1 = {
+        x: timestamps,
+        y: rainfall,
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: 'Curah Hujan (mm)',
+        line: { color: '#1f77b4' }
+    };
+
+    var trace2 = {
+        x: timestamps,
+        y: rainrate,
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: 'Laju Hujan (mm/jam)',
+        line: { color: '#ff7f0e' }
+    };
+
+    var data = [trace1, trace2];
+
+    var layout = {
+        title: 'Curah Hujan dan Laju Hujan',
+        xaxis: { title: 'Waktu' },
+        yaxis: { title: 'Nilai' },
+        height: 600
+    };
+
+    Plotly.newPlot('rainfall-rainrate-chart', data, layout, { responsive: true });
+}
+
 function plotVoltChart() {
     var trace = {
         x: timestamps,
@@ -279,6 +317,12 @@ function updateCharts() {
     };
     Plotly.update('volt-chart', data_update_volt);
 
+    var data_update_rainfall = {
+        x: [timestamps],
+        y: [rainfall,rainrate]
+    };
+    Plotly.update('rainfall-rainrate-chart', data_update_rainfall);
+
     var data_update_scatter = { 
         x: [temperatures],
         y: [humidity]
@@ -298,6 +342,7 @@ $(document).ready(function() {
     plotHumidityChart();
     plotPressureChart();
     plotDewChart();
+    plotRainfallRainrateStacked();
     plotVoltChart();
     plotTempHumiScatter();
     plotStacked();
