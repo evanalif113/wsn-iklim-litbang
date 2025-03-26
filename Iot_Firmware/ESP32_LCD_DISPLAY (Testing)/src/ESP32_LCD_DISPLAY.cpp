@@ -3,10 +3,18 @@
   @date 2024
   @version 4.1
 *********/
-
+//Komen Jika tidak menggunakan SHT31
+#define USE_SHT31
+//Komen jika tidak menggunakan SHT40
+//#define USE_SHT40
+//Komen jika tidak menggunakan BMP280
+//#define USE_BMP280
+//Komen jika tidak menggunakan MS5611
+#define USE_MS5611
 //Komen jika tidak menggunakan LCD
 //#define USE_LCD
 //Komen Jika tidak menggunakan Rainfal Sensor
+//#define USE_RAINFALL_SENSOR
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -14,17 +22,34 @@
 #include <LittleFS.h>
 #include <WiFiClientSecure.h>
 #include <FirebaseClient.h>
-#include <Adafruit_SHT4x.h>
-#include <Adafruit_BMP280.h>
 #include <Adafruit_MAX1704X.h>
-#include "DFRobot_RainfallSensor.h"
 #include <ArduinoJson.h>
 #include <ElegantOTA.h>
 #include "time.h"
 #include "rahasia.h"
 
+#ifdef USE_SHT31
+#include "Adafruit_SHT31.h"
+#endif
+
+#ifdef USE_SHT40
+#include <Adafruit_SHT4x.h>
+#endif
+
+#ifdef USE_BMP280
+#include <Adafruit_BMP280.h>
+#endif
+
+#ifdef USE_MS5611
+#include "MS5611.h"
+#endif
+
 #ifdef USE_LCD
 #include <LiquidCrystal_I2C.h>
+#endif
+
+#ifdef USE_RAINFALL_SENSOR
+#include "DFRobot_RainfallSensor.h"
 #endif
 
 #define ARDUINOJSON_SLOT_ID_SIZE 1
@@ -32,7 +57,7 @@
 
 
 //PENTING ini ID DEVICE
-uint id = 5;
+uint id = 4;
 
 // Delay with millis
 unsigned long lastTime = 0;
@@ -58,10 +83,26 @@ AsyncClient aClient(ssl_client, getNetwork(network));
 RealtimeDatabase Database;
 
 // Sensor SHT40, BMP280, MAX17048
+#ifdef USE_SHT31
+Adafruit_SHT31 sht31 = Adafruit_SHT31();
+#endif
+
+#ifdef USE_SHT40
 Adafruit_SHT4x sht4;
+#endif
+
+#ifdef USE_BMP280
 Adafruit_BMP280 bmp;
+#endif
+
+#ifdef USE_MS5611
+MS5611 MS5611(0x77);
+#endif
+
 Adafruit_MAX17048 maxWin;
+#ifdef USE_RAINFALL_SENSOR
 DFRobot_RainfallSensor_I2C Sensor(&Wire);
+#endif
 
 WebServer server(80);
 
@@ -77,12 +118,14 @@ float temperature = 0,
       dewPoint = 0, 
       windSpeed = 0,
       windDirection = 0,
-      rainFall = 0, //Total in One Day
+      voltage = 0;
+#ifdef USE_RAINFALL_SENSOR
+float rainFall = 0, //Total in One Day
       rainRate = 0, //Total in One Hour
-      voltage = 0,
       sensorWorkingTime = 0;
 // Variabel tiping bucket
 int rawData = 0;
+#endif
 
 // Fungsi untuk mengambil waktu epoch saat ini
 unsigned long getTime() {
@@ -106,14 +149,26 @@ float calculateDewPoint(float temperature, float humidity) {
 
 // Fungsi untuk inisialisasi sensor
 void initSensors() {
+  #ifdef USE_SHT31
+  if (!sht31.begin(0x44)) {
+    Serial.println("Couldn't find SHT31 sensor! Check wiring.");
+    while (1);
+  }
+  sht31.heater(false);
+  Serial.println("Found SHT31 sensor!");
+  #endif
   // Inisialisasi SHT40
+  #ifdef USE_SHT40
   if (!sht4.begin()) {
     Serial.println("Couldn't find SHT40 sensor! Check wiring.");
     while (1);
   }
+  sht4.setPrecision(SHT4X_HIGH_PRECISION);
+  sht4.setHeater(SHT4X_NO_HEATER);
   Serial.println("Found SHT40 sensor!");
-
+  #endif
   // Inisialisasi BMP280
+  #ifdef USE_BMP280
   if (!bmp.begin(0x76)) {
     Serial.println("Couldn't find BMP280 sensor! Check wiring.");
     while (1);
@@ -124,20 +179,29 @@ void initSensors() {
                   Adafruit_BMP280::SAMPLING_X16, 
                   Adafruit_BMP280::FILTER_X16, 
                   Adafruit_BMP280::STANDBY_MS_500);
-
+  #endif
+  // Inisialisasi MS5611
+  #ifdef USE_MS5611
+  if (!MS5611.begin()) {
+    Serial.println("Couldn't find MS5611 sensor! Check wiring.");
+    while (1);
+  }
+  #endif
   // Inisialisasi MAX17048
   if (!maxWin.begin()) {
     Serial.println("Couldn't find MAX17048 sensor! Check wiring.");
     while (1);
   }
   Serial.println("Found MAX17048 sensor!");
-
+#ifdef USE_RAINFALL_SENSOR
+  // Inisialisasi sensor curah hujan
   while (!Sensor.begin()) {
     Serial.println("Sensor init err!!!");
     delay(1000);
     }
   // Set nilai awal curah hujan (unit: mm)
   Sensor.setRainAccumulatedValue(0.2794);
+#endif
 }
 
 
@@ -197,18 +261,37 @@ void connectionstatusMulti() {
 
 // Fungsi untuk update data sensor
 void updateSensorData() {
+  #ifdef USE_SHT31
+  temperature = sht31.readTemperature();
+  humidity = sht31.readHumidity();
+  #endif
+
+  #ifdef USE_SHT40
   sensors_event_t humidityEvent, tempEvent;
   sht4.getEvent(&humidityEvent, &tempEvent);
   temperature = tempEvent.temperature;
   humidity = humidityEvent.relative_humidity;
+  #endif
+
+  #ifdef USE_BMP280
   pressure = bmp.readPressure() / 100.0F;
+  #endif
+
+  #ifdef USE_MS5611
+  MS5611.setOversampling(OSR_ULTRA_HIGH);
+  MS5611.read();
+  pressure = MS5611.getPressure();
+  #endif
+
   voltage = maxWin.cellVoltage();
   dewPoint = calculateDewPoint(temperature, humidity);
+#ifdef USE_RAINFALL_SENSOR
   // Update data sensor curah hujan
   sensorWorkingTime = Sensor.getSensorWorkingTime() * 60;
   rainFall = Sensor.getRainfall(24);            // Total curah hujan 24 jam (mm)
   rainRate = Sensor.getRainfall(1);           // Curah hujan selama 1 jam (mm)
   rawData = Sensor.getRawData();  
+#endif
 }
 
 #ifdef USE_LCD
@@ -263,10 +346,12 @@ void FirebaseData() {
   docW["humidity"] = humidity;
   docW["pressure"] = pressure;
   docW["temperature"] = temperature;
-  docW["rainfall"] = rainFall;
-  docW["rainrate"] = rainRate;
   docW["timestamp"] = timestamp;
   docW["volt"] = voltage;
+#ifdef USE_RAINFALL_SENSOR
+  docW["rainfall"] = rainFall;
+  docW["rainrate"] = rainRate;
+#endif
 
   String dataCuaca;
 
@@ -325,10 +410,12 @@ void handleRoot() {
 
 void handleData() {
   JsonDocument doc;
+#ifdef USE_RAINFALL_SENSOR
   doc["workingTime"] = sensorWorkingTime;
   doc["totalRainfall"] = rainFall;
   doc["HourRainfall"] = rainRate;
   doc["rawData"] = rawData;
+#endif
   doc["temperature"] = temperature;
   doc["humidity"] = humidity;
   doc["pressure"] = pressure;
