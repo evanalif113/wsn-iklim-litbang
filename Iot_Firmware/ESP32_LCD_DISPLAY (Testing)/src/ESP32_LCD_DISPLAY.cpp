@@ -1,7 +1,7 @@
 /*********
   @author By Evan Aif Widhyatma
   @date 2024
-  @version 4.1
+  @version 4.5
 *********/
 //Komen Jika tidak menggunakan SHT31
 #define USE_SHT31
