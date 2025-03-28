@@ -4,13 +4,13 @@
   @version 4.5
 *********/
 //Komen Jika tidak menggunakan SHT31
-#define USE_SHT31
+//#define USE_SHT31
 //Komen jika tidak menggunakan SHT40
-//#define USE_SHT40
+#define USE_SHT40
 //Komen jika tidak menggunakan BMP280
-//#define USE_BMP280
+#define USE_BMP280
 //Komen jika tidak menggunakan MS5611
-#define USE_MS5611
+//#define USE_MS5611
 //Komen jika tidak menggunakan LCD
 //#define USE_LCD
 //Komen Jika tidak menggunakan Rainfal Sensor
@@ -57,7 +57,7 @@
 
 
 //PENTING ini ID DEVICE
-uint id = 4;
+uint id = 1;
 
 // Delay with millis
 unsigned long lastTime = 0;
