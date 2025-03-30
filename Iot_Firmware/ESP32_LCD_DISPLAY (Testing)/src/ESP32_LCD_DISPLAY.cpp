@@ -4,13 +4,13 @@
   @version 4.5
 *********/
 //Komen Jika tidak menggunakan SHT31
-//#define USE_SHT31
+#define USE_SHT31
 //Komen jika tidak menggunakan SHT40
-#define USE_SHT40
+//#define USE_SHT40
 //Komen jika tidak menggunakan BMP280
-#define USE_BMP280
+//#define USE_BMP280
 //Komen jika tidak menggunakan MS5611
-//#define USE_MS5611
+#define USE_MS5611
 //Komen jika tidak menggunakan LCD
 //#define USE_LCD
 //Komen Jika tidak menggunakan Rainfal Sensor
@@ -57,7 +57,7 @@
 
 
 //PENTING ini ID DEVICE
-uint id = 1;
+uint id = 4;
 
 // Delay with millis
 unsigned long lastTime = 0;
@@ -96,7 +96,7 @@ Adafruit_BMP280 bmp;
 #endif
 
 #ifdef USE_MS5611
-MS5611 MS5611(0x77);
+MS5611 ms5611(0x77);
 #endif
 
 Adafruit_MAX17048 maxWin;
@@ -182,7 +182,7 @@ void initSensors() {
   #endif
   // Inisialisasi MS5611
   #ifdef USE_MS5611
-  if (!MS5611.begin()) {
+  if (!ms5611.begin()) {
     Serial.println("Couldn't find MS5611 sensor! Check wiring.");
     while (1);
   }
@@ -278,9 +278,9 @@ void updateSensorData() {
   #endif
 
   #ifdef USE_MS5611
-  MS5611.setOversampling(OSR_ULTRA_HIGH);
-  MS5611.read();
-  pressure = MS5611.getPressure();
+  ms5611.setOversampling(OSR_ULTRA_HIGH);
+  ms5611.read();
+  pressure = ms5611.getPressure();
   #endif
 
   voltage = maxWin.cellVoltage();
