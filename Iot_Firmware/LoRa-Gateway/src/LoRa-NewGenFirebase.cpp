@@ -31,15 +31,19 @@ const char* ntpServer2 = "pool.ntp.org";
 void asyncCB(AsyncResult &aResult);
 void printResult(AsyncResult &aResult);
 
-DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
+//DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
 UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
 FirebaseApp app;
 RealtimeDatabase Database;
 
 WiFiClientSecure ssl_client;
 
+// In case use Deafult Network
+/*using AsyncClient = AsyncClientClass;
+AsyncClient aClient(ssl_client, getNetwork(network));*/
+
 using AsyncClient = AsyncClientClass;
-AsyncClient aClient(ssl_client, getNetwork(network));
+AsyncClient aClient(ssl_client);
 
 //define the pins used by the transceiver module
 #define ss 5
