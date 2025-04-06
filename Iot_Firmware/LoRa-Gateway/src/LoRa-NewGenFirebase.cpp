@@ -38,12 +38,12 @@ RealtimeDatabase Database;
 AsyncResult databaseResult;
 
 // In case use Deafult Network
-/*WiFiClientSecure ssl_client;
-using AsyncClient = AsyncClientClass;
+WiFiClientSecure ssl_client;
+
+/*using AsyncClient = AsyncClientClass;
 AsyncClient aClient(ssl_client, getNetwork(network));*/
 
 // In case use Default WiFi Network
-SSL_CLIENT ssl_client;
 using AsyncClient = AsyncClientClass;
 AsyncClient aClient(ssl_client, getNetwork(default_network));
 
