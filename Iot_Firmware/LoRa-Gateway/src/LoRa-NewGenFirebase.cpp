@@ -31,7 +31,6 @@ void processData(AsyncResult &aResult);
 
 FirebaseWiFi wifiMulti;
 DefaultWiFiNetwork default_network(wifiMulti, true /* reconnect network */);
-//DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
 UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD, 30000);
 FirebaseApp app;
 RealtimeDatabase Database;
@@ -39,9 +38,6 @@ AsyncResult databaseResult;
 
 // In case use Deafult Network
 WiFiClientSecure ssl_client;
-
-/*using AsyncClient = AsyncClientClass;
-AsyncClient aClient(ssl_client, getNetwork(network));*/
 
 // In case use Default WiFi Network
 using AsyncClient = AsyncClientClass;
