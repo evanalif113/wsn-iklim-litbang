@@ -224,29 +224,24 @@ void initMultiWiFi() {
   }
 }*/
 
-void processData(AsyncResult &aResult)
-{
+void processData(AsyncResult &aResult) {
     // Exits when no result available when calling from the loop.
     if (!aResult.isResult())
         return;
 
-    if (aResult.isEvent())
-    {
+    if (aResult.isEvent()) {
         Firebase.printf("Event task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.eventLog().message().c_str(), aResult.eventLog().code());
     }
 
-    if (aResult.isDebug())
-    {
+    if (aResult.isDebug()) {
         Firebase.printf("Debug task: %s, msg: %s\n", aResult.uid().c_str(), aResult.debug().c_str());
     }
 
-    if (aResult.isError())
-    {
+    if (aResult.isError()) {
         Firebase.printf("Error task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.error().message().c_str(), aResult.error().code());
     }
 
-    if (aResult.available())
-    {
+    if (aResult.available()) {
         Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
     }
 }
@@ -256,10 +251,9 @@ void setup() {
   pinMode(2, OUTPUT);
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
-  //initWiFi();
   initMultiWiFi();
   FirebaseSetup();
-  Serial.println("LoRa Gateway");
+  Serial.println("LoRa Gateway Starting...");
 
   //setup LoRa transceiver module
   LoRa.setPins(ss, rst, dio0);
