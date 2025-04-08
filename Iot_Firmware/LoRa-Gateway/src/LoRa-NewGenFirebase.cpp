@@ -318,7 +318,7 @@ void Data() {
     Serial.print(F("Titik Embun:")); Serial.println(dew);
     Serial.print(F("Tekanan Udara:")); Serial.println(pres);
     Serial.print(F("Arah Angin:")); Serial.println(windir);
-    Serial.print(F("Volt")); Serial.println(volt);
+    Serial.print(F("Volt:")); Serial.println(volt);
     buf_message = message;
 
     // Free resources
@@ -346,4 +346,4 @@ void loop() {
   }
   Data();
   processData(databaseResult);
-}
+} 
