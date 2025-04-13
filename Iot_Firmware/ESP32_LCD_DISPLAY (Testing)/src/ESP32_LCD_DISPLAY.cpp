@@ -4,17 +4,18 @@
   @version 4.5
 *********/
 //Komen Jika tidak menggunakan SHT31
-#define USE_SHT31
+//#define USE_SHT31
 //Komen jika tidak menggunakan SHT40
-//#define USE_SHT40
+#define USE_SHT40
 //Komen jika tidak menggunakan BMP280
-//#define USE_BMP280
+#define USE_BMP280
 //Komen jika tidak menggunakan MS5611
-#define USE_MS5611
+//#define USE_MS5611
 //Komen jika tidak menggunakan LCD
 //#define USE_LCD
 //Komen Jika tidak menggunakan Rainfal Sensor
 //#define USE_RAINFALL_SENSOR
+#define USE_MANUAL_WEATHER
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -57,11 +58,11 @@
 
 
 //PENTING ini ID DEVICE
-uint id = 4;
+uint id = 1;
 
 // Delay with millis
 unsigned long lastTime = 0;
-unsigned long timerDelay = 15000; // Atur delay
+unsigned long timerDelay = 30000; // Atur delay
 
 // Pin dan LED indicator
 int ledPin = 2; // GPIO 2
@@ -284,6 +285,16 @@ void updateSensorData() {
   #endif
 
   voltage = maxWin.cellVoltage();
+  battpercent = maxWin.cellPercent();
+  discharge = maxWin.chargeRate();
+    //maxlipo.setActivityThreshold(0.15);
+    Serial.print(F("Activity threshold = ")); 
+    Serial.print(maxWin.getActivityThreshold()); 
+    Serial.println(" V change");
+    //maxlipo.setHibernationThreshold(5);
+    Serial.print(F("Hibernation threshold = "));
+    Serial.print(maxWin.getHibernationThreshold()); 
+    Serial.println(" %/hour");
   dewPoint = calculateDewPoint(temperature, humidity);
 #ifdef USE_RAINFALL_SENSOR
   // Update data sensor curah hujan
