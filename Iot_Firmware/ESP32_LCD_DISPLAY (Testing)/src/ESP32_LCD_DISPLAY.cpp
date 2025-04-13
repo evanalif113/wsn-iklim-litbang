@@ -285,8 +285,6 @@ void updateSensorData() {
   #endif
 
   voltage = maxWin.cellVoltage();
-  battpercent = maxWin.cellPercent();
-  discharge = maxWin.chargeRate();
     //maxlipo.setActivityThreshold(0.15);
     Serial.print(F("Activity threshold = ")); 
     Serial.print(maxWin.getActivityThreshold()); 
