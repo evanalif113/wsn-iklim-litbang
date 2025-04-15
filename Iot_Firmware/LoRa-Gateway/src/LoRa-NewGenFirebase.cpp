@@ -30,7 +30,7 @@ const char* ntpServer2 = "pool.ntp.org";
 void processData(AsyncResult &aResult);
 
 FirebaseWiFi wifiMulti;
-DefaultWiFiNetwork default_network(wifiMulti, true /* reconnect network */);
+DefaultWiFiNetwork network(wifiMulti, true /* reconnect network */);
 UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD, 30000);
 FirebaseApp app;
 RealtimeDatabase Database;
@@ -41,7 +41,7 @@ WiFiClientSecure ssl_client;
 
 // In case use Default WiFi Network
 using AsyncClient = AsyncClientClass;
-AsyncClient aClient(ssl_client, getNetwork(default_network));
+AsyncClient aClient(ssl_client, getNetwork(network));
 
 bool taskComplete = false;
 
