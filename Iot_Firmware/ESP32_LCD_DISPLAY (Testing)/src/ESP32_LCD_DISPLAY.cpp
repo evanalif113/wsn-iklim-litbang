@@ -8,13 +8,13 @@
 //Komen jika tidak menggunakan SHT40
 #define USE_SHT40
 //Komen jika tidak menggunakan BMP280
-#define USE_BMP280
+//#define USE_BMP280
 //Komen jika tidak menggunakan MS5611
-//#define USE_MS5611
+#define USE_MS5611
 //Komen jika tidak menggunakan LCD
 //#define USE_LCD
 //Komen Jika tidak menggunakan Rainfal Sensor
-#define USE_RAINFALL_SENSOR
+//#define USE_RAINFALL_SENSOR
 //#define USE_MANUAL_WEATHER
 
 #include <WiFi.h>
@@ -58,7 +58,7 @@
 
 
 //PENTING ini ID DEVICE
-uint id = 5;
+uint id = 1;
 
 // Delay with millis
 unsigned long lastTime = 0;
@@ -187,6 +187,7 @@ void initSensors() {
     Serial.println("Couldn't find MS5611 sensor! Check wiring.");
     while (1);
   }
+  Serial.println("Founf MS5611 sensor!");
   #endif
   // Inisialisasi MAX17048
   if (!maxWin.begin()) {
