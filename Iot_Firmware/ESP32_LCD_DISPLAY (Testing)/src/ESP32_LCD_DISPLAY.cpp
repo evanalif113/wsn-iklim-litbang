@@ -14,8 +14,8 @@
 //Komen jika tidak menggunakan LCD
 //#define USE_LCD
 //Komen Jika tidak menggunakan Rainfal Sensor
-//#define USE_RAINFALL_SENSOR
-#define USE_MANUAL_WEATHER
+#define USE_RAINFALL_SENSOR
+//#define USE_MANUAL_WEATHER
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -58,11 +58,11 @@
 
 
 //PENTING ini ID DEVICE
-uint id = 1;
+uint id = 5;
 
 // Delay with millis
 unsigned long lastTime = 0;
-unsigned long timerDelay = 30000; // Atur delay
+unsigned long timerDelay = 60000; // Atur delay
 
 // Pin dan LED indicator
 int ledPin = 2; // GPIO 2

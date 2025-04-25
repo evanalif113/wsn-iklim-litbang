@@ -21,8 +21,12 @@
 #define WRITE_APIKEY_2 "FCFMA0BDB3NACBXE"  //Isikan dengan Write API Key
 //FIREBASE
 // The API key can be obtained from Firebase console > Project Overview > Project settings.
-#define API_KEY "AIzaSyCLnLUN0jSUj7X37VTVJciUHsIyl4sT0-0"
-#define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
-#define USER_EMAIL "sensor@gmail.com"
-#define USER_PASSWORD "sensor1234"
+//#define API_KEY "AIzaSyCLnLUN0jSUj7X37VTVJciUHsIyl4sT0-0"
+//#define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
+//#define USER_EMAIL "sensor@gmail.com"
+//#define USER_PASSWORD "sensor1234"
 
+#define API_KEY       "AIzaSyDalcCwwOthPMjC3umkpQECqlQQj699FTY"
+#define USER_EMAIL    "seis@gmail.com"
+#define USER_PASSWORD "seisca"
+#define DATABASE_URL  "https://staklimjerukagung-default-rtdb.asia-southeast1.firebasedatabase.app/"
