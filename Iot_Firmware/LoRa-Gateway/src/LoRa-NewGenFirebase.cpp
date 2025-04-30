@@ -65,8 +65,8 @@ float rain;
 String buf_message;
 String message;
 
-unsigned long checkStatusPeriode = 120000;
-unsigned long checkStatusNext;
+//unsigned long checkStatusPeriode = 120000;
+//unsigned long checkStatusNext;
 //unsigned int WindyPeriode = 600000;
 //unsigned int WindyNext;
 
