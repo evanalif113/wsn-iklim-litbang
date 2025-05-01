@@ -300,7 +300,7 @@ void updateSensorData() {
   sensorWorkingTime = Sensor.getSensorWorkingTime() * 60;
   rainFall = Sensor.getRainfall(24);            // Total curah hujan 24 jam (mm)
   rainRate = Sensor.getRainfall(1);           // Curah hujan selama 1 jam (mm)
-  rawData = Sensor.getRawData();  
+  rawData = Sensor.getRawData();   
 #endif
 }
 

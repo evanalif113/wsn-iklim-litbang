@@ -5,6 +5,7 @@
 *********/
 
 #include <WiFi.h>
+#include <WiFiMulti.h>
 #include <WiFiClientSecure.h>
 #include <FirebaseClient.h>
 #include <SPI.h>
@@ -12,14 +13,9 @@
 #include <ArduinoJson.h>
 #include <RTClib.h>
 #include "time.h"
-#include "ExampleFunctions.h"
-
-#define ARDUINOJSON_SLOT_ID_SIZE 1
-#define ARDUINOJSON_STRING_LENGTH_SIZE 1
 
 // The API key can be obtained from Firebase console > Project Overview > Project settings.
 #define API_KEY "AIzaSyCLnLUN0jSUj7X37VTVJciUHsIyl4sT0-0"
-// User Email and password that already registerd or added in your project.
 #define USER_EMAIL "esp32@mail.com"
 #define USER_PASSWORD "kirim1234"
 #define DATABASE_URL "https://database-sensor-iklim-litbang-default-rtdb.asia-southeast1.firebasedatabase.app/"
@@ -29,12 +25,8 @@ const char* ntpServer2 = "pool.ntp.org";
 
 void processData(AsyncResult &aResult);
 
-FirebaseWiFi wifiMulti;
-DefaultWiFiNetwork network(wifiMulti, true /* reconnect network */);
-UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD, 30000);
-FirebaseApp app;
-RealtimeDatabase Database;
-AsyncResult databaseResult;
+DefaultNetwork network;
+UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
 
 // In case use Deafult Network
 WiFiClientSecure ssl_client;
@@ -42,8 +34,8 @@ WiFiClientSecure ssl_client;
 // In case use Default WiFi Network
 using AsyncClient = AsyncClientClass;
 AsyncClient aClient(ssl_client, getNetwork(network));
-
-bool taskComplete = false;
+FirebaseApp app;
+RealtimeDatabase Database;
 
 //define the pins used by the transceiver module
 #define ss 5
@@ -104,10 +96,9 @@ void FirebaseSetup() {
 
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
 
-    //ssl_client.setInsecure();
-    set_ssl_client_insecure_and_buffer(ssl_client);
+    ssl_client.setInsecure();
 
-    initializeApp(aClient, app, getAuth(user_auth), auth_debug_print, "authTask");
+    initializeApp(aClient, app, getAuth(user_auth), processData, "authTask");
 
     app.getApp<RealtimeDatabase>(Database);
     Database.url(DATABASE_URL);
@@ -180,7 +171,7 @@ boolean runEvery(unsigned long interval) {
   return false;
 }
 
-//WiFiMulti wifiMulti;
+WiFiMulti wifiMulti;
 
 void initMultiWiFi() {
   // Add list of wifi networks
@@ -189,7 +180,7 @@ void initMultiWiFi() {
   wifiMulti.addAP("server", "jeris6467");
   // Connect to Wi-Fi using wifiMulti (connects to the SSID with strongest connection)
   Serial.println("Connecting Wifi.....");
-  /*if (wifiMulti.run() == WL_CONNECTED) {
+  if (wifiMulti.run() == WL_CONNECTED) {
     Serial.println("");
     Serial.println("WiFi connected");
     Serial.print(WiFi.SSID());
@@ -197,11 +188,11 @@ void initMultiWiFi() {
     Serial.println(WiFi.RSSI());
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
-  }*/
+  }
 }
 
 // Maintain WiFi connection
-/*void connectionstatusMulti() {
+void connectionstatusMulti() {
   if ((wifiMulti.run(10000) != WL_CONNECTED) ) {
     Serial.println("Reconnecting to WiFi...");
     Serial.print("WiFi connected: ");
@@ -222,28 +213,37 @@ void initMultiWiFi() {
     } else {
     Serial.println("WiFi Failed!");
   }
-}*/
+}
 
-void processData(AsyncResult &aResult) {
-    // Exits when no result available when calling from the loop.
-    if (!aResult.isResult())
-        return;
+void processData(AsyncResult &aResult){
+  if (aResult.isEvent()) {
+      Firebase.printf("Event task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.appEvent().message().c_str(), aResult.appEvent().code());
+  }
 
-    if (aResult.isEvent()) {
-        Firebase.printf("Event task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.eventLog().message().c_str(), aResult.eventLog().code());
-    }
+  if (aResult.isDebug()) {
+      Firebase.printf("Debug task: %s, msg: %s\n", aResult.uid().c_str(), aResult.debug().c_str());
+  }
 
-    if (aResult.isDebug()) {
-        Firebase.printf("Debug task: %s, msg: %s\n", aResult.uid().c_str(), aResult.debug().c_str());
-    }
+  if (aResult.isError()) {
+      Firebase.printf("Error task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.error().message().c_str(), aResult.error().code());
+  }
 
-    if (aResult.isError()) {
-        Firebase.printf("Error task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.error().message().c_str(), aResult.error().code());
-    }
-
-    if (aResult.available()) {
-        Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
-    }
+  if (aResult.available()) {
+      RealtimeDatabaseResult &RTDB = aResult.to<RealtimeDatabaseResult>();
+      if (RTDB.isStream()) {
+          Serial.println("----------------------------");
+          Firebase.printf("task: %s\n", aResult.uid().c_str());
+          Firebase.printf("event: %s\n", RTDB.event().c_str());
+          Firebase.printf("path: %s\n", RTDB.dataPath().c_str());
+          Firebase.printf("data: %s\n", RTDB.to<const char *>());
+          Firebase.printf("type: %d\n", RTDB.type());
+      }
+      else {
+          Serial.println("----------------------------");
+          Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
+      }
+      Firebase.printf("Free Heap: %d\n", ESP.getFreeHeap());
+  }
 }
 
 void setup() {
@@ -325,25 +325,25 @@ void Data() {
     Serial.println("RSSI LoRa:" + String(LoRa.packetRssi()));
     Serial.println("SNR:" + String(LoRa.packetSnr()));
     Serial.println();
-    if (app.ready() && !taskComplete) {
     FirebaseData();
-    }
     digitalWrite(2, LOW);
     }
   }
 }
+unsigned int checkStatusPeriode = 60000;
+unsigned int checkStatusNext;
 
 void loop() {
   app.loop();
-  /*if (checkStatusNext<=millis() && WiFi.status() !=WL_CONNECTED) {
+  Data();
+
+  if (WiFi.status() !=WL_CONNECTED && checkStatusNext<=millis()) {
     connectionstatusMulti();
     checkStatusNext = millis() + checkStatusPeriode;
-  }*/
+  }
   // Cek apakah sudah 1 jam sejak sinkronisasi terakhir
   if (millis() - lastSyncTime >= 3600000) {
     syncTimeWithNTP();
     lastSyncTime = millis();
   }
-  Data();
-  processData(databaseResult);
 } 
