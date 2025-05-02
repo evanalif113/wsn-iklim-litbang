@@ -63,9 +63,6 @@ unsigned long timerDelay = 60000; // Atur delay
 // Pin dan LED indicator
 int ledPin = 2; // GPIO 2
 
-const char* ntpServer = "time.google.com";
-const char* ntpServer2 = "pool.ntp.org";
-
 void asyncCB(AsyncResult &aResult);
 void printResult(AsyncResult &aResult);
 
@@ -316,7 +313,7 @@ void displayDataOnLCD() {
 #endif
 
 void FirebaseSetup() {
-    configTime(0, 0, ntpServer, ntpServer2); // Initialize NTP Client
+    configTime(0, 0, "time.google.com", "pool.ntp.org"); // Initialize NTP Client
     Firebase.printf("Firebase Client v%s\n", FIREBASE_CLIENT_VERSION);
 
     ssl_client.setInsecure();
