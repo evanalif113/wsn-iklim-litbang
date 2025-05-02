@@ -53,10 +53,6 @@
 #include "DFRobot_RainfallSensor.h"
 #endif
 
-#define ARDUINOJSON_SLOT_ID_SIZE 1
-#define ARDUINOJSON_STRING_LENGTH_SIZE 1
-
-
 //PENTING ini ID DEVICE
 uint id = 4;
 
