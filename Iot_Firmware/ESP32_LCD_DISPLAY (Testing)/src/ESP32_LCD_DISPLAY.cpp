@@ -143,6 +143,7 @@ float calculateDewPoint(float temperature, float humidity) {
 
 // Fungsi untuk inisialisasi sensor
 void initSensors() {
+  // Inisialisasi SHT31
   #ifdef USE_SHT31
   if (!sht31.begin(0x44)) {
     Serial.println("Couldn't find SHT31 sensor! Check wiring.");
@@ -404,7 +405,7 @@ void printResult(AsyncResult &aResult){
 void handleRoot() {
   File file = LittleFS.open("/index.html", "r");
   if (!file) {
-    server.send(500, "text/plain", "Index file not found");
+    server.send(500, "text/plain", "Index.html file not found");
     return;
   }
   server.streamFile(file, "text/html");
@@ -452,7 +453,7 @@ void setup() {
   Wire.begin();
   initSensors();
 
-    // Konfigurasi endpoint web server
+  // Konfigurasi endpoint web server
   server.on("/", handleRoot);
   server.on("/data", handleData);
   ElegantOTA.begin(&server);

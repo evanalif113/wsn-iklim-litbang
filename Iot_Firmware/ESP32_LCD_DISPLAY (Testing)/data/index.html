@@ -5,88 +5,102 @@
   <title>AWS Jerukagung Meteorologi</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* Reset margin dan padding */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+  /* Reset margin dan padding */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-      color: #333;
-      padding: 20px;
-    }
+  body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background: linear-gradient(to bottom, #e3f2fd, #bbdefb);
+    color: #333;
+    padding: 20px;
+  }
 
-    /* Header besar */
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+  /* Header besar */
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
 
-    header h1 {
-      font-size: 2.2rem; /* Increased font size */
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
+  header h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #0d47a1;
+    margin-bottom: 10px;
+  }
 
-    header h2 {
-      font-size: 1.2rem; /* Increased font size */
-      color: #666;
-      margin-bottom: 5px;
-    }
+  header h2 {
+    font-size: 1.3rem;
+    color: #1565c0;
+    margin-bottom: 10px;
+  }
 
-    /* Bagian jam UTC di pojok kanan atas */
-    .datetime {
-      text-align: right;
-      font-size: 1.1rem; /* Increased font size */
-      color: #666;
-      margin-bottom: 20px;
-    }
+  /* Bagian jam UTC di pojok kanan atas */
+  .datetime {
+    text-align: right;
+    font-size: 1.2rem;
+    color: #1e88e5;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
 
-    /* Kontainer grid untuk kartu data */
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr); /* 4 columns */
-      gap: 20px; /* Increased gap */
-      margin: 0 auto;
-      max-width: 1000px; /* Increased max width */
-    }
+  /* Kontainer grid untuk kartu data */
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 0 auto;
+    max-width: 1200px;
+  }
 
-    /* Tiap kartu data */
-    .card {
-      background-color: #fff;
-      border-radius: 8px;
-      padding: 20px; /* Increased padding */
-      box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Increased shadow */
-      text-align: center;
-    }
+  /* Tiap kartu data */
+  .card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
 
-    .card h3 {
-      font-size: 1.2rem; /* Increased font size */
-      color: #888;
-      margin-bottom: 10px; /* Increased margin */
-    }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
 
-    .card .value {
-      font-size: 1.8rem; /* Increased font size */
-      font-weight: bold;
-      color: #2c3e50;
-    }
+  .card h3 {
+    font-size: 1.3rem;
+    color: #546e7a;
+    margin-bottom: 15px;
+  }
 
-    /* Footer info */
-    footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 1rem; /* Increased font size */
-      color: #999;
-    }
+  .card .value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0d47a1;
+    margin-bottom: 5px;
+  }
 
-    /* Gap between grid containers */
-    .grid-container + .grid-container {
-      margin-top: 20px; /* Add gap between grid containers */
-    }
+  .card small {
+    font-size: 0.9rem;
+    color: #78909c;
+  }
+
+  /* Footer info */
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 1rem;
+    color: #546e7a;
+  }
+
+  /* Gap between grid containers */
+  .grid-container + .grid-container {
+    margin-top: 30px;
+  }
   </style>
 </head>
 <body>
