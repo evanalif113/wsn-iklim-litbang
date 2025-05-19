@@ -411,18 +411,18 @@ void handleRoot() {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Roboto', Arial, sans-serif; background: linear-gradient(to bottom, #e3f2fd, #bbdefb); color: #333; padding: 20px; }
+        body { font-family: 'Roboto', Arial, sans-serif; background: linear-gradient(to bottom, #ffe0b2, #ffcc80); color: #333; padding: 20px; }
         header { text-align: center; margin-bottom: 30px; }
-        header h1 { font-size: 2.5rem; font-weight: bold; color: #0d47a1; margin-bottom: 10px; }
-        header h2 { font-size: 1.3rem; color: #1565c0; margin-bottom: 10px; }
-        .datetime { text-align: right; font-size: 1.2rem; color: #1e88e5; margin-bottom: 20px; font-weight: bold; }
+        header h1 { font-size: 2.5rem; font-weight: bold; color: #e65100; margin-bottom: 10px; }
+        header h2 { font-size: 1.3rem; color: #ef6c00; margin-bottom: 10px; }
+        .datetime { text-align: right; font-size: 1.2rem; color: #fb8c00; margin-bottom: 20px; font-weight: bold; }
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 0 auto; max-width: 1200px; }
         .card { background: #ffffff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); }
-        .card h3 { font-size: 1.3rem; color: #546e7a; margin-bottom: 15px; }
-        .card .value { font-size: 2rem; font-weight: bold; color: #0d47a1; margin-bottom: 5px; }
-        .card small { font-size: 0.9rem; color: #78909c; }
-        footer { text-align: center; margin-top: 30px; font-size: 1rem; color: #546e7a; }
+        .card h3 { font-size: 1.3rem; color: #ff8f00; margin-bottom: 15px; }
+        .card .value { font-size: 2rem; font-weight: bold; color: #e65100; margin-bottom: 5px; }
+        .card small { font-size: 0.9rem; color: #ffb74d; }
+        footer { text-align: center; margin-top: 30px; font-size: 1rem; color: #ff8f00; }
       </style>
       <script>
         function updateTime() {
@@ -471,6 +471,8 @@ void handleRoot() {
   html += R"rawliteral(</div>
           <small>Minute</small>
         </div>
+      </div>
+      <div class="grid-container">
         <div class="card">
           <h3>Total Rainfall</h3>
           <div class="value">)rawliteral";
@@ -507,8 +509,6 @@ void handleRoot() {
   html += R"rawliteral(</div>
           <small>times</small>
         </div>
-      </div>
-      <div class="grid-container">
         <div class="card">
           <h3>Temperature</h3>
           <div class="value">)rawliteral";
@@ -540,6 +540,14 @@ void handleRoot() {
   html += String(dewPoint, 2); // Tambahkan data dinamis
   html += R"rawliteral(</div>
           <small>°C</small>
+        </div>
+        <div class="card">
+          <h3>Voltage</h3>
+          <div class="value">)rawliteral";
+
+  html += String(voltage, 2); // Tambahkan data dinamis
+  html += R"rawliteral(</div>
+          <small>V</small>
         </div>
       </div>
       <footer>Last Update: --/--/---- --:--:-- (UTC)</footer>
