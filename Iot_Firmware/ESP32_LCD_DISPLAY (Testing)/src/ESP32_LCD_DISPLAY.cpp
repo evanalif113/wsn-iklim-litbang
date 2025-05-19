@@ -20,7 +20,6 @@
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <WebServer.h>
-#include <LittleFS.h>
 #include <WiFiClientSecure.h>
 #include <FirebaseClient.h>
 #include <Adafruit_MAX1704X.h>
@@ -403,32 +402,152 @@ void printResult(AsyncResult &aResult){
 }
 
 void handleRoot() {
-  File file = LittleFS.open("/index.html", "r");
-  if (!file) {
-    server.send(500, "text/plain", "Index.html file not found");
-    return;
-  }
-  server.streamFile(file, "text/html");
-  file.close();
-}
+  String html = R"rawliteral(
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Automatic Weather Station V4.5</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', Arial, sans-serif; background: linear-gradient(to bottom, #e3f2fd, #bbdefb); color: #333; padding: 20px; }
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { font-size: 2.5rem; font-weight: bold; color: #0d47a1; margin-bottom: 10px; }
+        header h2 { font-size: 1.3rem; color: #1565c0; margin-bottom: 10px; }
+        .datetime { text-align: right; font-size: 1.2rem; color: #1e88e5; margin-bottom: 20px; font-weight: bold; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 0 auto; max-width: 1200px; }
+        .card { background: #ffffff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); }
+        .card h3 { font-size: 1.3rem; color: #546e7a; margin-bottom: 15px; }
+        .card .value { font-size: 2rem; font-weight: bold; color: #0d47a1; margin-bottom: 5px; }
+        .card small { font-size: 0.9rem; color: #78909c; }
+        footer { text-align: center; margin-top: 30px; font-size: 1rem; color: #546e7a; }
+      </style>
+      <script>
+        function updateTime() {
+          const now = new Date();
+          const utcTime = now.toUTCString().split(' ')[4]; // Extract HH:MM:SS
+          const utcDate = now.toUTCString().split(' ').slice(0, 4).join(' '); // Extract Day, Date, Month, Year
+          document.querySelector('.datetime').textContent = `${utcTime} (UTC)`;
+          document.querySelector('footer').textContent = `Last Update: ${utcDate} ${utcTime} (UTC)`;
+        }
+        setInterval(updateTime, 1000); // Update every second
+        window.onload = updateTime; // Initialize on page load
+      </script>
+    </head>
+    <body>
+      <header>
+        <h1>Depertamen Sains Atmosfer Jerukagung Seismologi</h1>
+        <h2>Automatic Weather Station - System Online</h2>
+      </header>
+      <div class="datetime">--:--:-- (UTC)</div>
+      <div class="grid-container">
+        <div class="card">
+          <h3>WiFi SSID</h3>
+          <div class="value">)rawliteral";
 
-void handleData() {
-  JsonDocument doc;
-#ifdef USE_RAINFALL_SENSOR
-  doc["workingTime"] = sensorWorkingTime;
-  doc["totalRainfall"] = rainFall;
-  doc["HourRainfall"] = rainRate;
-  doc["rawData"] = rawData;
-#endif
-  doc["temperature"] = temperature;
-  doc["humidity"] = humidity;
-  doc["pressure"] = pressure;
-  doc["dewPoint"] = dewPoint;
-  doc["voltage"] = voltage;
+  html += WiFi.SSID(); // Tambahkan SSID WiFi
+  html += R"rawliteral(</div>
+          <small>Connected Network</small>
+        </div>
+        <div class="card">
+          <h3>WiFi Signal Strength</h3>
+          <div class="value">)rawliteral";
 
-  String jsonStr;
-  serializeJson(doc, jsonStr);
-  server.send(200, "application/json", jsonStr);
+  html += String(WiFi.RSSI()); // Tambahkan RSSI WiFi
+  html += R"rawliteral(</div>
+          <small>dBm</small>
+        </div>
+        <div class="card">
+          <h3>Working Time</h3>
+          <div class="value">)rawliteral";
+
+  #ifdef USE_RAINFALL_SENSOR
+    html += String(sensorWorkingTime, 2); // Tambahkan data dinamis
+  #else
+    html += "0"; // Isi dengan 0 jika tidak menggunakan sensor curah hujan
+  #endif
+  html += R"rawliteral(</div>
+          <small>Minute</small>
+        </div>
+        <div class="card">
+          <h3>Total Rainfall</h3>
+          <div class="value">)rawliteral";
+
+  #ifdef USE_RAINFALL_SENSOR
+    html += String(rainFall, 2); // Tambahkan data dinamis
+  #else
+    html += "0"; // Isi dengan 0 jika tidak menggunakan sensor curah hujan
+  #endif
+  html += R"rawliteral(</div>
+          <small>mm</small>
+        </div>
+        <div class="card">
+          <h3>1 Hour Rainfall</h3>
+          <div class="value">)rawliteral";
+
+  #ifdef USE_RAINFALL_SENSOR
+    html += String(rainRate, 2); // Tambahkan data dinamis
+  #else
+    html += "0"; // Isi dengan 0 jika tidak menggunakan sensor curah hujan
+  #endif
+  html += R"rawliteral(</div>
+          <small>mm</small>
+        </div>
+        <div class="card">
+          <h3>Raw Data</h3>
+          <div class="value">)rawliteral";
+
+  #ifdef USE_RAINFALL_SENSOR
+    html += String(rawData); // Tambahkan data dinamis
+  #else
+    html += "0"; // Isi dengan 0 jika tidak menggunakan sensor curah hujan
+  #endif
+  html += R"rawliteral(</div>
+          <small>times</small>
+        </div>
+      </div>
+      <div class="grid-container">
+        <div class="card">
+          <h3>Temperature</h3>
+          <div class="value">)rawliteral";
+
+  html += String(temperature, 2); // Tambahkan data dinamis
+  html += R"rawliteral(</div>
+          <small>°C</small>
+        </div>
+        <div class="card">
+          <h3>Humidity</h3>
+          <div class="value">)rawliteral";
+
+  html += String(humidity, 2); // Tambahkan data dinamis
+  html += R"rawliteral(</div>
+          <small>Rh%</small>
+        </div>
+        <div class="card">
+          <h3>Pressure</h3>
+          <div class="value">)rawliteral";
+
+  html += String(pressure, 2); // Tambahkan data dinamis
+  html += R"rawliteral(</div>
+          <small>hPa</small>
+        </div>
+        <div class="card">
+          <h3>Dew Point</h3>
+          <div class="value">)rawliteral";
+
+  html += String(dewPoint, 2); // Tambahkan data dinamis
+  html += R"rawliteral(</div>
+          <small>°C</small>
+        </div>
+      </div>
+      <footer>Last Update: --/--/---- --:--:-- (UTC)</footer>
+    </body>
+    </html>
+  )rawliteral";
+
+  server.send(200, "text/html", html);
 }
 
 void setup() {
@@ -440,13 +559,6 @@ void setup() {
   initDisplay();
   #endif
 
-  // Inisialisasi LittleFS
-  if (!LittleFS.begin(true)) {  // Format otomatis jika mount gagal
-    Serial.println("LittleFS mount failed");
-    while (1);
-  }
-  Serial.println("LittleFS mounted successfully");
-
   // Koneksi WiFi
   initMultiWiFi();
   // Inisialisasi sensor
@@ -455,7 +567,6 @@ void setup() {
 
   // Konfigurasi endpoint web server
   server.on("/", handleRoot);
-  server.on("/data", handleData);
   ElegantOTA.begin(&server);
   server.begin();
   Serial.println("HTTP server started");
