@@ -4,17 +4,17 @@
   @version 4.5
 *********/
 //Komen Jika tidak menggunakan SHT31
-#define USE_SHT31
+//#define USE_SHT31
 //Komen jika tidak menggunakan SHT40
-//#define USE_SHT40
+#define USE_SHT40
 //Komen jika tidak menggunakan BMP280
-#define USE_BMP280
+//#define USE_BMP280
 //Komen jika tidak menggunakan MS5611
-//#define USE_MS5611
+#define USE_MS5611
 //Komen jika tidak menggunakan LCD
 //#define USE_LCD
 //Komen Jika tidak menggunakan Rainfal Sensor
-//#define USE_RAINFALL_SENSOR
+#define USE_RAINFALL_SENSOR
 //#define USE_MANUAL_WEATHER
 
 #include <WiFi.h>
@@ -53,7 +53,7 @@
 #endif
 
 //PENTING ini ID DEVICE
-uint id = 4;
+uint id = 5;
 
 // Delay with millis
 unsigned long lastTime = 0;
@@ -290,10 +290,11 @@ void updateSensorData() {
   dewPoint = calculateDewPoint(temperature, humidity);
 #ifdef USE_RAINFALL_SENSOR
   // Update data sensor curah hujan
-  sensorWorkingTime = Sensor.getSensorWorkingTime() * 60;
-  rainFall = Sensor.getRainfall(24);            // Total curah hujan 24 jam (mm)
-  rainRate = Sensor.getRainfall(1);           // Curah hujan selama 1 jam (mm)
-  rawData = Sensor.getRawData();   
+  //sensorWorkingTime = Sensor.getSensorWorkingTime() * 60; // Total waktu sensor bekerja (detik)     // Total curah hujan (mm)
+  rainRate = Sensor.getRainfall(1);          
+  delay(1000);
+  rainFall = Sensor.getRainfall(24);          
+  //rawData = Sensor.getRawData();   
 #endif
 }
 
@@ -400,7 +401,7 @@ void printResult(AsyncResult &aResult){
         Firebase.printf("Free Heap: %d\n", ESP.getFreeHeap());
     }
 }
-
+/*
 void handleRoot() {
   String html = R"rawliteral(
     <!DOCTYPE html>
@@ -556,7 +557,7 @@ void handleRoot() {
   )rawliteral";
 
   server.send(200, "text/html", html);
-}
+}*/
 
 void setup() {
   Serial.begin(115200);
@@ -573,9 +574,11 @@ void setup() {
   Wire.begin();
   initSensors();
 
-  // Konfigurasi endpoint web server
-  server.on("/", handleRoot);
-  ElegantOTA.begin(&server);
+  server.on("/", []() {
+    server.send(200, "text/plain", "Hi! This is ElegantOTA Demo.");
+  });
+ 
+  ElegantOTA.begin(&server);    // Start ElegantOTA
   server.begin();
   Serial.println("HTTP server started");
 
@@ -622,6 +625,11 @@ void loop() {
     Serial.println(pressure);
     Serial.print("Voltage: ");
     Serial.println(voltage);
+
+    #ifdef USE_RAINFALL_SENSOR
+    rainFall = 0.00;
+    rainRate = 0.00;
+    #endif
 
     lastTime = millisSekarang;
     digitalWrite(ledPin, LOW);
