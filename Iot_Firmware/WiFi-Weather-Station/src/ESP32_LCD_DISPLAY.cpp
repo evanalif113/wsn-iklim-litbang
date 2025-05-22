@@ -4,20 +4,24 @@
   @version 4.5
 *********/
 //Komen Jika tidak menggunakan SHT31
-//#define USE_SHT31
+#define USE_SHT31
 //Komen jika tidak menggunakan SHT40
-#define USE_SHT40
+//#define USE_SHT40
 //Komen jika tidak menggunakan BMP280
-//#define USE_BMP280
+#define USE_BMP280
 //Komen jika tidak menggunakan MS5611
-#define USE_MS5611
+//#define USE_MS5611
 //Komen jika tidak menggunakan LCD
 //#define USE_LCD
 //Komen Jika tidak menggunakan Rainfal Sensor
-#define USE_RAINFALL_SENSOR
+//#define USE_RAINFALL_SENSOR
 //#define USE_MANUAL_WEATHER
 
 //#define DEBUG
+
+#define ENABLE_USER_CONFIG
+#define ENABLE_USER_AUTH
+#define ENABLE_DATABASE
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -55,7 +59,7 @@
 #endif
 
 //PENTING ini ID DEVICE
-uint id = 5;
+uint id = 4;
 
 // Delay with millis
 unsigned long lastTime = 0;
@@ -64,8 +68,7 @@ unsigned long timerDelay = 60000; // Atur delay
 // Pin dan LED indicator
 int ledPin = 2; // GPIO 2
 
-void asyncCB(AsyncResult &aResult);
-void printResult(AsyncResult &aResult);
+void processData(AsyncResult &aResult);
 
 DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
 UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
@@ -323,7 +326,7 @@ void FirebaseSetup() {
 
     ssl_client.setInsecure();
 
-    initializeApp(aClient, app, getAuth(user_auth), asyncCB, "authTask");
+    initializeApp(aClient, app, getAuth(user_auth), processData, "authTask");
     app.getApp<RealtimeDatabase>(Database);
     Database.url(DATABASE_URL);
     Database.setSSEFilters("get,put,patch,keep-alive,cancel,auth_revoked");   
@@ -333,19 +336,6 @@ void FirebaseData() {
   // Update NTP time
   unsigned long timestamp;
   timestamp = getTime();// Get current epoch time
-
-  //JSON Constructor by FirebaseClient
-  /*JsonWriter writer;
-  object_t json, t, h, p, d, v, times;
-
-  writer.create(t, "temp", temp);
-  writer.create(h, "humi", humi);
-  writer.create(p, "pres", pres);
-  writer.create(d, "dew", dew);
-  writer.create(v, "volt", volt);
-  writer.create(times, "timestamp",timestamp);
-
-  writer.join(json, 6, t, h, p, d, v, times);*/
 
   //JSON Constructor by ArduinoJSON
   JsonDocument docW;
@@ -368,41 +358,33 @@ void FirebaseData() {
 
   // Dynamically use timestamp in the path
   String dbPath = "/auto_weather_stat/id-0"+String(id)+"/data/" + timestamp;
-  Database.set<object_t>(aClient, dbPath.c_str(), object_t(dataCuaca), asyncCB, "setTask");
+  Database.set<object_t>(aClient, dbPath.c_str(), object_t(dataCuaca), processData, "setTask");
 }
 
-void asyncCB(AsyncResult &aResult) {
-    printResult(aResult);
-}
+void processData(AsyncResult &aResult)
+{
+    // Exits when no result available when calling from the loop.
+    if (!aResult.isResult())
+        return;
 
-void printResult(AsyncResult &aResult){
-    if (aResult.isEvent()) {
-        Firebase.printf("Event task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.appEvent().message().c_str(), aResult.appEvent().code());
+    if (aResult.isEvent())
+    {
+        Firebase.printf("Event task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.eventLog().message().c_str(), aResult.eventLog().code());
     }
 
-    if (aResult.isDebug()) {
+    if (aResult.isDebug())
+    {
         Firebase.printf("Debug task: %s, msg: %s\n", aResult.uid().c_str(), aResult.debug().c_str());
     }
 
-    if (aResult.isError()) {
+    if (aResult.isError())
+    {
         Firebase.printf("Error task: %s, msg: %s, code: %d\n", aResult.uid().c_str(), aResult.error().message().c_str(), aResult.error().code());
     }
 
-    if (aResult.available()) {
-        RealtimeDatabaseResult &RTDB = aResult.to<RealtimeDatabaseResult>();
-        if (RTDB.isStream()) {
-            Serial.println("----------------------------");
-            Firebase.printf("task: %s\n", aResult.uid().c_str());
-            Firebase.printf("event: %s\n", RTDB.event().c_str());
-            Firebase.printf("path: %s\n", RTDB.dataPath().c_str());
-            Firebase.printf("data: %s\n", RTDB.to<const char *>());
-            Firebase.printf("type: %d\n", RTDB.type());
-        }
-        else {
-            Serial.println("----------------------------");
-            Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
-        }
-        Firebase.printf("Free Heap: %d\n", ESP.getFreeHeap());
+    if (aResult.available())
+    {
+        Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
     }
 }
 /*
