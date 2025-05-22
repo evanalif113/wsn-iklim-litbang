@@ -17,6 +17,8 @@
 #define USE_RAINFALL_SENSOR
 //#define USE_MANUAL_WEATHER
 
+//#define DEBUG
+
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <WebServer.h>
@@ -279,6 +281,7 @@ void updateSensorData() {
   #endif
 
   voltage = maxWin.cellVoltage();
+  #ifdef DEBUG
     //maxlipo.setActivityThreshold(0.15);
     Serial.print(F("Activity threshold = ")); 
     Serial.print(maxWin.getActivityThreshold()); 
@@ -287,6 +290,7 @@ void updateSensorData() {
     Serial.print(F("Hibernation threshold = "));
     Serial.print(maxWin.getHibernationThreshold()); 
     Serial.println(" %/hour");
+  #endif
   dewPoint = calculateDewPoint(temperature, humidity);
 #ifdef USE_RAINFALL_SENSOR
   // Update data sensor curah hujan
@@ -575,7 +579,7 @@ void setup() {
   initSensors();
 
   server.on("/", []() {
-    server.send(200, "text/plain", "Hi! This is ElegantOTA Demo.");
+    server.send(200, "text/plain", "Halo ini Sensor dengan ID = " + String(id) + "");
   });
  
   ElegantOTA.begin(&server);    // Start ElegantOTA
@@ -614,6 +618,7 @@ void loop() {
     // Kirim data ke Firebase
     FirebaseData();
 
+    #ifdef DEBUG
     // Cetak data ke serial
     Serial.print("Temperature: ");
     Serial.println(temperature);
@@ -625,6 +630,8 @@ void loop() {
     Serial.println(pressure);
     Serial.print("Voltage: ");
     Serial.println(voltage);
+    #endif
+
 
     #ifdef USE_RAINFALL_SENSOR
     rainFall = 0.00;
