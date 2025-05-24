@@ -15,11 +15,10 @@
 //#define USE_LCD
 //Komen Jika tidak menggunakan Rainfal Sensor
 //#define USE_RAINFALL_SENSOR
-//#define USE_MANUAL_WEATHER
+#define USE_MANUAL_WEATHER
 
 //#define DEBUG
 
-#define ENABLE_USER_CONFIG
 #define ENABLE_USER_AUTH
 #define ENABLE_DATABASE
 
@@ -58,6 +57,10 @@
 #include "DFRobot_RainfallSensor.h"
 #endif
 
+#ifdef USE_MANUAL_WEATHER
+#include "SparkFun_Weather_Meter_Kit_Arduino_Library.h"
+#endif
+
 //PENTING ini ID DEVICE
 uint id = 4;
 
@@ -70,15 +73,15 @@ int ledPin = 2; // GPIO 2
 
 void processData(AsyncResult &aResult);
 
-DefaultNetwork network; // initilize with boolean parameter to enable/disable network reconnection
-UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
-FirebaseApp app;
+WiFiClientSecure ssl_client;
 
 using AsyncClient = AsyncClientClass;
+AsyncClient aClient(ssl_client);
 
-WiFiClientSecure ssl_client;
-AsyncClient aClient(ssl_client, getNetwork(network));
+UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
+FirebaseApp app;
 RealtimeDatabase Database;
+AsyncResult databaseResult;
 
 // Sensor SHT40, BMP280, MAX17048
 #ifdef USE_SHT31
