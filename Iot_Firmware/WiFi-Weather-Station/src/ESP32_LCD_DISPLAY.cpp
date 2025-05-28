@@ -27,6 +27,7 @@
 #include <WebServer.h>
 #include <WiFiClientSecure.h>
 #include <FirebaseClient.h>
+#include <HTTPClient.h>
 #include <Adafruit_MAX1704X.h>
 #include <ArduinoJson.h>
 #include <ElegantOTA.h>
@@ -59,17 +60,21 @@
 
 #ifdef USE_MANUAL_WEATHER
 #include "SparkFun_Weather_Meter_Kit_Arduino_Library.h"
+uint8_t windDirectionPin = 25;
+uint8_t windSpeedPin = 26;
+uint8_t rainfallPin = 27;
+SFEWeatherMeterKit weatherMeterKit(windDirectionPin, windSpeedPin, rainfallPin);
 #endif
 
 //PENTING ini ID DEVICE
-uint id = 4;
+uint8_t id = 4;
 
 // Delay with millis
 unsigned long lastTime = 0;
-unsigned long timerDelay = 60000; // Atur delay
+uint16_t timerDelay = 60000; // Atur delay
 
 // Pin dan LED indicator
-int ledPin = 2; // GPIO 2
+uint8_t ledPin = 2; // GPIO 2
 
 void processData(AsyncResult &aResult);
 
@@ -81,7 +86,6 @@ AsyncClient aClient(ssl_client);
 UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
 FirebaseApp app;
 RealtimeDatabase Database;
-AsyncResult databaseResult;
 
 // Sensor SHT40, BMP280, MAX17048
 #ifdef USE_SHT31
@@ -126,6 +130,10 @@ float rainFall = 0, //Total in One Day
       sensorWorkingTime = 0;
 // Variabel tiping bucket
 int rawData = 0;
+#endif
+#ifdef USE_MANUAL_WEATHER
+  float rainFall = 0, //Total in One Day
+        rainRate = 0, //Total in One Hour
 #endif
 
 // Fungsi untuk mengambil waktu epoch saat ini
@@ -204,6 +212,64 @@ void initSensors() {
     }
   // Set nilai awal curah hujan (unit: mm)
   Sensor.setRainAccumulatedValue(0.2794);
+#endif
+#ifdef USE_MANUAL_WEATHER
+    // Here we create a struct to hold all the calibration parameters
+    SFEWeatherMeterKitCalibrationParams calibrationParams = weatherMeterKit.getCalibrationParams();
+    
+    // The wind vane has 8 switches, but 2 could close at the same time, which
+    // results in 16 possible positions. Each position has a resistor connected
+    // to GND, so this library assumes a voltage divider is created by adding
+    // another resistor to VCC. Some of the wind vane resistor values are
+    // fairly close to each other, meaning an accurate ADC is required. However
+    // some ADCs have a non-linear behavior that causes this measurement to be
+    // inaccurate. To account for this, the vane resistor values can be manually
+    // changed here to compensate for the non-linear behavior of the ADC
+    calibrationParams.vaneADCValues[WMK_ANGLE_0_0] = 3143;
+    calibrationParams.vaneADCValues[WMK_ANGLE_22_5] = 1624;
+    calibrationParams.vaneADCValues[WMK_ANGLE_45_0] = 1845;
+    calibrationParams.vaneADCValues[WMK_ANGLE_67_5] = 335;
+    calibrationParams.vaneADCValues[WMK_ANGLE_90_0] = 372;
+    calibrationParams.vaneADCValues[WMK_ANGLE_112_5] = 264;
+    calibrationParams.vaneADCValues[WMK_ANGLE_135_0] = 738;
+    calibrationParams.vaneADCValues[WMK_ANGLE_157_5] = 506;
+    calibrationParams.vaneADCValues[WMK_ANGLE_180_0] = 1149;
+    calibrationParams.vaneADCValues[WMK_ANGLE_202_5] = 979;
+    calibrationParams.vaneADCValues[WMK_ANGLE_225_0] = 2520;
+    calibrationParams.vaneADCValues[WMK_ANGLE_247_5] = 2397;
+    calibrationParams.vaneADCValues[WMK_ANGLE_270_0] = 3780;
+    calibrationParams.vaneADCValues[WMK_ANGLE_292_5] = 3309;
+    calibrationParams.vaneADCValues[WMK_ANGLE_315_0] = 3548;
+    calibrationParams.vaneADCValues[WMK_ANGLE_337_5] = 2810;
+
+    // The rainfall detector contains a small cup that collects rain water. When
+    // the cup fills, the water is dumped and the total rainfall is incremented
+    // by some value. This value defaults to 0.2794mm of rain per count, as
+    // specified by the datasheet
+    calibrationParams.mmPerRainfallCount = 0.2794;
+
+    // The rainfall detector switch can sometimes bounce, causing multiple extra
+    // triggers. This input is debounced by ignoring extra triggers within a
+    // time window, which defaults to 100ms
+    calibrationParams.minMillisPerRainfall = 100;
+
+    // The anemometer contains a switch that opens and closes as it spins. The
+    // rate at which the switch closes depends on the wind speed. The datasheet
+    // states that a wind of 2.4kph causes the switch to close once per second
+    calibrationParams.kphPerCountPerSec = 2.4;
+
+    // Because the anemometer generates discrete pulses as it rotates, it's not
+    // possible to measure the wind speed exactly at any point in time. A filter
+    // is implemented in the library that averages the wind speed over a certain
+    // time period, which defaults to 1 second. Longer intervals result in more
+    // accurate measurements, but cause delay in the measurement
+    calibrationParams.windSpeedMeasurementPeriodMillis = 1000;
+
+    // Now we can set all the calibration parameters at once
+    weatherMeterKit.setCalibrationParams(calibrationParams);
+
+    // Begin weather meter kit
+    weatherMeterKit.begin();
 #endif
 }
 
@@ -306,6 +372,12 @@ void updateSensorData() {
   rainFall = Sensor.getRainfall(24);          
   //rawData = Sensor.getRawData();   
 #endif
+#ifdef USE_MANUAL_WEATHER
+  windDirection = weatherMeterKit.getWindDirection();
+  windSpeed = weatherMeterKit.getWindSpeed();
+  rainRate =weatherMeterKit.getTotalRainfall();
+#endif
+
 }
 
 #ifdef USE_LCD
@@ -390,6 +462,79 @@ void processData(AsyncResult &aResult)
         Firebase.printf("task: %s, payload: %s\n", aResult.uid().c_str(), aResult.c_str());
     }
 }
+
+void Windy() {
+  const char* windy_ca= \
+    "-----BEGIN CERTIFICATE-----\n" \
+  "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\n"\
+  "-----END CERTIFICATE-----\n" ;
+  
+        WiFiClientSecure client;
+        client.setCACert(windy_ca);
+        HTTPClient https;
+  
+        String serverPath = "https://stations.windy.com/pws/update/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaSI6MTM4MDQwODUsImlhdCI6MTcyNjc2MjI0M30.RQE7e9Qzy6rhAm6EOy577poYuNdKCN05k03bKaEKejA?";
+        serverPath += "temp=" + String(temperature); //suhu (Celcius)
+        serverPath += "&humidity=" + String(humidity); //kelembapan (Persen)
+        serverPath += "&mbar=" + String(pressure); //tekanan (hPa)
+        serverPath += "&dewpoint=" + String(dewPoint); //titik embun (Celcius)
+        serverPath += "&wind=" + String(5); //kecepatan angin (m/s)
+        serverPath += "&winddir=" + String(0); //arah angin (derajat)
+        #ifdef USE_RAINFALL_SENSOR
+        serverPath += "&precip=" + String(rainRate); //curah hujan (mm) tiap jam
+        #endif
+        serverPath += "&station=" + String(id); //ID Station
+        
+        https.addHeader("Content-Type", "text/plain");
+        https.begin(client, serverPath.c_str());
+  
+        // Send HTTP GET request
+        int ResponseCode = https.GET();
+        
+        if (ResponseCode>0) {
+          Serial.print("Windy Response code: ");
+          Serial.println(ResponseCode);
+          //String payload = https.getString();
+          //Serial.println(payload);
+        }
+        else {
+          Serial.print("Windy Error code: ");
+          Serial.println(ResponseCode);
+        }
+        // Free resources
+        //Serial.println(serverPath);
+        https.end();
+  }
+
+
 /*
 void handleRoot() {
   String html = R"rawliteral(
@@ -580,7 +725,6 @@ unsigned int checkStatusNext;
 
 void loop() {
   app.loop();
-  Database.loop();
   server.handleClient();
   ElegantOTA.loop();
   if (checkStatusNext<=millis() && WiFi.status() !=WL_CONNECTED) {
@@ -602,6 +746,8 @@ void loop() {
 
     // Kirim data ke Firebase
     FirebaseData();
+
+    Windy();
 
     #ifdef DEBUG
     // Cetak data ke serial
