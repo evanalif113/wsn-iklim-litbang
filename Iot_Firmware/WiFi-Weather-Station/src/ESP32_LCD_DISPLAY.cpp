@@ -17,7 +17,7 @@
 //#define USE_RAINFALL_SENSOR
 #define USE_MANUAL_WEATHER
 
-#define ENBALE_WINDY
+#define ENABLE_WINDY
 
 //#define DEBUG
 
@@ -465,7 +465,7 @@ void processData(AsyncResult &aResult)
     }
 }
 
-#ifdef ENBALE_WINDY
+#ifdef ENABLE_WINDY
 void Windy() {
   const char* windy_ca= \
     "-----BEGIN CERTIFICATE-----\n" \
@@ -751,7 +751,7 @@ void loop() {
     // Kirim data ke Firebase
     FirebaseData();
 
-    #ifdef ENBALE_WINDY
+    #ifdef ENABLE_WINDY
     Windy();
     #endif
 
