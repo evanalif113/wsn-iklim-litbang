@@ -17,6 +17,8 @@
 //#define USE_RAINFALL_SENSOR
 #define USE_MANUAL_WEATHER
 
+#define ENBALE_WINDY
+
 //#define DEBUG
 
 #define ENABLE_USER_AUTH
@@ -463,6 +465,7 @@ void processData(AsyncResult &aResult)
     }
 }
 
+#ifdef ENBALE_WINDY
 void Windy() {
   const char* windy_ca= \
     "-----BEGIN CERTIFICATE-----\n" \
@@ -533,6 +536,7 @@ void Windy() {
         //Serial.println(serverPath);
         https.end();
   }
+#endif
 
 
 /*
@@ -747,7 +751,9 @@ void loop() {
     // Kirim data ke Firebase
     FirebaseData();
 
+    #ifdef ENBALE_WINDY
     Windy();
+    #endif
 
     #ifdef DEBUG
     // Cetak data ke serial
