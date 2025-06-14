@@ -17,7 +17,7 @@
 //#define USE_RAINFALL_SENSOR
 #define USE_MANUAL_WEATHER
 
-#define ENABLE_WINDY
+//#define ENABLE_WINDY
 
 //#define DEBUG
 
@@ -135,7 +135,7 @@ int rawData = 0;
 #endif
 #ifdef USE_MANUAL_WEATHER
   float rainFall = 0, //Total in One Day
-        rainRate = 0, //Total in One Hour
+        rainRate = 0; //Total in One Hour
 #endif
 
 // Fungsi untuk mengambil waktu epoch saat ini

@@ -3,6 +3,8 @@
   @date 2024
   @version 4.4
 *********/
+#define ENABLE_USER_AUTH
+#define ENABLE_DATABASE
 
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -25,15 +27,12 @@ const char* ntpServer2 = "pool.ntp.org";
 
 void processData(AsyncResult &aResult);
 
-DefaultNetwork network;
 UserAuth user_auth(API_KEY, USER_EMAIL, USER_PASSWORD);
 
-// In case use Deafult Network
 WiFiClientSecure ssl_client;
 
-// In case use Default WiFi Network
 using AsyncClient = AsyncClientClass;
-AsyncClient aClient(ssl_client, getNetwork(network));
+AsyncClient aClient(ssl_client);
 FirebaseApp app;
 RealtimeDatabase Database;
 
